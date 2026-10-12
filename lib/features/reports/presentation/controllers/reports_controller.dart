@@ -4,8 +4,7 @@ import '../../domain/report_models.dart';
 
 /// Controlador de reportes asincronos sin bloqueo de pantalla.
 class ReportsController extends ChangeNotifier {
-  ReportsController({required ReportsRepository repository})
-      : _repository = repository {
+  ReportsController({required this._repository}) {
     loadJobs();
   }
 

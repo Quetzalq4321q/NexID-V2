@@ -4,8 +4,7 @@ import '../../domain/place_model.dart';
 
 /// Coordinador de lugar activo para el operador segun agent/17_MODULOS_FLUJOS.md.
 class PlacesController extends ChangeNotifier {
-  PlacesController({required PlacesRepository repository})
-      : _repository = repository {
+  PlacesController({required this._repository}) {
     _loadPlaces();
   }
 

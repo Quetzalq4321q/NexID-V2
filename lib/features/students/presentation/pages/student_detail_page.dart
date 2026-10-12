@@ -5,11 +5,11 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../shared/utils/date_formatter.dart';
 import '../../../../shared/widgets/avatar_placeholder.dart';
-import '../../../../shared/widgets/primary_button.dart';
-import '../../../../shared/widgets/secondary_button.dart';
-import '../../../../shared/widgets/status_badge.dart';
 import '../../../reading/domain/credential_models.dart';
 import '../../../records/domain/record_models.dart';
+import '../widgets/projection_badge_banner.dart';
+import '../widgets/student_action_buttons.dart';
+import '../widgets/student_field_card.dart';
 import 'student_edit_page.dart';
 
 /// Pantalla 3: Ficha de alumno con proyeccion autorizada segun agent/13_NFC_QR.md.
@@ -105,43 +105,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Banner de proyeccion (NFC vs QR)
-                Container(
-                  padding: const EdgeInsets.all(AppDimensions.spaceMedium),
-                  decoration: BoxDecoration(
-                    color: cred.isFullProjection
-                        ? AppColors.surfaceAccent
-                        : AppColors.surface,
-                    borderRadius: BorderRadius.circular(AppDimensions.radius),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        cred.isFullProjection
-                            ? Icons.verified_user_outlined
-                            : Icons.visibility_outlined,
-                        color: AppColors.textPrimary,
-                        size: 20,
-                      ),
-                      const SizedBox(width: AppDimensions.spaceSmall),
-                      Expanded(
-                        child: Text(
-                          cred.isFullProjection
-                              ? 'Ficha Completa Autorizada (Lectura NFC)'
-                              : 'Proyeccion Parcial Restringida (Lectura QR)',
-                          style: AppTypography.bodySmall.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                      StatusBadge(
-                        label: cred.visibility.label,
-                        type: BadgeType.info,
-                      ),
-                    ],
-                  ),
-                ),
+                ProjectionBadgeBanner(credential: cred),
                 const SizedBox(height: AppDimensions.spaceLarge),
 
                 // Perfil principal
@@ -180,21 +144,24 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                 const SizedBox(height: AppDimensions.spaceLarge),
 
                 // Campos de detalle
-                _buildFieldCard('Estado Academico', cred.status),
+                StudentFieldCard(label: 'Estado Academico', value: cred.status),
                 if (cred.isFullProjection && cred.faculty != null)
-                  _buildFieldCard('Facultad', cred.faculty!),
+                  StudentFieldCard(label: 'Facultad', value: cred.faculty!),
                 if (cred.isFullProjection && cred.documentNumber != null)
-                  _buildFieldCard('Documento de Identidad', cred.documentNumber!)
+                  StudentFieldCard(
+                    label: 'Documento de Identidad',
+                    value: cred.documentNumber!,
+                  )
                 else if (!cred.isFullProjection)
-                  _buildFieldCard(
-                    'Documento de Identidad',
-                    'Oculto por politica de modalidad QR',
+                  const StudentFieldCard(
+                    label: 'Documento de Identidad',
+                    value: 'Oculto por politica de modalidad QR',
                     isDimmed: true,
                   ),
 
-                _buildFieldCard(
-                  'Ultima Resolucion',
-                  DateFormatter.formatDateTime(cred.resolvedAt),
+                StudentFieldCard(
+                  label: 'Ultima Resolucion',
+                  value: DateFormatter.formatDateTime(cred.resolvedAt),
                 ),
 
                 const SizedBox(height: AppDimensions.spaceLarge),
@@ -226,69 +193,15 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                   style: AppTypography.caption,
                 ),
                 const SizedBox(height: AppDimensions.spaceSmall),
-                Row(
-                  children: [
-                    Expanded(
-                      child: PrimaryButton(
-                        label: 'Registrar Ingreso',
-                        icon: Icons.login,
-                        isLoading: _isRegistering,
-                        onPressed: () => _handleRegisterEvent(
-                          context,
-                          EventType.entrada,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: AppDimensions.spaceMedium),
-                    Expanded(
-                      child: SecondaryButton(
-                        label: 'Registrar Salida',
-                        icon: Icons.logout,
-                        onPressed: () => _handleRegisterEvent(
-                          context,
-                          EventType.salida,
-                        ),
-                      ),
-                    ),
-                  ],
+                StudentActionButtons(
+                  isRegistering: _isRegistering,
+                  onRegister: (EventType type) =>
+                      _handleRegisterEvent(context, type),
                 ),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildFieldCard(String label, String value, {bool isDimmed = false}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppDimensions.spaceSmall),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.spaceMedium,
-        vertical: 12.0,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppDimensions.radius),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: AppTypography.bodySmall),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: AppTypography.bodyMedium.copyWith(
-                fontWeight: FontWeight.w600,
-                color: isDimmed
-                    ? AppColors.textSecondary
-                    : AppColors.textPrimary,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -4,8 +4,7 @@ import '../../domain/upload_models.dart';
 
 /// Controlador de subida de archivos y seguimiento del progreso.
 class UploadsController extends ChangeNotifier {
-  UploadsController({required UploadsRepository repository})
-      : _repository = repository;
+  UploadsController({required this._repository});
 
   final UploadsRepository _repository;
   final List<UploadFileItem> _items = [];

@@ -1,6 +1,20 @@
 # Changelog
 
 ## Unreleased
+### 2026-10-12 — VIS-B (Adaptabilidad e Interfaces Responsivas)
+- Cambio: Correccion integral de excepciones `RenderFlex overflow` en pantallas compactas y extremas (360px y 320px).
+- Modulos y componentes intervenidos:
+  - `primary_button.dart` y `secondary_button.dart`: proteccion de texto con `Flexible` y elipsis.
+  - `capture_mode_selector.dart`: etiquetas concisas (`NFC Completo` y `QR Parcial`).
+  - `app_shell.dart`: badge responsivo de operador (`maxWidth` adaptativo <360px) y titulo flexible. Desacople de `StudentsPage` (<210 lineas).
+  - `records_page.dart`: `Expanded` en encabezado y medio de lectura.
+  - `status_badge.dart`: restriccion `maxWidth: 135.0` con elipsis interna.
+  - `reports_page.dart`: selector con `Wrap`, boton conciso y desacople de `ReportJobCard` (<176 lineas).
+  - `uploads_page.dart`: botones apilados con `LayoutBuilder` y desacople de `UploadItemCard` (<201 lineas).
+  - `student_detail_page.dart`: desacople de `StudentActionButtons`, `StudentFieldCard` y `ProjectionBadgeBanner` (<208 lineas).
+- Regla no-monolitos: El 100% de los archivos de `lib/` ahora se mantiene estrictamente por debajo de 250 lineas.
+- Pruebas: Verificado al 100% con `flutter test` (3 tests ejecutados con exito en 360x780 y 320x640) y `flutter analyze` (0 advertencias).
+
 ### 2026-10-11 — VIS-A / FUN-1 (Version 0.0.0+1)
 - Cambio: Creacion e implementacion completa de la arquitectura y diseno local de la aplicacion en Flutter (Dart) y capa nativa Android (Kotlin), evitando Java y monolitos.
 - Modulos implementados: `session` (login con perfiles de operador y roles), `places` (selector de puntos de control), `reading` (coordinador de captura NFC con proyeccion completa y QR con proyeccion parcial restringida), `students` (ficha y edicion autorizada), `records` (registro de ingreso/salida y filtrado por estado), `uploads` (validacion de fotos <2MB y formatos permitidos), `reports` (solicitud asincrona y descarga) y `sync` (simulador de cola outbox y banner de sincronizacion).

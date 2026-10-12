@@ -33,7 +33,7 @@ class SecondaryButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppDimensions.radius),
                 ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimensions.spaceLarge,
+                  horizontal: AppDimensions.spaceMedium,
                 ),
               ),
               child: _buildContent(),
@@ -48,7 +48,7 @@ class SecondaryButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppDimensions.radius),
                 ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimensions.spaceLarge,
+                  horizontal: AppDimensions.spaceMedium,
                 ),
               ),
               child: _buildContent(),
@@ -65,10 +65,14 @@ class SecondaryButton extends StatelessWidget {
           Icon(icon, size: 20, color: AppColors.textPrimary),
           const SizedBox(width: AppDimensions.spaceSmall),
         ],
-        Text(
-          label,
-          style: AppTypography.buttonText.copyWith(
-            color: AppColors.textPrimary,
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.buttonText.copyWith(
+              color: AppColors.textPrimary,
+            ),
           ),
         ),
       ],

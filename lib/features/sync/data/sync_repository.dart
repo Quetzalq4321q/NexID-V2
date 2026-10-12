@@ -5,8 +5,7 @@ import '../domain/sync_models.dart';
 /// Repositorio de sincronizacion y outbox segun agent/21_COLA_5_SEGUNDOS.md.
 /// Simula la cola de dos pasadas e intervalos de 5 segundos.
 class SyncRepository {
-  SyncRepository({required RecordsRepository recordsRepository})
-      : _recordsRepository = recordsRepository;
+  SyncRepository({required this._recordsRepository});
 
   final RecordsRepository _recordsRepository;
   DateTime _lastSyncTime = DateTime.now();

@@ -13,8 +13,7 @@ enum CaptureState {
 
 /// Controlador de captura y coordinacion de lectura NFC/QR.
 class ReadingController extends ChangeNotifier {
-  ReadingController({required ReadingRepository repository})
-      : _repository = repository;
+  ReadingController({required this._repository});
 
   final ReadingRepository _repository;
 
@@ -24,8 +23,8 @@ class ReadingController extends ChangeNotifier {
   String? _errorMessage;
 
   // Estados de hardware y permisos
-  bool _isNfcAvailable = true;
-  bool _isCameraPermissionGranted = true;
+  final bool _isNfcAvailable = true;
+  final bool _isCameraPermissionGranted = true;
 
   ReadingMedium get selectedMedium => _selectedMedium;
   CaptureState get captureState => _captureState;

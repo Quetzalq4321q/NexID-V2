@@ -54,7 +54,7 @@ class RecordsPage extends StatelessWidget {
                                 AppDimensions.spaceLarge,
                               ),
                               itemCount: records.length,
-                              separatorBuilder: (_, __) => const SizedBox(
+                              separatorBuilder: (_, _) => const SizedBox(
                                 height: AppDimensions.spaceSmall,
                               ),
                               itemBuilder: (BuildContext context, int index) {
@@ -129,13 +129,18 @@ class RecordsPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${record.eventType.label} · ${DateFormatter.formatDateTime(record.timestamp)}',
-                style: AppTypography.caption.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+              Expanded(
+                child: Text(
+                  '${record.eventType.label} · ${DateFormatter.formatDateTime(record.timestamp)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.caption.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
+              const SizedBox(width: AppDimensions.spaceSmall),
               StatusBadge(
                 label: record.syncStatus.label,
                 type: badgeType,
@@ -163,9 +168,13 @@ class RecordsPage extends StatelessWidget {
                 color: AppColors.textSecondary,
               ),
               const SizedBox(width: 4),
-              Text(
-                record.medium.label,
-                style: AppTypography.caption,
+              Expanded(
+                child: Text(
+                  record.medium.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.caption,
+                ),
               ),
             ],
           ),

@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
-import '../../../../shared/utils/date_formatter.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/primary_button.dart';
-import '../../../../shared/widgets/status_badge.dart';
 import '../../../places/presentation/controllers/places_controller.dart';
 import '../../domain/report_models.dart';
 import '../controllers/reports_controller.dart';
+import '../widgets/report_job_card.dart';
 
 /// Pantalla 6: Generacion asincrona y descarga de reportes.
 class ReportsPage extends StatefulWidget {
@@ -97,13 +96,15 @@ class _ReportsPageState extends State<ReportsPage> {
                             ),
                           ),
                           const SizedBox(height: AppDimensions.spaceMedium),
-                          Row(
+                          Wrap(
+                            spacing: AppDimensions.spaceSmall,
+                            runSpacing: AppDimensions.spaceSmall,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               const Text(
                                 'Formato:',
                                 style: AppTypography.bodySmall,
                               ),
-                              const SizedBox(width: AppDimensions.spaceMedium),
                               ChoiceChip(
                                 label: const Text('PDF'),
                                 selected: _selectedFormat == 'PDF',
@@ -116,7 +117,6 @@ class _ReportsPageState extends State<ReportsPage> {
                                 onSelected: (_) =>
                                     setState(() => _selectedFormat = 'PDF'),
                               ),
-                              const SizedBox(width: AppDimensions.spaceSmall),
                               ChoiceChip(
                                 label: const Text('CSV'),
                                 selected: _selectedFormat == 'CSV',
@@ -133,7 +133,7 @@ class _ReportsPageState extends State<ReportsPage> {
                           ),
                           const SizedBox(height: AppDimensions.spaceLarge),
                           PrimaryButton(
-                            label: 'Generar Reporte en Segundo Plano',
+                            label: 'Generar Reporte',
                             icon: Icons.assignment_outlined,
                             onPressed: _onRequestJob,
                           ),
@@ -158,10 +158,10 @@ class _ReportsPageState extends State<ReportsPage> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: jobs.length,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (_, _) =>
                             const SizedBox(height: AppDimensions.spaceSmall),
                         itemBuilder: (BuildContext context, int index) {
-                          return _buildJobCard(jobs[index]);
+                          return ReportJobCard(job: jobs[index]);
                         },
                       ),
                   ],
@@ -171,75 +171,6 @@ class _ReportsPageState extends State<ReportsPage> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildJobCard(ReportJob job) {
-    final BadgeType badgeType = switch (job.status) {
-      ReportStatus.queued => BadgeType.pending,
-      ReportStatus.processing => BadgeType.info,
-      ReportStatus.completed => BadgeType.confirmed,
-      ReportStatus.failed => BadgeType.review,
-    };
-
-    return Container(
-      padding: const EdgeInsets.all(AppDimensions.spaceMedium),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppDimensions.radius),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${job.format} · ${DateFormatter.formatDateTime(job.createdAt)}',
-                style: AppTypography.caption,
-              ),
-              StatusBadge(
-                label: job.status.label,
-                type: badgeType,
-              ),
-            ],
-          ),
-          const SizedBox(height: AppDimensions.spaceSmall),
-          Text(
-            job.title,
-            style: AppTypography.bodyMedium.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          Text(
-            'Filtro: ${job.filterPlace}',
-            style: AppTypography.bodySmall,
-          ),
-          if (job.status == ReportStatus.completed) ...[
-            const SizedBox(height: AppDimensions.spaceMedium),
-            SizedBox(
-              height: 36,
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.download_outlined, size: 16),
-                label: const Text('Descargar Archivo'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
-                ),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Descargando ${job.title}...'),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ],
-      ),
     );
   }
 }

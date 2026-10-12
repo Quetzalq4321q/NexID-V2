@@ -6,9 +6,11 @@
 - Hecho: kit modular de Markdown con modelo de datos, API propuesta, archivos, flujo móvil y plan de servidor.
 - Pendiente: tipo NFC/formato, significado de registro, campos/roles, subdominio y versiones/capacidades PHP/MariaDB/cron; consultar 04_PRODUCTO.md.
 - Marca: azul #1D4ED8, morado #DDD6FE, Roboto, assets en archivos, cero emojis.
-- Versión prevista de app: 0.0.0; cambios en Unreleased. No hay app ni servidor ejecutados.
-- Autorización: actualización del diseño documental. No se modificaron permisos, infraestructura, BD ni sitio Nexlabs.
-- Próxima acción: confirmar los pendientes que bloquean integración; después crear código local por incrementos.
+- Versión prevista de app: 0.0.0; cambios en Unreleased (VIS-A y VIS-B completados).
+- Estado UI: 100% libre de RenderFlex overflow, interfaces adaptables (LayoutBuilder, Wrap, Flexible, Expanded), verificado con pruebas de 360px y 320px. 0 warnings en flutter analyze.
+- Regla no-monolitos: 100% cumplida (<250 líneas por archivo, funciones <40 líneas).
+- Servidor / backend: sin intervenir aún (modo 100% local según requerimiento del usuario).
+- Próxima acción: acordar integración de servidor PHP y base de datos MariaDB remota cuando el usuario lo disponga.
 - Historial: CHANGELOG.md; detalles de esta actualización en changes/DOC-NEXLABS-001.md.
 
 Mantener este archivo corto. No copiar toda la conversación ni releer todos los documentos al retomar.

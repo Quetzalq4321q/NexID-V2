@@ -4,8 +4,7 @@ import '../../domain/session_models.dart';
 
 /// Controlador de sesion basado en ChangeNotifier del SDK (agent/02_ARQUITECTURA.md).
 class SessionController extends ChangeNotifier {
-  SessionController({required SessionRepository repository})
-      : _repository = repository {
+  SessionController({required this._repository}) {
     _state = _repository.getCurrentSession();
   }
 

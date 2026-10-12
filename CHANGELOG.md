@@ -8,6 +8,50 @@ El proyecto utiliza versionado semántico formal (`MAJOR.MINOR.PATCH+BUILD`) a p
 
 ## [Unreleased]
 
+### [VIS-B] Corrección Integral de Desbordamientos Visuales y Adaptabilidad Multi-Pantalla
+- **Fecha:** 2026-10-12
+- **Categoría:** Visual / Adaptabilidad / Responsive
+- **Estado:** Implementado y Verificado
+- **Solicitud del usuario:**
+  - Corregir y adaptar todas las interfaces visuales según `/plan` para eliminar excepciones de desbordamiento `RenderFlex overflow` observadas en pruebas reales en dispositivos móviles (360px y 320px).
+  - Mantener estricto apego al contrato de diseño (`agent/03_DISENO.md`), adaptabilidad (`agent/08_ADAPTABILIDAD.md`) y no monolitos (archivos <250 líneas, funciones <40 líneas).
+  - Preservar la ejecución 100% local sin intervenir en el backend ni en el servidor PHP.
+
+- **Razonamiento y Solución:**
+  - Los botones de acción en filas horizontales fijas (`Row`) desbordaban los contenedores en pantallas de menos de 420 px al forzar dos botones con iconos en menos de 160 px de ancho cada uno. Se implementó `LayoutBuilder` apilando verticalmente en pantallas compactas y horizontalmente en tablets/desktop.
+  - En tarjetas de historial (`RecordsPage`, `ReportsPage`, `UploadsPage`), los textos de encabezado estaban colocados junto a `StatusBadge` en `Row(mainAxisAlignment: spaceBetween)` sin envolver en `Expanded` con elipsis, lo que desbordaba el ancho de la tarjeta cuando los textos o estados eran extensos (como `'Confirmado por servidor'`).
+  - `StatusBadge` ahora incorpora restricción responsiva `maxWidth` (135 px por defecto) y elipsis interna de texto.
+  - `PrimaryButton` y `SecondaryButton` protegen sus etiquetas internas con `Flexible(child: Text(..., maxLines: 1, overflow: TextOverflow.ellipsis))`.
+  - El selector de formatos de reportes se transformó de `Row` a `Wrap(spacing: 8, runSpacing: 8)`.
+  - El AppBar de `AppShell` ahora adapta el ancho del badge del operador según el ancho de pantalla (`maxWidth: isCompact ? (width < 360 ? 75.0 : 135.0) : 220.0`) y envuelve el título en `Flexible` para garantizar cero desbordamientos incluso en dispositivos ultraestrechos de 320 px.
+  - Se eliminaron todos los conatos de código monolítico extrayendo componentes dedicados: `StudentsPage` (210 lín en AppShell), `ReportJobCard` (176 lín en ReportsPage), `UploadItemCard` (201 lín en UploadsPage), `StudentActionButtons`, `StudentFieldCard` y `ProjectionBadgeBanner` (208 lín en StudentDetailPage). El 100% de los archivos de `lib/` ahora cumple con el límite de <250 líneas.
+
+- **Lógica anterior:**
+  - `Row` rígidos en botones y encabezados sin restricciones de flexión ni elipsis, causando excepciones `RenderFlex overflowed by ... pixels` en anchos reducidos.
+- **Lógica nueva:**
+  - Interfaces fluidas y adaptables mediante `LayoutBuilder`, `Wrap`, `Expanded`, `Flexible` y `ConstrainedBox`, verificadas con pruebas automáticas sin un solo error de renderizado.
+
+- **Archivos creados:**
+  - `lib/features/students/presentation/pages/students_page.dart`: Página dedicada para el directorio de alumnos.
+  - `lib/features/students/presentation/widgets/student_action_buttons.dart`: Botones de acción adaptables para registro.
+  - `lib/features/students/presentation/widgets/student_field_card.dart`: Tarjeta de campo con flex adaptativo.
+  - `lib/features/students/presentation/widgets/projection_badge_banner.dart`: Banner de nivel de proyección de credencial.
+  - `lib/features/reports/presentation/widgets/report_job_card.dart`: Tarjeta desacoplada de trabajos de reporte.
+  - `lib/features/uploads/presentation/widgets/upload_item_card.dart`: Tarjeta desacoplada de subidas de archivo.
+
+- **Archivos modificados:**
+  - `lib/shared/widgets/primary_button.dart`
+  - `lib/shared/widgets/secondary_button.dart`
+  - `lib/shared/widgets/status_badge.dart`
+  - `lib/app/app_shell.dart`
+  - `lib/features/reading/presentation/widgets/capture_mode_selector.dart`
+  - `lib/features/records/presentation/pages/records_page.dart`
+  - `lib/features/reports/presentation/pages/reports_page.dart`
+  - `lib/features/students/presentation/pages/student_detail_page.dart`
+  - `lib/features/uploads/presentation/pages/uploads_page.dart`
+  - `test/widget_test.dart`
+
+
 ---
 
 ## [0.0.0+1] - 2026-10-11

@@ -29,7 +29,7 @@ class CaptureModeSelector extends StatelessWidget {
           Expanded(
             child: _buildOption(
               medium: ReadingMedium.nfc,
-              label: 'NFC Ficha Completa',
+              label: 'NFC Completo',
               icon: Icons.nfc_outlined,
             ),
           ),
@@ -37,7 +37,7 @@ class CaptureModeSelector extends StatelessWidget {
           Expanded(
             child: _buildOption(
               medium: ReadingMedium.qr,
-              label: 'QR Proyeccion Parcial',
+              label: 'QR Parcial',
               icon: Icons.qr_code_scanner_outlined,
             ),
           ),

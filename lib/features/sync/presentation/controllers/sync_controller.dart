@@ -4,8 +4,7 @@ import '../../domain/sync_models.dart';
 
 /// Controlador del proceso de sincronizacion y estado de la cola.
 class SyncController extends ChangeNotifier {
-  SyncController({required SyncRepository repository})
-      : _repository = repository {
+  SyncController({required this._repository}) {
     refreshStats();
   }
 

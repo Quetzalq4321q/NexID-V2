@@ -7,9 +7,9 @@ import '../features/reading/presentation/pages/reading_page.dart';
 import '../features/records/presentation/pages/records_page.dart';
 import '../features/reports/presentation/pages/reports_page.dart';
 import '../features/session/domain/session_models.dart';
+import '../features/students/presentation/pages/students_page.dart';
 import '../features/sync/presentation/widgets/sync_status_banner.dart';
 import '../features/uploads/presentation/pages/uploads_page.dart';
-import '../shared/widgets/avatar_placeholder.dart';
 import 'app_dependencies.dart';
 
 /// Contenedor principal de la aplicacion con navegacion adaptable.
@@ -33,6 +33,7 @@ class _AppShellState extends State<AppShell> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 32,
@@ -48,25 +49,40 @@ class _AppShellState extends State<AppShell> {
               ),
             ),
             const SizedBox(width: AppDimensions.spaceSmall),
-            const Text('NexID', style: AppTypography.titleMedium),
+            const Flexible(
+              child: Text(
+                'NexID',
+                style: AppTypography.titleMedium,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
         actions: [
           if (user != null) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimensions.spaceSmall + 2,
-                vertical: 4.0,
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isCompact
+                    ? (MediaQuery.sizeOf(context).width < 360 ? 75.0 : 135.0)
+                    : 220.0,
               ),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceAccent,
-                borderRadius: BorderRadius.circular(6.0),
-              ),
-              child: Text(
-                '${user.displayName} (${user.role.label})',
-                style: AppTypography.caption.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimensions.spaceSmall,
+                  vertical: 4.0,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceAccent,
+                  borderRadius: BorderRadius.circular(6.0),
+                ),
+                child: Text(
+                  '${user.displayName} (${user.role.label})',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.caption.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
             ),
@@ -179,7 +195,7 @@ class _AppShellState extends State<AppShell> {
           placesController: deps.placesController,
         ),
       1 => RecordsPage(controller: deps.recordsController),
-      2 => _buildStudentsDirectory(deps),
+      2 => StudentsPage(controller: deps.studentsController),
       3 => ReportsPage(
           reportsController: deps.reportsController,
           placesController: deps.placesController,
@@ -190,81 +206,5 @@ class _AppShellState extends State<AppShell> {
           placesController: deps.placesController,
         ),
     };
-  }
-
-  Widget _buildStudentsDirectory(AppDependencies deps) {
-    return ListenableBuilder(
-      listenable: deps.studentsController,
-      builder: (BuildContext context, _) {
-        final students = deps.studentsController.students;
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: Padding(
-            padding: const EdgeInsets.all(AppDimensions.spaceLarge),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextField(
-                  decoration: const InputDecoration(
-                    hintText: 'Buscar por nombre, codigo o carrera...',
-                    prefixIcon: Icon(Icons.search),
-                  ),
-                  onChanged: (String val) {
-                    deps.studentsController.setSearchQuery(val);
-                  },
-                ),
-                const SizedBox(height: AppDimensions.spaceMedium),
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: students.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: AppDimensions.spaceSmall),
-                    itemBuilder: (BuildContext context, int index) {
-                      final student = students[index];
-                      return Container(
-                        padding:
-                            const EdgeInsets.all(AppDimensions.spaceMedium),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius:
-                              BorderRadius.circular(AppDimensions.radius),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Row(
-                          children: [
-                            AvatarPlaceholder(
-                              name: student.fullName,
-                              size: 48,
-                            ),
-                            const SizedBox(width: AppDimensions.spaceMedium),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    student.fullName,
-                                    style: AppTypography.bodyMedium.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${student.code} · ${student.career}',
-                                    style: AppTypography.bodySmall,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 }

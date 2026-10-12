@@ -4,8 +4,7 @@ import '../../domain/student_models.dart';
 
 /// Controlador para la gestion de alumnos en la interfaz.
 class StudentsController extends ChangeNotifier {
-  StudentsController({required StudentsRepository repository})
-      : _repository = repository {
+  StudentsController({required this._repository}) {
     loadStudents();
   }
 

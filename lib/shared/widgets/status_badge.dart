@@ -17,10 +17,12 @@ class StatusBadge extends StatelessWidget {
     super.key,
     required this.label,
     this.type = BadgeType.info,
+    this.maxWidth = 135.0,
   });
 
   final String label;
   final BadgeType type;
+  final double? maxWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +45,7 @@ class StatusBadge extends StatelessWidget {
         ),
     };
 
-    return Container(
+    Widget badge = Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimensions.spaceSmall + 2,
         vertical: 4.0,
@@ -58,11 +60,22 @@ class StatusBadge extends StatelessWidget {
       ),
       child: Text(
         label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: AppTypography.caption.copyWith(
           color: textColor,
           fontWeight: FontWeight.w600,
         ),
       ),
     );
+
+    if (maxWidth != null) {
+      badge = ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth!),
+        child: badge,
+      );
+    }
+
+    return badge;
   }
 }

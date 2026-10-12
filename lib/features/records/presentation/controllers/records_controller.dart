@@ -5,8 +5,7 @@ import '../../domain/record_models.dart';
 
 /// Controlador para la gestion de registros y filtrado.
 class RecordsController extends ChangeNotifier {
-  RecordsController({required RecordsRepository repository})
-      : _repository = repository {
+  RecordsController({required this._repository}) {
     loadRecords();
   }
 

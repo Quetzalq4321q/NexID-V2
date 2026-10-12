@@ -35,7 +35,7 @@ class PrimaryButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppDimensions.radius),
           ),
           padding: const EdgeInsets.symmetric(
-            horizontal: AppDimensions.spaceLarge,
+            horizontal: AppDimensions.spaceMedium,
           ),
         ),
         child: isLoading
@@ -55,9 +55,13 @@ class PrimaryButton extends StatelessWidget {
                     Icon(icon, size: 20, color: AppColors.background),
                     const SizedBox(width: AppDimensions.spaceSmall),
                   ],
-                  Text(
-                    label,
-                    style: AppTypography.buttonText,
+                  Flexible(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.buttonText,
+                    ),
                   ),
                 ],
               ),

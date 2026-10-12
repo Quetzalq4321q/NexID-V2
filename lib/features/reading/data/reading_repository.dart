@@ -49,7 +49,7 @@ class ReadingRepository {
     // Simulacion de latencia local
     await Future<void>.delayed(const Duration(milliseconds: 350));
 
-    final Map<String, dynamic>? data = _mockDatabase[token] ??
+    final Map<String, dynamic> data = _mockDatabase[token] ??
         {
           'studentId': 'STU-GEN-${token.hashCode.abs() % 1000}',
           'studentCode': '2024-${token.hashCode.abs() % 9000}',
@@ -70,7 +70,7 @@ class ReadingRepository {
       visibility: isNfc
           ? ProjectionVisibility.full
           : ProjectionVisibility.partial,
-      studentId: data!['studentId'] as String,
+      studentId: data['studentId'] as String,
       studentCode: data['studentCode'] as String,
       studentName: data['studentName'] as String,
       career: data['career'] as String,
