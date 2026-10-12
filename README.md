@@ -98,3 +98,10 @@ Consulte el archivo dedicado [`BRANDING.md`](file:///c:/Users/User/StudioProject
    ```bash
    flutter run
    ```
+
+---
+
+## 7. Historial de Cambios y Versionado
+
+Consulte el registro global en [`CHANGELOG.md`](file:///c:/Users/User/StudioProjects/NexID/CHANGELOG.md) para revisar el historial trazable de cambios (`VIS-x`, `FUN-x`) y el cumplimiento de las normas de versionado.
+
