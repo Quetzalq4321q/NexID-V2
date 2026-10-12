@@ -3,7 +3,7 @@ import '../domain/record_models.dart';
 
 /// Repositorio local de eventos registrados segun agent/20_SQLITE_LOCAL.md.
 class RecordsRepository {
-  final List<EventRecord> _records = [
+  final List<EventRecord> _records = <EventRecord>[
     EventRecord(
       id: 'REC-101',
       idempotencyKey: 'idem-rec-101',
@@ -16,6 +16,22 @@ class RecordsRepository {
       medium: ReadingMedium.nfc,
       timestamp: DateTime.now().subtract(const Duration(minutes: 42)),
       syncStatus: RecordSyncStatus.confirmed,
+      attemptCount: 1,
+      operatorName: 'Carlos Vega (op_puerta)',
+      lastModifiedAt: DateTime.now().subtract(const Duration(minutes: 41)),
+      relatedInfo: 'Tarjeta NFC UID 04:A1:20:01 · Facultad de Ingenieria',
+      changeHistory: const <RecordChangeEntry>[
+        RecordChangeEntry(
+          timestampLabel: 'Hace 42 min',
+          actor: 'Carlos Vega (Terminal PL-01)',
+          action: 'Captura NFC y escritura en cola SQLite local (Pasada 1)',
+        ),
+        RecordChangeEntry(
+          timestampLabel: 'Hace 41 min',
+          actor: 'Motor Sync (2 pasadas / 5s)',
+          action: 'Confirmacion remota recibida desde MariaDB (Pasada 2)',
+        ),
+      ],
     ),
     EventRecord(
       id: 'REC-102',
@@ -29,6 +45,41 @@ class RecordsRepository {
       medium: ReadingMedium.qr,
       timestamp: DateTime.now().subtract(const Duration(minutes: 18)),
       syncStatus: RecordSyncStatus.pending,
+      attemptCount: 0,
+      operatorName: 'Elena Salazar (sup_biblio)',
+      lastModifiedAt: DateTime.now().subtract(const Duration(minutes: 18)),
+      relatedInfo: 'Lectura optica QR con proyeccion parcial restringida',
+      changeHistory: const <RecordChangeEntry>[
+        RecordChangeEntry(
+          timestampLabel: 'Hace 18 min',
+          actor: 'Elena Salazar (Terminal PL-02)',
+          action: 'Registro local encolado en espera de barrido de 5s',
+        ),
+      ],
+    ),
+    EventRecord(
+      id: 'REC-103',
+      idempotencyKey: 'idem-rec-103',
+      studentId: 'STU-1003',
+      studentCode: '2024-0055',
+      studentName: 'Lucia Jimena Mendoza Flores',
+      placeId: 'PL-01',
+      placeName: 'Puerta Principal - Acceso Central',
+      eventType: EventType.salida,
+      medium: ReadingMedium.nfc,
+      timestamp: DateTime.now().subtract(const Duration(hours: 2)),
+      syncStatus: RecordSyncStatus.confirmed,
+      attemptCount: 1,
+      operatorName: 'Carlos Vega (op_puerta)',
+      lastModifiedAt: DateTime.now().subtract(const Duration(hours: 2)),
+      relatedInfo: 'Salida autorizada tras tramite en Secretaria Academica',
+      changeHistory: const <RecordChangeEntry>[
+        RecordChangeEntry(
+          timestampLabel: 'Hace 2 horas',
+          actor: 'Carlos Vega (Terminal PL-01)',
+          action: 'Salida registrada y confirmada en servidor central',
+        ),
+      ],
     ),
   ];
 
@@ -44,11 +95,13 @@ class RecordsRepository {
     required String placeName,
     required EventType eventType,
     required ReadingMedium medium,
+    String operatorName = 'Carlos Vega (op_puerta)',
   }) async {
     final int newIdNum = _records.length + 101;
+    final DateTime now = DateTime.now();
     final EventRecord record = EventRecord(
       id: 'REC-$newIdNum',
-      idempotencyKey: 'idem-uuid-${DateTime.now().microsecondsSinceEpoch}',
+      idempotencyKey: 'idem-uuid-${now.microsecondsSinceEpoch}',
       studentId: studentId,
       studentCode: studentCode,
       studentName: studentName,
@@ -56,8 +109,18 @@ class RecordsRepository {
       placeName: placeName,
       eventType: eventType,
       medium: medium,
-      timestamp: DateTime.now(),
+      timestamp: now,
       syncStatus: RecordSyncStatus.pending,
+      operatorName: operatorName,
+      lastModifiedAt: now,
+      relatedInfo: 'Capturado en punto $placeName mediante ${medium.label}',
+      changeHistory: <RecordChangeEntry>[
+        RecordChangeEntry(
+          timestampLabel: 'Reciente',
+          actor: operatorName,
+          action: 'Creacion local en SQLite Outbox (${eventType.label})',
+        ),
+      ],
     );
 
     _records.insert(0, record);
@@ -65,9 +128,22 @@ class RecordsRepository {
   }
 
   Future<void> updateSyncStatus(String id, RecordSyncStatus status) async {
-    final int index = _records.indexWhere((r) => r.id == id);
+    final int index = _records.indexWhere((EventRecord r) => r.id == id);
     if (index != -1) {
-      _records[index] = _records[index].copyWith(syncStatus: status);
+      final EventRecord current = _records[index];
+      _records[index] = current.copyWith(
+        syncStatus: status,
+        attemptCount: current.attemptCount + 1,
+        lastModifiedAt: DateTime.now(),
+        changeHistory: <RecordChangeEntry>[
+          RecordChangeEntry(
+            timestampLabel: 'Sincronizado',
+            actor: 'Motor Outbox 5s',
+            action: 'Cambio de estado a: ${status.label}',
+          ),
+          ...current.changeHistory,
+        ],
+      );
     }
   }
 }

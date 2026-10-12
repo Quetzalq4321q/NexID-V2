@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/theme/nexid_palette.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../domain/session_models.dart';
 
@@ -42,14 +42,16 @@ class GoogleAccountSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     final String initial = user.displayName.isNotEmpty
         ? user.displayName.trim()[0].toUpperCase()
         : 'U';
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      decoration: BoxDecoration(
+        color: palette.surfaceElevated,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
+        border: Border.all(color: palette.border),
       ),
       padding: const EdgeInsets.fromLTRB(
         AppDimensions.spaceLarge,
@@ -63,7 +65,6 @@ class GoogleAccountSheet extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Barra superior con tirador y boton cerrar
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -72,52 +73,51 @@ class GoogleAccountSheet extends StatelessWidget {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: palette.border,
                       borderRadius: BorderRadius.circular(2.0),
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, size: 20),
+                    icon: Icon(Icons.close, size: 20, color: palette.textSecondary),
                     tooltip: 'Cerrar',
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
               const SizedBox(height: AppDimensions.spaceSmall),
-
-              // Circulo de cuenta de Google
               Container(
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: palette.primary,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.surfaceAccent, width: 3.0),
+                  border: Border.all(color: palette.surfaceAccent, width: 3.0),
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   initial,
                   style: AppTypography.titleLarge.copyWith(
-                    color: AppColors.background,
+                    color: palette.onPrimary,
                     fontWeight: FontWeight.w700,
                     fontSize: 26,
                   ),
                 ),
               ),
               const SizedBox(height: AppDimensions.spaceMedium),
-
-              // Nombre de usuario y rol
               Text(
                 user.displayName,
                 textAlign: TextAlign.center,
                 style: AppTypography.titleMedium.copyWith(
+                  color: palette.textPrimary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 '@${user.username}',
-                style: AppTypography.bodySmall,
+                style: AppTypography.bodySmall.copyWith(
+                  color: palette.textSecondary,
+                ),
               ),
               const SizedBox(height: AppDimensions.spaceSmall),
               StatusBadge(
@@ -126,12 +126,8 @@ class GoogleAccountSheet extends StatelessWidget {
                 maxWidth: 220,
               ),
               const SizedBox(height: AppDimensions.spaceLarge),
-
-              // Tarjeta informativa con punto de control y permisos
-              _buildInfoSection(),
+              _buildInfoSection(palette),
               const SizedBox(height: AppDimensions.spaceLarge),
-
-              // Boton de Ajustes
               if (onOpenSettings != null) ...[
                 SizedBox(
                   width: double.infinity,
@@ -140,8 +136,8 @@ class GoogleAccountSheet extends StatelessWidget {
                     icon: const Icon(Icons.settings_outlined, size: 18),
                     label: const Text('Ajustes del Sistema'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.textPrimary,
-                      side: const BorderSide(color: AppColors.border),
+                      foregroundColor: palette.textPrimary,
+                      side: BorderSide(color: palette.border),
                     ),
                     onPressed: () {
                       Navigator.of(context).pop();
@@ -151,8 +147,6 @@ class GoogleAccountSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: AppDimensions.spaceSmall),
               ],
-
-              // Boton de Cerrar Sesion
               SizedBox(
                 width: double.infinity,
                 height: 44,
@@ -160,8 +154,8 @@ class GoogleAccountSheet extends StatelessWidget {
                   icon: const Icon(Icons.logout_outlined, size: 18),
                   label: const Text('Cerrar Sesion'),
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.surfaceAccent,
-                    foregroundColor: AppColors.error,
+                    backgroundColor: palette.errorSurface,
+                    foregroundColor: palette.error,
                   ),
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -176,56 +170,65 @@ class GoogleAccountSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoSection() {
+  Widget _buildInfoSection(NexIdPalette palette) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppDimensions.spaceMedium),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: palette.surfaceSubtle,
         borderRadius: BorderRadius.circular(AppDimensions.radius),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.location_on_outlined, size: 16, color: AppColors.primary),
+              Icon(Icons.location_on_outlined, size: 16, color: palette.primary),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   'Punto de Control: $activePlaceName',
-                  style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
+                  style: AppTypography.bodySmall.copyWith(
+                    color: palette.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-          const Divider(height: AppDimensions.spaceMedium, color: AppColors.border),
-          const Text('Permisos asignados:', style: AppTypography.caption),
+          Divider(height: AppDimensions.spaceMedium, color: palette.border),
+          Text(
+            'Permisos asignados:',
+            style: AppTypography.caption.copyWith(color: palette.textSecondary),
+          ),
           const SizedBox(height: 4),
-          _buildPermissionRow('Lectura de credenciales NFC (Ficha completa)'),
-          _buildPermissionRow('Lectura de codigos QR (Proyeccion parcial)'),
+          _buildPermissionRow('Lectura de credenciales NFC (Ficha completa)', palette),
+          _buildPermissionRow('Lectura de codigos QR (Proyeccion parcial)', palette),
           if (user.canRegisterEvents)
-            _buildPermissionRow('Registro de ingreso, salida y control'),
+            _buildPermissionRow('Registro de ingreso, salida y control', palette),
           if (user.canEditStudents)
-            _buildPermissionRow('Edicion autorizada de datos de alumnos'),
+            _buildPermissionRow('Edicion autorizada de datos de alumnos', palette),
         ],
       ),
     );
   }
 
-  Widget _buildPermissionRow(String text) {
+  Widget _buildPermissionRow(String text, NexIdPalette palette) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 3.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.check, size: 14, color: AppColors.success),
+          Icon(Icons.check, size: 14, color: palette.success),
           const SizedBox(width: 6),
           Expanded(
-            child: Text(text, style: AppTypography.bodySmall),
+            child: Text(
+              text,
+              style: AppTypography.bodySmall.copyWith(color: palette.textPrimary),
+            ),
           ),
         ],
       ),

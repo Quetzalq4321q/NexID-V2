@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/theme/nexid_palette.dart';
 
 /// Tarjeta para visualizar un campo de dato del estudiante de forma adaptable.
 class StudentFieldCard extends StatelessWidget {
@@ -18,6 +18,7 @@ class StudentFieldCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: AppDimensions.spaceSmall),
       padding: const EdgeInsets.symmetric(
@@ -25,9 +26,9 @@ class StudentFieldCard extends StatelessWidget {
         vertical: 12.0,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(AppDimensions.radius),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -36,7 +37,9 @@ class StudentFieldCard extends StatelessWidget {
             flex: 2,
             child: Text(
               label,
-              style: AppTypography.bodySmall,
+              style: AppTypography.bodySmall.copyWith(
+                color: palette.textSecondary,
+              ),
             ),
           ),
           const SizedBox(width: AppDimensions.spaceSmall),
@@ -47,9 +50,7 @@ class StudentFieldCard extends StatelessWidget {
               textAlign: TextAlign.end,
               style: AppTypography.bodyMedium.copyWith(
                 fontWeight: FontWeight.w600,
-                color: isDimmed
-                    ? AppColors.textSecondary
-                    : AppColors.textPrimary,
+                color: isDimmed ? palette.textDisabled : palette.textPrimary,
               ),
             ),
           ),

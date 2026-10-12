@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../core/constants/app_colors.dart';
 import '../core/constants/app_dimensions.dart';
 import '../core/constants/app_typography.dart';
 import '../core/responsive/responsive_layout.dart';
+import '../core/theme/nexid_palette.dart';
 import '../features/reading/presentation/pages/reading_page.dart';
 import '../features/records/presentation/pages/records_page.dart';
 import '../features/reports/presentation/pages/reports_page.dart';
@@ -14,7 +14,7 @@ import '../features/students/presentation/pages/students_page.dart';
 import '../features/sync/presentation/widgets/sync_status_banner.dart';
 import 'app_dependencies.dart';
 
-/// Contenedor principal de la aplicacion con navegacion adaptable.
+/// Contenedor principal de la aplicacion con navegacion adaptable y transiciones suaves.
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
 
@@ -28,11 +28,13 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final AppDependencies deps = AppDependencies.of(context);
+    final NexIdPalette palette = NexIdPalette.of(context);
     final OperatorUser? user = deps.sessionController.currentUser;
     final bool isCompact = ResponsiveLayout.isCompact(context);
+    final bool reduceMotion = MediaQuery.disableAnimationsOf(context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: palette.background,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -41,20 +43,22 @@ class _AppShellState extends State<AppShell> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: palette.primary,
                 borderRadius: BorderRadius.circular(6.0),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.nfc,
                 size: 20,
-                color: AppColors.background,
+                color: palette.onPrimary,
               ),
             ),
             const SizedBox(width: AppDimensions.spaceSmall),
-            const Flexible(
+            Flexible(
               child: Text(
                 'NexID',
-                style: AppTypography.titleMedium,
+                style: AppTypography.titleMedium.copyWith(
+                  color: palette.textPrimary,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -84,7 +88,6 @@ class _AppShellState extends State<AppShell> {
       ),
       body: Column(
         children: [
-          // Banner de sincronizacion constante en la parte superior
           ListenableBuilder(
             listenable: deps.syncController,
             builder: (BuildContext context, _) {
@@ -130,7 +133,17 @@ class _AppShellState extends State<AppShell> {
                     ],
                   ),
                 Expanded(
-                  child: _buildCurrentView(deps),
+                  child: reduceMotion
+                      ? _buildCurrentView(deps)
+                      : AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          switchInCurve: Curves.easeOutCubic,
+                          switchOutCurve: Curves.easeInCubic,
+                          child: KeyedSubtree(
+                            key: ValueKey<int>(_currentIndex),
+                            child: _buildCurrentView(deps),
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -143,7 +156,7 @@ class _AppShellState extends State<AppShell> {
               onDestinationSelected: (int index) {
                 setState(() => _currentIndex = index);
               },
-              indicatorColor: AppColors.surfaceAccent,
+              indicatorColor: palette.surfaceAccent,
               destinations: const [
                 NavigationDestination(
                   icon: Icon(Icons.qr_code_scanner_outlined),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../app/app_dependencies.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/theme/nexid_palette.dart';
 import '../../../../shared/utils/date_formatter.dart';
 import '../../../../shared/widgets/avatar_placeholder.dart';
 import '../../../reading/domain/credential_models.dart';
@@ -39,6 +39,9 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
     setState(() => _isRegistering = true);
 
     final place = dependencies.placesController.selectedPlace;
+    final operatorName =
+        dependencies.sessionController.currentUser?.displayName ??
+            'Operador Local';
     await dependencies.recordsController.createRecord(
       studentId: widget.credential.studentId,
       studentCode: widget.credential.studentCode,
@@ -47,9 +50,9 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
       placeName: place?.name ?? 'Punto de Control',
       eventType: eventType,
       medium: widget.credential.medium,
+      operatorName: operatorName,
     );
 
-    // Actualiza estadisticas de la cola de sincronizacion local
     await dependencies.syncController.refreshStats();
 
     if (!mounted) return;
@@ -61,28 +64,33 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     final ResolvedCredential cred = widget.credential;
     final dependencies = AppDependencies.of(context);
-    final bool canEdit = dependencies.sessionController.currentUser?.canEditStudents ?? false;
+    final bool canEdit =
+        dependencies.sessionController.currentUser?.canEditStudents ?? false;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: palette.background,
       appBar: AppBar(
-        title: const Text('Ficha de Alumno', style: AppTypography.titleMedium),
-        backgroundColor: AppColors.background,
+        title: Text(
+          'Ficha de Alumno',
+          style: AppTypography.titleMedium.copyWith(color: palette.textPrimary),
+        ),
+        backgroundColor: palette.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back, color: palette.textPrimary),
           onPressed: widget.onDismiss,
         ),
         actions: [
           if (canEdit)
             IconButton(
-              icon: const Icon(Icons.edit_outlined, color: AppColors.primary),
+              icon: Icon(Icons.edit_outlined, color: palette.primary),
               tooltip: 'Editar datos autorizados',
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
+                  MaterialPageRoute<void>(
                     builder: (_) => StudentEditPage(
                       studentId: cred.studentId,
                       initialName: cred.studentName,
@@ -104,11 +112,8 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Banner de proyeccion (NFC vs QR)
                 ProjectionBadgeBanner(credential: cred),
                 const SizedBox(height: AppDimensions.spaceLarge),
-
-                // Perfil principal
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -122,6 +127,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                             cred.studentName,
                             style: AppTypography.titleLarge.copyWith(
                               fontSize: 20,
+                              color: palette.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -129,12 +135,15 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                             'Codigo: ${cred.studentCode}',
                             style: AppTypography.bodySmall.copyWith(
                               fontWeight: FontWeight.w600,
+                              color: palette.textSecondary,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             cred.career,
-                            style: AppTypography.bodyMedium,
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: palette.textPrimary,
+                            ),
                           ),
                         ],
                       ),
@@ -142,8 +151,6 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                   ],
                 ),
                 const SizedBox(height: AppDimensions.spaceLarge),
-
-                // Campos de detalle
                 StudentFieldCard(label: 'Estado Academico', value: cred.status),
                 if (cred.isFullProjection && cred.faculty != null)
                   StudentFieldCard(label: 'Facultad', value: cred.faculty!),
@@ -158,39 +165,34 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                     value: 'Oculto por politica de modalidad QR',
                     isDimmed: true,
                   ),
-
                 StudentFieldCard(
                   label: 'Ultima Resolucion',
                   value: DateFormatter.formatDateTime(cred.resolvedAt),
                 ),
-
                 const SizedBox(height: AppDimensions.spaceLarge),
-
-                // Mensaje de exito
                 if (_successMessage != null) ...[
                   Container(
                     padding: const EdgeInsets.all(AppDimensions.spaceMedium),
                     decoration: BoxDecoration(
-                      color: AppColors.success.withAlpha(25),
-                      borderRadius:
-                          BorderRadius.circular(AppDimensions.radius),
-                      border: Border.all(color: AppColors.success),
+                      color: palette.successSurface,
+                      borderRadius: BorderRadius.circular(AppDimensions.radius),
+                      border: Border.all(color: palette.success),
                     ),
                     child: Text(
                       _successMessage!,
                       style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.success,
+                        color: palette.success,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                   const SizedBox(height: AppDimensions.spaceLarge),
                 ],
-
-                // Acciones operativas de registro
-                const Text(
+                Text(
                   'Acciones de Registro',
-                  style: AppTypography.caption,
+                  style: AppTypography.caption.copyWith(
+                    color: palette.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: AppDimensions.spaceSmall),
                 StudentActionButtons(

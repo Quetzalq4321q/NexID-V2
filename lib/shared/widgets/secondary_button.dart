@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimensions.dart';
 import '../../core/constants/app_typography.dart';
+import '../../core/theme/nexid_palette.dart';
 
-/// Boton secundario de accion conforme a agent/03_DISENO.md.
-/// Superficie de morado claro con texto oscuro garantizando contraste.
+/// Boton secundario de accion conforme a agent/03_DISENO.md y WCAG 2.2.
 class SecondaryButton extends StatelessWidget {
   const SecondaryButton({
     super.key,
@@ -21,14 +20,15 @@ class SecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     return SizedBox(
       height: AppDimensions.minTouchTarget,
       child: isOutlined
           ? OutlinedButton(
               onPressed: onPressed,
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.textPrimary,
-                side: const BorderSide(color: AppColors.border, width: 1.5),
+                foregroundColor: palette.textPrimary,
+                side: BorderSide(color: palette.border, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppDimensions.radius),
                 ),
@@ -36,13 +36,13 @@ class SecondaryButton extends StatelessWidget {
                   horizontal: AppDimensions.spaceMedium,
                 ),
               ),
-              child: _buildContent(),
+              child: _buildContent(palette),
             )
           : ElevatedButton(
               onPressed: onPressed,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.surfaceAccent,
-                foregroundColor: AppColors.textPrimary,
+                backgroundColor: palette.surfaceAccent,
+                foregroundColor: palette.textPrimary,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppDimensions.radius),
@@ -51,18 +51,18 @@ class SecondaryButton extends StatelessWidget {
                   horizontal: AppDimensions.spaceMedium,
                 ),
               ),
-              child: _buildContent(),
+              child: _buildContent(palette),
             ),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(NexIdPalette palette) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (icon != null) ...[
-          Icon(icon, size: 20, color: AppColors.textPrimary),
+          Icon(icon, size: 20, color: palette.textPrimary),
           const SizedBox(width: AppDimensions.spaceSmall),
         ],
         Flexible(
@@ -71,7 +71,7 @@ class SecondaryButton extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.buttonText.copyWith(
-              color: AppColors.textPrimary,
+              color: palette.textPrimary,
             ),
           ),
         ),

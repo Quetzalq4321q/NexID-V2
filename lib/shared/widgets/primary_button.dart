@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimensions.dart';
 import '../../core/constants/app_typography.dart';
+import '../../core/theme/nexid_palette.dart';
 
-/// Boton de accion primaria conforme a agent/03_DISENO.md.
+/// Boton de accion primaria conforme a agent/03_DISENO.md y WCAG 2.2.
 /// Altura minima de 48 px para accesibilidad tactil.
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
@@ -21,15 +21,16 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     return SizedBox(
       height: AppDimensions.minTouchTarget,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.background,
-          disabledBackgroundColor: AppColors.border,
-          disabledForegroundColor: AppColors.textSecondary,
+          backgroundColor: palette.primary,
+          foregroundColor: palette.onPrimary,
+          disabledBackgroundColor: palette.border,
+          disabledForegroundColor: palette.textDisabled,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDimensions.radius),
@@ -39,12 +40,12 @@ class PrimaryButton extends StatelessWidget {
           ),
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.0,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.background),
+                  valueColor: AlwaysStoppedAnimation<Color>(palette.onPrimary),
                 ),
               )
             : Row(
@@ -52,7 +53,7 @@ class PrimaryButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (icon != null) ...[
-                    Icon(icon, size: 20, color: AppColors.background),
+                    Icon(icon, size: 20, color: palette.onPrimary),
                     const SizedBox(width: AppDimensions.spaceSmall),
                   ],
                   Flexible(
@@ -60,7 +61,9 @@ class PrimaryButton extends StatelessWidget {
                       label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.buttonText,
+                      style: AppTypography.buttonText.copyWith(
+                        color: palette.onPrimary,
+                      ),
                     ),
                   ),
                 ],

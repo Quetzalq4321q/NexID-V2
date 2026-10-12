@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/theme/nexid_palette.dart';
 import '../../../../shared/utils/date_formatter.dart';
-import '../controllers/sync_controller.dart';
 import '../../domain/sync_models.dart';
+import '../controllers/sync_controller.dart';
 
-/// Banner compacto de sincronizacion segun agent/23_CACHE_USABLE.md.
+/// Banner compacto de sincronizacion adaptable a tema Claro y Oscuro.
 class SyncStatusBanner extends StatelessWidget {
   const SyncStatusBanner({
     super.key,
@@ -17,23 +17,24 @@ class SyncStatusBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     final SyncStats stats = controller.stats;
     final SyncProcessState state = controller.state;
 
     final Color bannerColor = switch (state) {
-      SyncProcessState.reviewRequired => AppColors.error.withAlpha(20),
+      SyncProcessState.reviewRequired => palette.errorSurface,
       SyncProcessState.hasPending ||
       SyncProcessState.syncing =>
-        AppColors.warning.withAlpha(20),
-      SyncProcessState.idle => AppColors.surface,
+        palette.warningSurface,
+      SyncProcessState.idle => palette.surface,
     };
 
     final Color iconColor = switch (state) {
-      SyncProcessState.reviewRequired => AppColors.error,
+      SyncProcessState.reviewRequired => palette.error,
       SyncProcessState.hasPending ||
       SyncProcessState.syncing =>
-        AppColors.warning,
-      SyncProcessState.idle => AppColors.success,
+        palette.warning,
+      SyncProcessState.idle => palette.success,
     };
 
     return Container(
@@ -43,8 +44,8 @@ class SyncStatusBanner extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: bannerColor,
-        border: const Border(
-          bottom: BorderSide(color: AppColors.border, width: 1.0),
+        border: Border(
+          bottom: BorderSide(color: palette.border, width: 1.0),
         ),
       ),
       child: Row(
@@ -63,7 +64,7 @@ class SyncStatusBanner extends StatelessWidget {
                   ? '${stats.pendingCount} pendientes de enviar · Act. ${DateFormatter.formatTimeOnly(stats.lastSyncTime)}'
                   : 'Datos locales al dia · ${DateFormatter.formatTimeOnly(stats.lastSyncTime)}',
               style: AppTypography.caption.copyWith(
-                color: AppColors.textPrimary,
+                color: palette.textPrimary,
               ),
             ),
           ),
@@ -76,13 +77,13 @@ class SyncStatusBanner extends StatelessWidget {
                     : () => controller.syncNow(),
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  foregroundColor: AppColors.primary,
+                  foregroundColor: palette.primary,
                 ),
                 child: Text(
                   controller.isSyncing ? 'Enviando...' : 'Sincronizar',
                   style: AppTypography.caption.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+                    color: palette.primary,
                   ),
                 ),
               ),

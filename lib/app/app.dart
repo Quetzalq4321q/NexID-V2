@@ -21,7 +21,8 @@ import 'app_dependencies.dart';
 import 'app_shell.dart';
 import 'app_theme.dart';
 
-/// Composicion raiz de la aplicacion NexID segun agent/02_ARQUITECTURA.md.
+/// Composicion raiz de la aplicacion NexID con gestion reactiva de temas
+/// y accesibilidad WCAG 2.2.
 class NexIdApp extends StatefulWidget {
   const NexIdApp({super.key});
 
@@ -98,19 +99,47 @@ class _NexIdAppState extends State<NexIdApp> {
       reportsController: _reportsController,
       syncController: _syncController,
       settingsController: _settingsController,
-      child: MaterialApp(
-        title: 'NexID',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        home: ListenableBuilder(
-          listenable: _sessionController,
-          builder: (BuildContext context, _) {
-            if (!_sessionController.isAuthenticated) {
-              return LoginPage(controller: _sessionController);
-            }
-            return const AppShell();
-          },
-        ),
+      child: ListenableBuilder(
+        listenable: _settingsController,
+        builder: (BuildContext context, _) {
+          final bool highContrast = _settingsController.highContrast;
+          final bool reduceMotion = _settingsController.reduceMotion;
+
+          return MaterialApp(
+            title: 'NexID',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light(highContrast: highContrast),
+            darkTheme: AppTheme.dark(highContrast: highContrast),
+            themeMode: _settingsController.themeMode,
+            themeAnimationDuration: reduceMotion
+                ? Duration.zero
+                : const Duration(milliseconds: 220),
+            themeAnimationCurve: Curves.easeOutCubic,
+            builder: (BuildContext context, Widget? child) {
+              final MediaQueryData mediaQuery = MediaQuery.of(context);
+              return MediaQuery(
+                data: mediaQuery.copyWith(
+                  textScaler: TextScaler.linear(
+                    _settingsController.fontScaleFactor,
+                  ),
+                  disableAnimations:
+                      mediaQuery.disableAnimations || reduceMotion,
+                  boldText: mediaQuery.boldText || highContrast,
+                ),
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
+            home: ListenableBuilder(
+              listenable: _sessionController,
+              builder: (BuildContext context, _) {
+                if (!_sessionController.isAuthenticated) {
+                  return LoginPage(controller: _sessionController);
+                }
+                return const AppShell();
+              },
+            ),
+          );
+        },
       ),
     );
   }
