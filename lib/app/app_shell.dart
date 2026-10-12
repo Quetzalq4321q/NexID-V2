@@ -7,9 +7,11 @@ import '../features/reading/presentation/pages/reading_page.dart';
 import '../features/records/presentation/pages/records_page.dart';
 import '../features/reports/presentation/pages/reports_page.dart';
 import '../features/session/domain/session_models.dart';
+import '../features/session/presentation/widgets/google_account_avatar_button.dart';
+import '../features/session/presentation/widgets/google_account_sheet.dart';
+import '../features/settings/presentation/pages/settings_page.dart';
 import '../features/students/presentation/pages/students_page.dart';
 import '../features/sync/presentation/widgets/sync_status_banner.dart';
-import '../features/uploads/presentation/pages/uploads_page.dart';
 import 'app_dependencies.dart';
 
 /// Contenedor principal de la aplicacion con navegacion adaptable.
@@ -59,39 +61,25 @@ class _AppShellState extends State<AppShell> {
           ],
         ),
         actions: [
-          if (user != null) ...[
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: isCompact
-                    ? (MediaQuery.sizeOf(context).width < 360 ? 75.0 : 135.0)
-                    : 220.0,
-              ),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimensions.spaceSmall,
-                  vertical: 4.0,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceAccent,
-                  borderRadius: BorderRadius.circular(6.0),
-                ),
-                child: Text(
-                  '${user.displayName} (${user.role.label})',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.caption.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ),
+          if (user != null)
+            GoogleAccountAvatarButton(
+              user: user,
+              onTap: () {
+                final String activePlace =
+                    deps.placesController.selectedPlace?.name ??
+                        'Punto no asignado';
+                GoogleAccountSheet.show(
+                  context,
+                  user: user,
+                  activePlaceName: activePlace,
+                  onLogout: () => deps.sessionController.logout(),
+                  onOpenSettings: () {
+                    setState(() => _currentIndex = 4);
+                  },
+                );
+              },
             ),
-            IconButton(
-              icon: const Icon(Icons.logout_outlined, size: 20),
-              tooltip: 'Cerrar Sesion',
-              onPressed: () => deps.sessionController.logout(),
-            ),
-          ],
+          const SizedBox(width: AppDimensions.spaceSmall),
         ],
       ),
       body: Column(
@@ -135,9 +123,9 @@ class _AppShellState extends State<AppShell> {
                         label: Text('Reportes'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.cloud_upload_outlined),
-                        selectedIcon: Icon(Icons.cloud_upload),
-                        label: Text('Subidas'),
+                        icon: Icon(Icons.settings_outlined),
+                        selectedIcon: Icon(Icons.settings),
+                        label: Text('Ajustes'),
                       ),
                     ],
                   ),
@@ -178,9 +166,9 @@ class _AppShellState extends State<AppShell> {
                   label: 'Reportes',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.cloud_upload_outlined),
-                  selectedIcon: Icon(Icons.cloud_upload),
-                  label: 'Subidas',
+                  icon: Icon(Icons.settings_outlined),
+                  selectedIcon: Icon(Icons.settings),
+                  label: 'Ajustes',
                 ),
               ],
             )
@@ -200,7 +188,12 @@ class _AppShellState extends State<AppShell> {
           reportsController: deps.reportsController,
           placesController: deps.placesController,
         ),
-      4 => UploadsPage(controller: deps.uploadsController),
+      4 => SettingsPage(
+          settingsController: deps.settingsController,
+          sessionController: deps.sessionController,
+          placesController: deps.placesController,
+          syncController: deps.syncController,
+        ),
       _ => ReadingPage(
           readingController: deps.readingController,
           placesController: deps.placesController,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nexid/app/app.dart';
+import 'package:nexid/features/session/presentation/widgets/google_account_avatar_button.dart';
 
 void main() {
   testWidgets('NexID arranque inicial y pantalla de acceso', (WidgetTester tester) async {
@@ -16,7 +17,7 @@ void main() {
     expect(find.text('Iniciar Sesion'), findsOneWidget);
   });
 
-  testWidgets('NexID navegacion y adaptabilidad en pantalla compacta (360px)', (WidgetTester tester) async {
+  testWidgets('NexID navegacion, cuenta estilo Google y adaptabilidad compacta (360px)', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(360, 780);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -31,11 +32,22 @@ void main() {
     await tester.tap(find.text('Iniciar Sesion'));
     await tester.pumpAndSettle();
 
-    // Verifica que AppShell y barra superior se rendericen sin desbordamiento
+    // Verifica que AppShell, barra superior y boton circular estilo Google se rendericen
     expect(find.text('NexID'), findsOneWidget);
     expect(find.text('Punto de control operativo'), findsOneWidget);
     expect(find.text('NFC Completo'), findsOneWidget);
     expect(find.text('QR Parcial'), findsOneWidget);
+    expect(find.byType(GoogleAccountAvatarButton), findsOneWidget);
+
+    // Prueba la apertura y visualizacion de la cuenta estilo Google desde el AppBar
+    await tester.tap(find.byType(GoogleAccountAvatarButton));
+    await tester.pumpAndSettle();
+    expect(find.text('Carlos Vega'), findsWidgets);
+    expect(find.text('Permisos asignados:'), findsOneWidget);
+
+    // Cierra el modal de cuenta de Google
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
 
     // Prueba resolucion de credencial y visualizacion de Ficha de Alumno sin overflow
     await tester.scrollUntilVisible(find.text('CARD-NFC-8821'), 200);
@@ -63,10 +75,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Generar Reporte'), findsOneWidget);
 
-    // Navega a Subidas
-    await tester.tap(find.text('Subidas'));
+    // Navega a Ajustes (Configuracion)
+    await tester.tap(find.text('Ajustes'));
     await tester.pumpAndSettle();
-    expect(find.text('Seleccionar Foto'), findsOneWidget);
+    expect(find.text('Preferencias de Lectura'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Sincronizacion y Red'), 100);
+    expect(find.text('Sincronizacion y Red'), findsOneWidget);
+    expect(find.text('Vibracion al detectar credencial'), findsWidgets);
   });
 
   testWidgets('NexID adaptabilidad en pantalla estrecha extrema (320px)', (WidgetTester tester) async {
@@ -87,5 +102,11 @@ void main() {
     // Verifica que en 320px la pantalla cargue sin errores de desbordamiento
     expect(find.text('NexID'), findsOneWidget);
     expect(find.text('NFC Completo'), findsOneWidget);
+    expect(find.byType(GoogleAccountAvatarButton), findsOneWidget);
+
+    // Navega a Ajustes en 320px
+    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await tester.pumpAndSettle();
+    expect(find.text('Preferencias de Lectura'), findsOneWidget);
   });
 }

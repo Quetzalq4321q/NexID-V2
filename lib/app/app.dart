@@ -10,6 +10,7 @@ import '../features/reports/presentation/controllers/reports_controller.dart';
 import '../features/session/data/session_repository.dart';
 import '../features/session/presentation/controllers/session_controller.dart';
 import '../features/session/presentation/pages/login_page.dart';
+import '../features/settings/presentation/controllers/settings_controller.dart';
 import '../features/students/data/students_repository.dart';
 import '../features/students/presentation/controllers/students_controller.dart';
 import '../features/sync/data/sync_repository.dart';
@@ -46,6 +47,7 @@ class _NexIdAppState extends State<NexIdApp> {
   late final UploadsController _uploadsController;
   late final ReportsController _reportsController;
   late final SyncController _syncController;
+  late final SettingsController _settingsController;
 
   @override
   void initState() {
@@ -67,6 +69,7 @@ class _NexIdAppState extends State<NexIdApp> {
     _uploadsController = UploadsController(repository: _uploadsRepository);
     _reportsController = ReportsController(repository: _reportsRepository);
     _syncController = SyncController(repository: _syncRepository);
+    _settingsController = SettingsController();
   }
 
   @override
@@ -79,6 +82,7 @@ class _NexIdAppState extends State<NexIdApp> {
     _uploadsController.dispose();
     _reportsController.dispose();
     _syncController.dispose();
+    _settingsController.dispose();
     super.dispose();
   }
 
@@ -93,6 +97,7 @@ class _NexIdAppState extends State<NexIdApp> {
       uploadsController: _uploadsController,
       reportsController: _reportsController,
       syncController: _syncController,
+      settingsController: _settingsController,
       child: MaterialApp(
         title: 'NexID',
         debugShowCheckedModeBanner: false,

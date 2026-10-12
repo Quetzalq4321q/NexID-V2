@@ -8,6 +8,38 @@ El proyecto utiliza versionado semántico formal (`MAJOR.MINOR.PATCH+BUILD`) a p
 
 ## [Unreleased]
 
+### [VIS-C] Boton de Cuenta Estilo Google, Pestana de Ajustes y Limpieza de Navegacion
+- **Fecha:** 2026-10-12
+- **Categoría:** UI / Navegacion / Perfil / Configuracion
+- **Estado:** Implementado y Verificado
+- **Solicitud del usuario:**
+  - Crear una rama dedicada (`feature/perfil-ajustes-limpieza`) y llevar los cambios validados a `main`.
+  - Retirar la pestana "Subidas" de la barra de navegacion (`NavigationBar` y `NavigationRail`), al carecer de sentido logico en la operativa local actual.
+  - Reemplazar el nombre/badge estatico del operador en el AppBar por un boton circular interactivo estilo cuenta de Google que abre un modal con el perfil completo del usuario, su rol, punto asignado, permisos y opciones de sesion.
+  - Agregar una nueva pestana de "Ajustes" (Configuracion) con preferencias de lectura (NFC/QR, respuesta sonora y vibracion), gestion de sincronizacion y red (simulacion offline, intervalo de cola de 5 segundos), informacion de la compilacion y tarjeta de perfil del operador.
+
+- **Razonamiento y Solucion:**
+  - Se diseno el componente `GoogleAccountAvatarButton` para el AppBar con avatar circular de 36px, borde de realce `#DDD6FE`, inicial del usuario y efecto InkWell accesible.
+  - Se creo `GoogleAccountSheet` como hoja modal inferior (`showModalBottomSheet`) estilo Google Account con cabecera de perfil, badge de rol, estado del punto asignado, desglose de permisos y atajos a configuracion y cierre de sesion.
+  - Se creo el modulo `settings` con modelo reactivo `AppSettings` (`SettingsController` con `ChangeNotifier`), permitiendo alternar medios preferidos, respuesta haptica/sonora y modo offline.
+  - Se creo `SettingsPage` y `OperatorProfileCard` con arquitectura `SingleChildScrollView` y tarjetas `Material` para asegurar cero advertencias de renderizado y total responsividad en pantallas compactas (320px).
+  - Se actualizo `AppShell` reemplazando el indice 4 con `SettingsPage` y actualizando los destinos de `NavigationBar` y `NavigationRail`.
+  - Se mantuvieron todos los archivos estrictamente por debajo de 250 lineas y 0 advertencias de analisis.
+
+- **Archivos creados:**
+  - `lib/features/settings/domain/settings_models.dart`: Modelo inmutable de preferencias del terminal.
+  - `lib/features/settings/presentation/controllers/settings_controller.dart`: Controlador reactivo de ajustes.
+  - `lib/features/session/presentation/widgets/google_account_avatar_button.dart`: Boton circular de avatar estilo Google.
+  - `lib/features/session/presentation/widgets/google_account_sheet.dart`: Hoja modal de cuenta de Google.
+  - `lib/features/settings/presentation/pages/settings_page.dart`: Pantalla de ajustes y preferencias (215 lineas).
+  - `lib/features/settings/presentation/widgets/operator_profile_card.dart`: Tarjeta de perfil para ajustes (89 lineas).
+
+- **Archivos modificados:**
+  - `lib/app/app.dart`: Inyeccion del controlador de configuracion.
+  - `lib/app/app_dependencies.dart`: Proveedor de dependencias actualizado con `settingsController`.
+  - `lib/app/app_shell.dart`: Boton avatar en AppBar y navegacion hacia "Ajustes" (204 lineas).
+  - `test/widget_test.dart`: Cobertura completa del boton de cuenta, modal de perfil y pestana de ajustes.
+
 ### [VIS-B] Corrección Integral de Desbordamientos Visuales y Adaptabilidad Multi-Pantalla
 - **Fecha:** 2026-10-12
 - **Categoría:** Visual / Adaptabilidad / Responsive

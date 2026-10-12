@@ -1,6 +1,16 @@
 # Changelog
 
 ## Unreleased
+### 2026-10-12 — VIS-C (Boton de Cuenta Estilo Google, Pestana de Ajustes y Remocion de Subidas)
+- Cambio: Integracion de boton circular de cuenta estilo Google en AppBar con modal inferior de detalles, creacion del modulo y pantalla de Ajustes (preferencias de lectura, outbox/sync 5s, simulacion offline), y retiro de la pestana de Subidas de la barra principal.
+- Modulos y componentes intervenidos:
+  - `google_account_avatar_button.dart`: avatar circular (36px, borde #DDD6FE) con soporte de iniciales y splash interactivo.
+  - `google_account_sheet.dart`: modal bottom sheet estilo Google Account con rol, punto de control, lista de permisos y logout.
+  - `settings/`: modelos (`AppSettings`), controlador (`SettingsController`), pantalla (`SettingsPage`) y tarjeta (`OperatorProfileCard`).
+  - `app_shell.dart`: navegacion con pestana de Ajustes en lugar de Subidas e integracion del avatar en AppBar.
+- Regla no-monolitos: 100% de archivos <250 lineas y funciones <40 lineas.
+- Pruebas: 100% aprobadas con `flutter test` y 0 advertencias en `flutter analyze`.
+
 ### 2026-10-12 — VIS-B (Adaptabilidad e Interfaces Responsivas)
 - Cambio: Correccion integral de excepciones `RenderFlex overflow` en pantallas compactas y extremas (360px y 320px).
 - Modulos y componentes intervenidos:
