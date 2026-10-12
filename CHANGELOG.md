@@ -6,6 +6,41 @@ El proyecto utiliza versionado semántico formal (`MAJOR.MINOR.PATCH+BUILD`) a p
 
 ---
 
+## [0.0.5+5] - 2026-10-12
+
+### [FUN-2 / VIS-E] Funcionalidad Nativa Completa de Lectura NFC, Escaneo QR con Permisos en Tiempo de Ejecucion y AndroidManifest.xml
+- **Fecha:** 2026-10-12
+- **Categoría:** Hardware / Android Nativo (Kotlin) / Permisos / Lectura NFC y QR
+- **Estado:** Implementado y Verificado
+- **Solicitud del usuario:**
+  - Otorgar funcionalidad completa para leer tarjetas físicas NFC y escanear códigos QR solicitando permisos en tiempo de ejecución, modificando y completando la configuración en `AndroidManifest.xml` y XML de recursos Android.
+
+- **Razonamiento y Solución:**
+  - Se amplió `AndroidManifest.xml` con permisos explícitos (`NFC`, `CAMERA`, `VIBRATE`, `INTERNET`), declaración de características de hardware opcionales (`android.hardware.nfc`, `nfc.hce`, `camera`, `camera.autofocus` con `required="false"`), filtros de intent (`NDEF_DISCOVERED`, `TECH_DISCOVERED`, `TAG_DISCOVERED`) y metadatos de Google Code Scanner (`com.google.mlkit.vision.DEPENDENCIES` -> `barcode_ui`).
+  - Se creó `android/app/src/main/res/xml/nfc_tech_filter.xml` soportando todas las tecnologías estándar de tarjetas (`NfcA`, `NfcB`, `NfcF`, `NfcV`, `IsoDep`, `Ndef`, `NdefFormatable`, `MifareClassic`, `MifareUltralight`).
+  - Se implementó en **100% Kotlin** (cero Java) el gestor `NfcHardwareManager.kt`, que activa `NfcAdapter.enableReaderMode`, intercepta intents NFC, decodifica registros NDEF (texto UTF-8/UTF-16) o extrae el UID físico hexadecimal de la tarjeta, y ofrece apertura directa de los ajustes NFC de Android (`Settings.ACTION_NFC_SETTINGS`).
+  - Se implementó en **Kotlin** el gestor `CameraQrManager.kt`, que verifica y solicita en tiempo de ejecución el permiso `android.permission.CAMERA` (`requestPermissions`), maneja `onRequestPermissionsResult` distinguiendo denegación simple o bloqueo permanente, abre los ajustes de permisos de la aplicación (`ACTION_APPLICATION_DETAILS_SETTINGS`) y ejecuta el escáner óptico nativo QR con auto-zoom (`GmsBarcodeScanning`).
+  - Se creó el puente `HardwareBridge` en Dart (`lib/core/platform/hardware_bridge.dart`) y el widget desacoplado `ScannerStatusCard` (`lib/features/reading/presentation/widgets/scanner_status_card.dart`), integrados en `ReadingController` y `ReadingPage`.
+  - Se incrementó la versión interna del proyecto a `v0.0.5+5`.
+
+- **Archivos creados:**
+  - `android/app/src/main/res/xml/nfc_tech_filter.xml`: Lista de tecnologías NFC soportadas.
+  - `android/app/src/main/kotlin/com/nexlabs/nexid/NfcHardwareManager.kt`: Lector NFC nativo en Kotlin (153 líneas).
+  - `android/app/src/main/kotlin/com/nexlabs/nexid/CameraQrManager.kt`: Gestor de permisos de cámara y escáner QR en Kotlin (113 líneas).
+  - `lib/core/platform/hardware_bridge.dart`: Puente MethodChannel en Dart (166 líneas).
+  - `lib/features/reading/presentation/widgets/scanner_status_card.dart`: Tarjeta de estado de hardware y controles de permisos (204 líneas).
+
+- **Archivos modificados:**
+  - `android/app/src/main/AndroidManifest.xml`: Permisos, features e intent-filters NFC/QR.
+  - `android/app/build.gradle.kts`: Dependencia `play-services-code-scanner:16.1.0`.
+  - `android/app/src/main/kotlin/com/nexlabs/nexid/MainActivity.kt`: Registro del canal `com.nexlabs.nexid/hardware` y ciclo de vida (85 líneas).
+  - `lib/features/reading/presentation/controllers/reading_controller.dart`: Coordinación reactiva con hardware real (208 líneas).
+  - `lib/features/reading/presentation/pages/reading_page.dart`: Integración con `ScannerStatusCard` (128 líneas).
+  - `lib/core/constants/app_version.dart` y `pubspec.yaml`: Versión elevada a `0.0.5+5`.
+  - `test/widget_test.dart`: Validación de estado de hardware y versión `v0.0.5`.
+
+---
+
 ## [0.0.4+4] - 2026-10-12
 
 ### [VIS-D] Desplegable Unificado de Opciones y Filtros en Registros y Actualizacion de Versiones Internas

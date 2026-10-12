@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.5+5] - 2026-10-12 — FUN-2 / VIS-E (Lectura Fisica NFC, Escaneo QR con Permisos en Tiempo de Ejecucion y AndroidManifest.xml)
+- Cambio: Integracion nativa completa en Kotlin para lectura de tarjetas NFC (`NfcAdapter.enableReaderMode`, NDEF y UID hexadecimal) y escaneo optico QR (`GmsBarcodeScanning`) con solicitud de permisos `android.permission.CAMERA` en tiempo de ejecucion, filtros de intent NFC y recursos XML (`nfc_tech_filter.xml`).
+- Modulos y componentes intervenidos:
+  - `AndroidManifest.xml` y `res/xml/nfc_tech_filter.xml`: permisos, hardware features opcionales e intent-filters NFC.
+  - `NfcHardwareManager.kt`, `CameraQrManager.kt` y `MainActivity.kt`: implementacion 100% en Kotlin (cero Java).
+  - `hardware_bridge.dart`, `scanner_status_card.dart`, `reading_controller.dart` y `reading_page.dart`: puente Dart, controles de permisos e interfaz reactiva.
+  - `app_version.dart` y `pubspec.yaml`: incremento a `0.0.5+5`.
+- Regla no-monolitos: 100% cumplida (<250 lineas por archivo).
+- Pruebas: 100% aprobadas con `flutter test` y 0 advertencias en `flutter analyze`.
+
 ## [0.0.4+4] - 2026-10-12 — VIS-D (Desplegable Unificado en Registros y Versionado Interno)
 - Cambio: Sustitucion de chips horizontales en Registros por `RecordsFilterDropdown` (desplegable con criterios de sincronizacion y tipo, orden cronologico reactivo y contador), creacion de `AppVersion` (0.0.4+4) y actualizacion sincronizada de `pubspec.yaml`, `SettingsPage` y suite de pruebas.
 - Modulos y componentes intervenidos:

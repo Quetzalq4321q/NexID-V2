@@ -33,11 +33,12 @@ void main() {
     await tester.tap(find.text('Iniciar Sesion'));
     await tester.pumpAndSettle();
 
-    // Verifica que AppShell, barra superior y boton circular estilo Google se rendericen
+    // Verifica que AppShell, barra superior, estado NFC y boton circular estilo Google se rendericen
     expect(find.text('NexID'), findsOneWidget);
     expect(find.text('Punto de control operativo'), findsOneWidget);
     expect(find.text('NFC Completo'), findsOneWidget);
     expect(find.text('QR Parcial'), findsOneWidget);
+    expect(find.text('NFC Activo'), findsOneWidget);
     expect(find.byType(GoogleAccountAvatarButton), findsOneWidget);
 
     // Prueba la apertura y visualizacion de la cuenta estilo Google desde el AppBar
@@ -91,8 +92,8 @@ void main() {
     await tester.scrollUntilVisible(find.text('Sincronizacion y Red'), 100);
     expect(find.text('Sincronizacion y Red'), findsOneWidget);
     expect(find.text('Vibracion al detectar credencial'), findsWidgets);
-    await tester.scrollUntilVisible(find.textContaining('v0.0.4'), 100);
-    expect(find.textContaining('v0.0.4'), findsOneWidget);
+    await tester.scrollUntilVisible(find.textContaining('v0.0.5'), 100);
+    expect(find.textContaining('v0.0.5'), findsOneWidget);
   });
 
   testWidgets('NexID adaptabilidad en pantalla estrecha extrema (320px)', (WidgetTester tester) async {
