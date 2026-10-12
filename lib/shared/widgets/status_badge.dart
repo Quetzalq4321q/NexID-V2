@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimensions.dart';
 import '../../core/constants/app_typography.dart';
+import '../../core/theme/nexid_palette.dart';
 
 /// Tipo de estado para el badge.
 enum BadgeType {
@@ -11,7 +11,7 @@ enum BadgeType {
   info,
 }
 
-/// Indicador visual compacto para estados segun agent/23_CACHE_USABLE.md.
+/// Indicador visual compacto para estados adaptable a tema Claro/Oscuro.
 class StatusBadge extends StatelessWidget {
   const StatusBadge({
     super.key,
@@ -26,22 +26,27 @@ class StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (Color bgColor, Color textColor) = switch (type) {
+    final NexIdPalette palette = NexIdPalette.of(context);
+    final (Color bgColor, Color textColor, Color borderColor) = switch (type) {
       BadgeType.pending => (
-          AppColors.warning.withAlpha(25),
-          AppColors.warning,
+          palette.warningSurface,
+          palette.warning,
+          palette.warning.withAlpha(140),
         ),
       BadgeType.confirmed => (
-          AppColors.success.withAlpha(25),
-          AppColors.success,
+          palette.successSurface,
+          palette.success,
+          palette.success.withAlpha(140),
         ),
       BadgeType.review => (
-          AppColors.error.withAlpha(25),
-          AppColors.error,
+          palette.errorSurface,
+          palette.error,
+          palette.error.withAlpha(140),
         ),
       BadgeType.info => (
-          AppColors.surfaceAccent,
-          AppColors.textPrimary,
+          palette.surfaceAccent,
+          palette.textPrimary,
+          palette.border,
         ),
     };
 
@@ -54,7 +59,7 @@ class StatusBadge extends StatelessWidget {
         color: bgColor,
         borderRadius: BorderRadius.circular(6.0),
         border: Border.all(
-          color: type == BadgeType.info ? AppColors.border : textColor,
+          color: borderColor,
           width: 1.0,
         ),
       ),

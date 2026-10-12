@@ -20,7 +20,20 @@ enum RecordSyncStatus {
   final String label;
 }
 
-/// Registro durable de un evento de control o asistencia.
+/// Entrada del historial auditable de modificaciones de un registro.
+class RecordChangeEntry {
+  const RecordChangeEntry({
+    required this.timestampLabel,
+    required this.actor,
+    required this.action,
+  });
+
+  final String timestampLabel;
+  final String actor;
+  final String action;
+}
+
+/// Registro durable y auditable de un evento de control o asistencia.
 class EventRecord {
   const EventRecord({
     required this.id,
@@ -35,7 +48,11 @@ class EventRecord {
     required this.timestamp,
     required this.syncStatus,
     this.attemptCount = 0,
-  });
+    this.operatorName = 'Carlos Vega (op_puerta)',
+    DateTime? lastModifiedAt,
+    this.relatedInfo = 'Verificacion criptografica de token institucional OK',
+    this.changeHistory = const <RecordChangeEntry>[],
+  }) : lastModifiedAt = lastModifiedAt ?? timestamp;
 
   final String id;
   final String idempotencyKey;
@@ -49,10 +66,18 @@ class EventRecord {
   final DateTime timestamp;
   final RecordSyncStatus syncStatus;
   final int attemptCount;
+  final String operatorName;
+  final DateTime lastModifiedAt;
+  final String relatedInfo;
+  final List<RecordChangeEntry> changeHistory;
 
   EventRecord copyWith({
     RecordSyncStatus? syncStatus,
     int? attemptCount,
+    String? operatorName,
+    DateTime? lastModifiedAt,
+    String? relatedInfo,
+    List<RecordChangeEntry>? changeHistory,
   }) {
     return EventRecord(
       id: id,
@@ -67,6 +92,10 @@ class EventRecord {
       timestamp: timestamp,
       syncStatus: syncStatus ?? this.syncStatus,
       attemptCount: attemptCount ?? this.attemptCount,
+      operatorName: operatorName ?? this.operatorName,
+      lastModifiedAt: lastModifiedAt ?? DateTime.now(),
+      relatedInfo: relatedInfo ?? this.relatedInfo,
+      changeHistory: changeHistory ?? this.changeHistory,
     );
   }
 }

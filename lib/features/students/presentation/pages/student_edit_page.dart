@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../app/app_dependencies.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/theme/nexid_palette.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/student_models.dart';
 
@@ -71,19 +71,29 @@ class _StudentEditPageState extends State<StudentEditPage> {
 
     if (!mounted) return;
     setState(() => _isSaving = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Datos del alumno actualizados en cache local.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
     Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: palette.background,
       appBar: AppBar(
-        title: const Text('Editar Alumno', style: AppTypography.titleMedium),
-        backgroundColor: AppColors.background,
+        title: Text(
+          'Editar Alumno',
+          style: AppTypography.titleMedium.copyWith(color: palette.textPrimary),
+        ),
+        backgroundColor: palette.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back, color: palette.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -95,13 +105,13 @@ class _StudentEditPageState extends State<StudentEditPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildTextField('Nombres y Apellidos', _nameController),
+                _buildTextField('Nombres y Apellidos', _nameController, palette),
                 const SizedBox(height: AppDimensions.spaceMedium),
-                _buildTextField('Carrera Profesional', _careerController),
+                _buildTextField('Carrera Profesional', _careerController, palette),
                 const SizedBox(height: AppDimensions.spaceMedium),
-                _buildTextField('Facultad', _facultyController),
+                _buildTextField('Facultad', _facultyController, palette),
                 const SizedBox(height: AppDimensions.spaceMedium),
-                _buildTextField('Documento de Identidad', _documentController),
+                _buildTextField('Documento de Identidad', _documentController, palette),
                 const SizedBox(height: AppDimensions.spaceLarge),
                 PrimaryButton(
                   label: 'Guardar Cambios',
@@ -117,20 +127,16 @@ class _StudentEditPageState extends State<StudentEditPage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller,
+    NexIdPalette palette,
+  ) {
     return TextField(
       controller: controller,
+      style: AppTypography.bodyMedium.copyWith(color: palette.textPrimary),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: AppTypography.bodySmall,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.radius),
-          borderSide: const BorderSide(color: AppColors.border),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.radius),
-          borderSide: const BorderSide(color: AppColors.border),
-        ),
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/theme/nexid_palette.dart';
 import '../../../../shared/widgets/secondary_button.dart';
 import '../../../places/presentation/controllers/places_controller.dart';
 import '../../../places/presentation/widgets/place_selector_dropdown.dart';
@@ -43,6 +43,7 @@ class _ReadingPageState extends State<ReadingPage> {
         widget.placesController,
       ]),
       builder: (BuildContext context, _) {
+        final NexIdPalette palette = NexIdPalette.of(context);
         final ReadingController controller = widget.readingController;
         final String placeId =
             widget.placesController.selectedPlace?.id ?? 'PL-01';
@@ -56,7 +57,7 @@ class _ReadingPageState extends State<ReadingPage> {
         }
 
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: palette.background,
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppDimensions.spaceLarge),
@@ -65,9 +66,11 @@ class _ReadingPageState extends State<ReadingPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
+                    Text(
                       'Punto de control operativo',
-                      style: AppTypography.caption,
+                      style: AppTypography.caption.copyWith(
+                        color: palette.textSecondary,
+                      ),
                     ),
                     const SizedBox(height: AppDimensions.spaceSmall),
                     PlaceSelectorDropdown(
@@ -84,7 +87,7 @@ class _ReadingPageState extends State<ReadingPage> {
                       activePlaceId: placeId,
                     ),
                     const SizedBox(height: AppDimensions.spaceLarge),
-                    _buildTestTokensSection(controller),
+                    _buildTestTokensSection(controller, palette),
                   ],
                 ),
               ),
@@ -95,20 +98,25 @@ class _ReadingPageState extends State<ReadingPage> {
     );
   }
 
-  Widget _buildTestTokensSection(ReadingController controller) {
+  Widget _buildTestTokensSection(
+    ReadingController controller,
+    NexIdPalette palette,
+  ) {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.spaceMedium),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(AppDimensions.radius),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Credenciales de prueba local',
-            style: AppTypography.caption,
+            style: AppTypography.caption.copyWith(
+              color: palette.textSecondary,
+            ),
           ),
           const SizedBox(height: AppDimensions.spaceSmall),
           Wrap(

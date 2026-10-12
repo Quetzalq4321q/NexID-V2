@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/platform/hardware_bridge.dart';
+import '../../../../core/theme/nexid_palette.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/secondary_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
@@ -22,16 +22,18 @@ class ScannerStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     final bool isNfc = controller.selectedMedium == ReadingMedium.nfc;
     final bool isListening = controller.captureState == CaptureState.listening;
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       padding: const EdgeInsets.all(AppDimensions.spaceLarge),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(AppDimensions.radius),
         border: Border.all(
-          color: isListening ? AppColors.primary : AppColors.border,
+          color: isListening ? palette.primary : palette.border,
           width: isListening ? 2.0 : 1.0,
         ),
       ),
@@ -39,12 +41,14 @@ class ScannerStatusCard extends StatelessWidget {
         children: [
           _buildHardwareBadge(isNfc),
           const SizedBox(height: AppDimensions.spaceMedium),
-          _buildScannerIcon(isNfc, isListening),
+          _buildScannerIcon(isNfc, isListening, palette),
           const SizedBox(height: AppDimensions.spaceMedium),
           Text(
             _buildTitleText(isNfc, isListening),
             textAlign: TextAlign.center,
-            style: AppTypography.titleMedium,
+            style: AppTypography.titleMedium.copyWith(
+              color: palette.textPrimary,
+            ),
           ),
           const SizedBox(height: AppDimensions.spaceSmall),
           Text(
@@ -52,18 +56,20 @@ class ScannerStatusCard extends StatelessWidget {
                 ? 'Lectura por proximidad (NDEF / IsoDep / Mifare). El hardware NFC consulta la ficha completa autorizada.'
                 : 'Lectura optica con permiso de camara. El sistema proyecta unicamente los campos permitidos.',
             textAlign: TextAlign.center,
-            style: AppTypography.bodySmall,
+            style: AppTypography.bodySmall.copyWith(
+              color: palette.textSecondary,
+            ),
           ),
           if (isNfc && controller.lastDetectedUid != null) ...[
             const SizedBox(height: AppDimensions.spaceSmall),
-            _buildLastTagMetadata(),
+            _buildLastTagMetadata(palette),
           ],
           if (controller.errorMessage != null) ...[
             const SizedBox(height: AppDimensions.spaceMedium),
-            _buildErrorAndPermissionBanner(isNfc),
+            _buildErrorAndPermissionBanner(isNfc, palette),
           ],
           const SizedBox(height: AppDimensions.spaceLarge),
-          _buildActionControl(isNfc, isListening),
+          _buildActionControl(isNfc, isListening, palette),
         ],
       ),
     );
@@ -95,18 +101,19 @@ class ScannerStatusCard extends StatelessWidget {
     }
   }
 
-  Widget _buildScannerIcon(bool isNfc, bool isListening) {
-    return Container(
+  Widget _buildScannerIcon(bool isNfc, bool isListening, NexIdPalette palette) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       width: 72,
       height: 72,
       decoration: BoxDecoration(
-        color: isListening ? AppColors.primary : AppColors.surfaceAccent,
+        color: isListening ? palette.primary : palette.surfaceAccent,
         shape: BoxShape.circle,
       ),
       child: Icon(
         isNfc ? Icons.nfc : Icons.qr_code_scanner,
         size: 36,
-        color: isListening ? AppColors.background : AppColors.textPrimary,
+        color: isListening ? palette.onPrimary : palette.textPrimary,
       ),
     );
   }
@@ -122,7 +129,7 @@ class ScannerStatusCard extends StatelessWidget {
         : 'Camara lista para escanear QR';
   }
 
-  Widget _buildLastTagMetadata() {
+  Widget _buildLastTagMetadata(NexIdPalette palette) {
     final String techs = controller.lastDetectedTechs.isEmpty
         ? 'Tag NFC'
         : controller.lastDetectedTechs.join(', ');
@@ -132,32 +139,32 @@ class ScannerStatusCard extends StatelessWidget {
         vertical: 4,
       ),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: palette.surfaceSubtle,
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: Text(
         'Ultimo UID: ${controller.lastDetectedUid} ($techs)',
-        style: AppTypography.caption,
+        style: AppTypography.caption.copyWith(color: palette.textSecondary),
         textAlign: TextAlign.center,
       ),
     );
   }
 
-  Widget _buildErrorAndPermissionBanner(bool isNfc) {
+  Widget _buildErrorAndPermissionBanner(bool isNfc, NexIdPalette palette) {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.spaceMedium),
       decoration: BoxDecoration(
-        color: AppColors.error.withAlpha(18),
+        color: palette.errorSurface,
         borderRadius: BorderRadius.circular(AppDimensions.radius),
-        border: Border.all(color: AppColors.error),
+        border: Border.all(color: palette.error),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             controller.errorMessage!,
-            style: AppTypography.bodySmall.copyWith(color: AppColors.error),
+            style: AppTypography.bodySmall.copyWith(color: palette.error),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppDimensions.spaceSmall),
@@ -190,12 +197,16 @@ class ScannerStatusCard extends StatelessWidget {
     );
   }
 
-  Widget _buildActionControl(bool isNfc, bool isListening) {
+  Widget _buildActionControl(
+    bool isNfc,
+    bool isListening,
+    NexIdPalette palette,
+  ) {
     if (controller.captureState == CaptureState.resolving) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 12),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+          valueColor: AlwaysStoppedAnimation<Color>(palette.primary),
         ),
       );
     }

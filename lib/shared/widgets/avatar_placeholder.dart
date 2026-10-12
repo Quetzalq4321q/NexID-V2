@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimensions.dart';
 import '../../core/constants/app_typography.dart';
+import '../../core/theme/nexid_palette.dart';
 
-/// Marcador visual geometrico para fotos de perfil segun agent/03_DISENO.md.
-/// No utiliza emojis ni decoraciones excesivas.
+/// Marcador visual geometrico para fotos de perfil adaptable a tema Claro y Oscuro.
 class AvatarPlaceholder extends StatelessWidget {
   const AvatarPlaceholder({
     super.key,
@@ -27,14 +26,15 @@ class AvatarPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: AppColors.surfaceAccent,
+        color: palette.surfaceAccent,
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.circular(AppDimensions.radius),
-        border: Border.all(color: AppColors.border, width: 1.5),
+        border: Border.all(color: palette.border, width: 1.5),
       ),
       alignment: Alignment.center,
       child: Text(
@@ -42,7 +42,7 @@ class AvatarPlaceholder extends StatelessWidget {
         style: AppTypography.titleMedium.copyWith(
           fontSize: size * 0.35,
           fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
+          color: palette.textPrimary,
         ),
       ),
     );

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.6+6] - 2026-10-12 — VIS-F / FUN-3 (Accesibilidad WCAG 2.2, Temas Independientes Claro/Oscuro, Skeleton Loading, Ampliacion de Alumnos/Registros y Vista Previa PDF A4)
+- Cambio: Implementacion integral de accesibilidad WCAG 2.2 con deteccion automatica del tema del SO (`Claro`, `Oscuro`, `Automatico`), tokens semanticos independientes (`NexIdPalette`), escala tipografica (90%-130%), alto contraste y reduccion de movimiento; sistema global de Skeleton Loading (`DataStateBoundary`, `ShimmerBox`, `StudentListSkeleton`, `RecordListSkeleton`); ampliacion del modulo de alumnos en 3 pestañas (`Personal`, `Academico`, `Seguimiento` con datos demo identificados); enriquecimiento del modulo de registros con KPIs, busqueda avanzada, paginacion progresiva y hoja modal de auditoria (`RecordDetailSheet`); y muestra interactiva de documento PDF en formato A4 (`PdfPreviewPage`, `PdfA4SheetWidget`).
+- Modulos y componentes intervenidos:
+  - `nexid_palette.dart` y `app_theme.dart`: tokens semanticos independientes Claro/Oscuro/Alto Contraste.
+  - `settings/`: `ThemeAppearanceCard`, `AccessibilityControlsCard`, `SettingsController`, `SettingsPage`.
+  - `skeleton/`: `shimmer_skeleton.dart`, `module_skeletons.dart`.
+  - `students/`: `student_models.dart`, `students_repository.dart`, `students_controller.dart`, `students_page.dart`, `student_full_profile_page.dart`, `student_profile_tabs.dart`.
+  - `records/`: `record_models.dart`, `records_repository.dart`, `records_controller.dart`, `records_page.dart`, `record_detail_sheet.dart`.
+  - `reports/`: `pdf_preview_page.dart`, `pdf_a4_sheet_widget.dart`, `pdf_a4_sections_widget.dart`, `reports_page.dart`.
+  - `AGENTS.md` y `agent/24_ACCESIBILIDAD_Y_TEMAS.md`: documentacion arquitectonica completa.
+- Regla no-monolitos: 100% cumplida (<250 lineas por archivo).
+- Pruebas: 100% aprobadas con `flutter test` en modos Claro y Oscuro y 0 advertencias en `flutter analyze`.
+
 ## [0.0.5+5] - 2026-10-12 — FUN-2 / VIS-E (Lectura Fisica NFC, Escaneo QR con Permisos en Tiempo de Ejecucion y AndroidManifest.xml)
 - Cambio: Integracion nativa completa en Kotlin para lectura de tarjetas NFC (`NfcAdapter.enableReaderMode`, NDEF y UID hexadecimal) y escaneo optico QR (`GmsBarcodeScanning`) con solicitud de permisos `android.permission.CAMERA` en tiempo de ejecucion, filtros de intent NFC y recursos XML (`nfc_tech_filter.xml`).
 - Modulos y componentes intervenidos:

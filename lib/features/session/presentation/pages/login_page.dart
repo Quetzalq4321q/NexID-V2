@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/theme/nexid_palette.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/session_models.dart';
 import '../controllers/session_controller.dart';
@@ -49,8 +49,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: palette.background,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -64,54 +65,59 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Marcador de marca NexID
                   Container(
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: palette.primary,
                       borderRadius: BorderRadius.circular(AppDimensions.radius),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.nfc_outlined,
                       size: 36,
-                      color: AppColors.background,
+                      color: palette.onPrimary,
                     ),
                   ),
                   const SizedBox(height: AppDimensions.spaceLarge),
-
-                  const Text(
+                  Text(
                     'NexID',
-                    style: AppTypography.titleLarge,
+                    style: AppTypography.titleLarge.copyWith(
+                      color: palette.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: AppDimensions.spaceSmall),
-                  const Text(
+                  Text(
                     'Control local de credenciales NFC y QR. Seleccione un perfil de operador o ingrese credenciales.',
-                    style: AppTypography.bodySmall,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: palette.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: AppDimensions.spaceExtraLarge),
-
-                  // Selector rapido para pruebas locales
                   Container(
                     padding: const EdgeInsets.all(AppDimensions.spaceMedium),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: palette.surface,
                       borderRadius: BorderRadius.circular(AppDimensions.radius),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: palette.border),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Perfil local de prueba',
-                          style: AppTypography.caption,
+                          style: AppTypography.caption.copyWith(
+                            color: palette.textSecondary,
+                          ),
                         ),
                         const SizedBox(height: AppDimensions.spaceSmall),
                         DropdownButtonFormField<OperatorUser>(
                           initialValue: _selectedQuickOperator,
-                          hint: const Text(
+                          dropdownColor: palette.surfaceElevated,
+                          hint: Text(
                             'Seleccionar operador local',
-                            style: AppTypography.bodySmall,
+                            style: AppTypography.bodySmall.copyWith(
+                              color: palette.textSecondary,
+                            ),
                           ),
                           isExpanded: true,
                           decoration: const InputDecoration(
@@ -124,7 +130,9 @@ class _LoginPageState extends State<LoginPage> {
                               value: op,
                               child: Text(
                                 '${op.displayName} (${op.role.label})',
-                                style: AppTypography.bodyMedium,
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: palette.textPrimary,
+                                ),
                               ),
                             );
                           }).toList(),
@@ -134,47 +142,27 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: AppDimensions.spaceLarge),
-
-                  // Campos de formulario
                   TextField(
                     controller: _usernameController,
-                    decoration: InputDecoration(
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: palette.textPrimary,
+                    ),
+                    decoration: const InputDecoration(
                       labelText: 'Usuario operador',
-                      labelStyle: AppTypography.bodySmall,
-                      border: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppDimensions.radius),
-                        borderSide: const BorderSide(color: AppColors.border),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppDimensions.radius),
-                        borderSide: const BorderSide(color: AppColors.border),
-                      ),
                     ),
                   ),
                   const SizedBox(height: AppDimensions.spaceMedium),
-
                   TextField(
                     controller: _passwordController,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: palette.textPrimary,
+                    ),
+                    decoration: const InputDecoration(
                       labelText: 'Contrasena',
-                      labelStyle: AppTypography.bodySmall,
-                      border: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppDimensions.radius),
-                        borderSide: const BorderSide(color: AppColors.border),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppDimensions.radius),
-                        borderSide: const BorderSide(color: AppColors.border),
-                      ),
                     ),
                   ),
                   const SizedBox(height: AppDimensions.spaceLarge),
-
                   PrimaryButton(
                     label: 'Iniciar Sesion',
                     icon: Icons.login_outlined,

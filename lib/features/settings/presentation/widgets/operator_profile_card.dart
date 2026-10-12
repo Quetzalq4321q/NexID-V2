@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/theme/nexid_palette.dart';
 import '../../../session/domain/session_models.dart';
 import '../../../session/presentation/widgets/google_account_sheet.dart';
 
@@ -20,6 +20,7 @@ class OperatorProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     final String initial = user.displayName.isNotEmpty
         ? user.displayName.trim()[0].toUpperCase()
         : 'U';
@@ -27,9 +28,9 @@ class OperatorProfileCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.spaceMedium),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(AppDimensions.radius),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: Row(
         children: [
@@ -37,15 +38,15 @@ class OperatorProfileCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: palette.primary,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.surfaceAccent, width: 2.0),
+              border: Border.all(color: palette.surfaceAccent, width: 2.0),
             ),
             alignment: Alignment.center,
             child: Text(
               initial,
               style: AppTypography.titleMedium.copyWith(
-                color: AppColors.background,
+                color: palette.onPrimary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -58,12 +59,15 @@ class OperatorProfileCard extends StatelessWidget {
                 Text(
                   user.displayName,
                   style: AppTypography.bodyMedium.copyWith(
+                    color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
                   '@${user.username} · ${user.role.label}',
-                  style: AppTypography.bodySmall,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: palette.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -71,7 +75,8 @@ class OperatorProfileCard extends StatelessWidget {
           OutlinedButton(
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: palette.border),
+              foregroundColor: palette.textPrimary,
             ),
             onPressed: () => GoogleAccountSheet.show(
               context,

@@ -6,6 +6,42 @@ El proyecto utiliza versionado semántico formal (`MAJOR.MINOR.PATCH+BUILD`) a p
 
 ---
 
+## [0.0.6+6] - 2026-10-12
+
+### [VIS-F / FUN-3] Sistema de Accesibilidad WCAG 2.2, Temas Independientes Claro/Oscuro, Skeleton Loading, Expediente de Alumnos, Auditoria de Registros y Vista Previa PDF A4
+- **Fecha:** 2026-10-12
+- **Categoría:** Accesibilidad / UI-UX / Temas / Skeletons / Alumnos / Registros / PDF A4
+- **Estado:** Implementado y Verificado
+- **Solicitud del usuario:**
+  - Implementar un apartado de accesibilidad y apariencia en Configuración capaz de detectar automáticamente el tema del SO (`Claro`, `Oscuro`, `Automático`) con independencia total entre modo claro y modo oscuro, escala de fuente, alto contraste, reducción de animaciones y soporte para lector de pantalla (WCAG 2.2).
+  - Integrar un sistema global de Skeleton Loading adaptado a cada módulo con estados de carga, caché, vacío y error con reintento.
+  - Ampliar el módulo de alumnos con expediente por pestañas (datos personales, académicos, cursos, asistencia, observaciones, documentos y auditoría con datos de demostración identificados) y el módulo de registros con KPIs, búsqueda, paginación progresiva e historial de cambios.
+  - Desarrollar una vista previa interactiva en formato A4 para documentos PDF (Ficha de Alumno y Reporte de Registros) y actualizar `AGENTS.md`.
+
+- **Archivos creados:**
+  - `lib/core/theme/nexid_palette.dart`
+  - `lib/features/settings/presentation/widgets/theme_appearance_card.dart`
+  - `lib/features/settings/presentation/widgets/accessibility_controls_card.dart`
+  - `lib/shared/widgets/skeleton/shimmer_skeleton.dart`
+  - `lib/shared/widgets/skeleton/module_skeletons.dart`
+  - `lib/features/students/presentation/pages/student_full_profile_page.dart`
+  - `lib/features/students/presentation/widgets/student_profile_tabs.dart`
+  - `lib/features/records/presentation/widgets/record_detail_sheet.dart`
+  - `lib/features/reports/presentation/pages/pdf_preview_page.dart`
+  - `lib/features/reports/presentation/widgets/pdf_a4_sheet_widget.dart`
+  - `lib/features/reports/presentation/widgets/pdf_a4_sections_widget.dart`
+  - `agent/24_ACCESIBILIDAD_Y_TEMAS.md`
+
+- **Archivos modificados:**
+  - `lib/app/app.dart`, `lib/app/app_theme.dart`, `lib/app/app_shell.dart`
+  - `lib/features/settings/domain/settings_models.dart`, `lib/features/settings/presentation/controllers/settings_controller.dart`, `lib/features/settings/presentation/pages/settings_page.dart`
+  - `lib/features/students/domain/student_models.dart`, `lib/features/students/data/students_repository.dart`, `lib/features/students/presentation/controllers/students_controller.dart`, `lib/features/students/presentation/pages/students_page.dart`
+  - `lib/features/records/domain/record_models.dart`, `lib/features/records/data/records_repository.dart`, `lib/features/records/presentation/controllers/records_controller.dart`, `lib/features/records/presentation/pages/records_page.dart`
+  - `lib/features/reports/presentation/pages/reports_page.dart`, `lib/features/reports/presentation/widgets/report_job_card.dart`
+  - `lib/core/constants/app_version.dart`, `pubspec.yaml`, `AGENTS.md`, `test/widget_test.dart`
+
+---
+
 ## [0.0.5+5] - 2026-10-12
 
 ### [FUN-2 / VIS-E] Funcionalidad Nativa Completa de Lectura NFC, Escaneo QR con Permisos en Tiempo de Ejecucion y AndroidManifest.xml

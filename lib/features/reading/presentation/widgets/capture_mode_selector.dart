@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/theme/nexid_palette.dart';
 import '../../domain/credential_models.dart';
 
 /// Selector accesible entre modalidades NFC y QR.
@@ -17,11 +17,12 @@ class CaptureModeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(AppDimensions.radius),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       padding: const EdgeInsets.all(4.0),
       child: Row(
@@ -31,6 +32,7 @@ class CaptureModeSelector extends StatelessWidget {
               medium: ReadingMedium.nfc,
               label: 'NFC Completo',
               icon: Icons.nfc_outlined,
+              palette: palette,
             ),
           ),
           const SizedBox(width: 4.0),
@@ -39,6 +41,7 @@ class CaptureModeSelector extends StatelessWidget {
               medium: ReadingMedium.qr,
               label: 'QR Parcial',
               icon: Icons.qr_code_scanner_outlined,
+              palette: palette,
             ),
           ),
         ],
@@ -50,12 +53,13 @@ class CaptureModeSelector extends StatelessWidget {
     required ReadingMedium medium,
     required String label,
     required IconData icon,
+    required NexIdPalette palette,
   }) {
     final bool isSelected = selectedMedium == medium;
     return SizedBox(
       height: AppDimensions.minTouchTarget,
       child: Material(
-        color: isSelected ? AppColors.primary : Colors.transparent,
+        color: isSelected ? palette.primary : Colors.transparent,
         borderRadius: BorderRadius.circular(AppDimensions.radius - 2),
         child: InkWell(
           borderRadius: BorderRadius.circular(AppDimensions.radius - 2),
@@ -66,7 +70,7 @@ class CaptureModeSelector extends StatelessWidget {
               Icon(
                 icon,
                 size: 20,
-                color: isSelected ? AppColors.background : AppColors.textPrimary,
+                color: isSelected ? palette.onPrimary : palette.textPrimary,
               ),
               const SizedBox(width: AppDimensions.spaceSmall),
               Flexible(
@@ -76,9 +80,7 @@ class CaptureModeSelector extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.buttonText.copyWith(
                     fontSize: 13,
-                    color: isSelected
-                        ? AppColors.background
-                        : AppColors.textPrimary,
+                    color: isSelected ? palette.onPrimary : palette.textPrimary,
                   ),
                 ),
               ),

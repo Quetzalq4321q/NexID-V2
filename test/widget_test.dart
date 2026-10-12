@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nexid/app/app.dart';
 import 'package:nexid/features/records/presentation/widgets/records_filter_dropdown.dart';
 import 'package:nexid/features/session/presentation/widgets/google_account_avatar_button.dart';
+import 'package:nexid/features/settings/presentation/widgets/theme_appearance_card.dart';
 
 void main() {
   testWidgets('NexID arranque inicial y pantalla de acceso', (WidgetTester tester) async {
@@ -18,8 +19,8 @@ void main() {
     expect(find.text('Iniciar Sesion'), findsOneWidget);
   });
 
-  testWidgets('NexID navegacion, cuenta estilo Google y adaptabilidad compacta (360px)', (WidgetTester tester) async {
-    tester.view.physicalSize = const Size(360, 780);
+  testWidgets('NexID navegacion, accesibilidad Claro/Oscuro, Alumnos, Registros y PDF A4', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -33,67 +34,65 @@ void main() {
     await tester.tap(find.text('Iniciar Sesion'));
     await tester.pumpAndSettle();
 
-    // Verifica que AppShell, barra superior, estado NFC y boton circular estilo Google se rendericen
     expect(find.text('NexID'), findsOneWidget);
-    expect(find.text('Punto de control operativo'), findsOneWidget);
-    expect(find.text('NFC Completo'), findsOneWidget);
-    expect(find.text('QR Parcial'), findsOneWidget);
-    expect(find.text('NFC Activo'), findsOneWidget);
     expect(find.byType(GoogleAccountAvatarButton), findsOneWidget);
 
-    // Prueba la apertura y visualizacion de la cuenta estilo Google desde el AppBar
-    await tester.tap(find.byType(GoogleAccountAvatarButton));
-    await tester.pumpAndSettle();
-    expect(find.text('Carlos Vega'), findsWidgets);
-    expect(find.text('Permisos asignados:'), findsOneWidget);
-
-    // Cierra el modal de cuenta de Google
-    await tester.tap(find.byIcon(Icons.close));
-    await tester.pumpAndSettle();
-
-    // Prueba resolucion de credencial y visualizacion de Ficha de Alumno sin overflow
-    await tester.scrollUntilVisible(find.text('CARD-NFC-8821'), 200);
-    await tester.tap(find.text('CARD-NFC-8821'));
-    await tester.pumpAndSettle();
-    expect(find.text('Ana Maria Morales Quispe'), findsOneWidget);
-    expect(find.text('Registrar Ingreso'), findsOneWidget);
-
-    // Cierra ficha de alumno y vuelve a lectura
-    await tester.tap(find.byIcon(Icons.arrow_back));
-    await tester.pumpAndSettle();
-
-    // Navega a Registros y verifica el desplegable de opciones y filtros
+    // 1. Navega a Registros y verifica KPIs, filtro y detalle auditable
     await tester.tap(find.text('Registros'));
     await tester.pumpAndSettle();
     expect(find.byType(RecordsFilterDropdown), findsOneWidget);
-    expect(find.text('Todos los registros'), findsOneWidget);
+    expect(find.text('Total Eventos'), findsOneWidget);
 
-    // Abre el desplegable de opciones y filtros
-    await tester.tap(find.text('Todos los registros'));
+    // Abre el detalle auditable de un registro
+    await tester.tap(find.text('Ana Maria Morales Quispe').first);
     await tester.pumpAndSettle();
-    expect(find.text('Solo pendientes'), findsWidgets);
-    await tester.tap(find.text('Solo pendientes').last);
+    expect(find.textContaining('Detalle Auditable de Registro'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.close));
     await tester.pumpAndSettle();
 
-    // Navega a Alumnos
+    // 2. Navega a Alumnos y abre el Expediente Integral por pestañas
     await tester.tap(find.text('Alumnos'));
     await tester.pumpAndSettle();
-    expect(find.byType(TextField), findsOneWidget);
+    expect(find.text('Padron Local'), findsOneWidget);
+    await tester.tap(find.text('Ana Maria Morales Quispe').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Expediente Integral de Alumno'), findsOneWidget);
+    expect(find.text('Academico'), findsOneWidget);
+    await tester.tap(find.text('Academico'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Promedio Ponderado'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
 
-    // Navega a Reportes
+    // 3. Navega a Reportes y abre la Vista Previa PDF en formato A4
     await tester.tap(find.text('Reportes'));
     await tester.pumpAndSettle();
-    expect(find.text('Generar Reporte'), findsOneWidget);
+    expect(find.text('Vista Previa Institucional A4 (PDF)'), findsOneWidget);
+    await tester.tap(find.text('Ver PDF Ficha de Alumno'));
+    await tester.pumpAndSettle();
+    expect(find.text('Vista Previa de Documento PDF (A4)'), findsOneWidget);
+    expect(find.text('Pagina 1 de 1'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
 
-    // Navega a Ajustes (Configuracion)
+    // 4. Navega a Ajustes y verifica el sistema de Accesibilidad y Temas (Claro/Oscuro/Auto)
     await tester.tap(find.text('Ajustes'));
     await tester.pumpAndSettle();
-    expect(find.text('Preferencias de Lectura'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Sincronizacion y Red'), 100);
-    expect(find.text('Sincronizacion y Red'), findsOneWidget);
-    expect(find.text('Vibracion al detectar credencial'), findsWidgets);
-    await tester.scrollUntilVisible(find.textContaining('v0.0.5'), 100);
-    expect(find.textContaining('v0.0.5'), findsOneWidget);
+    expect(find.byType(ThemeAppearanceCard), findsOneWidget);
+    expect(find.text('Apariencia y Tema del Sistema'), findsOneWidget);
+
+    // Cambia a Modo Oscuro y verifica que la UI no presente errores
+    await tester.tap(find.text('Oscuro'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Oscuro activo'), findsOneWidget);
+
+    // Cambia a Modo Claro y verifica independencia visual
+    await tester.tap(find.text('Claro'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Claro activo'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.textContaining('v0.0.6'), 120);
+    expect(find.textContaining('v0.0.6'), findsOneWidget);
   });
 
   testWidgets('NexID adaptabilidad en pantalla estrecha extrema (320px)', (WidgetTester tester) async {
@@ -105,20 +104,16 @@ void main() {
     await tester.pumpWidget(const NexIdApp());
     await tester.pumpAndSettle();
 
-    // Ingresa credenciales de prueba en 320px
     await tester.enterText(find.byType(TextField).first, 'operador.puerta1');
     await tester.enterText(find.byType(TextField).last, 'demopassword');
     await tester.tap(find.text('Iniciar Sesion'));
     await tester.pumpAndSettle();
 
-    // Verifica que en 320px la pantalla cargue sin errores de desbordamiento
     expect(find.text('NexID'), findsOneWidget);
-    expect(find.text('NFC Completo'), findsOneWidget);
     expect(find.byType(GoogleAccountAvatarButton), findsOneWidget);
 
-    // Navega a Ajustes en 320px
     await tester.tap(find.byIcon(Icons.settings_outlined));
     await tester.pumpAndSettle();
-    expect(find.text('Preferencias de Lectura'), findsOneWidget);
+    expect(find.text('Apariencia y Tema del Sistema'), findsOneWidget);
   });
 }

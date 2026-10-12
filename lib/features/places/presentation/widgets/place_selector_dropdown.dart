@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/theme/nexid_palette.dart';
 import '../../domain/place_model.dart';
 import '../controllers/places_controller.dart';
 
@@ -16,6 +16,7 @@ class PlaceSelectorDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     final Place? currentPlace = controller.selectedPlace;
 
     return Container(
@@ -24,24 +25,25 @@ class PlaceSelectorDropdown extends StatelessWidget {
         vertical: 4.0,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(AppDimensions.radius),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<Place>(
           value: currentPlace,
           isExpanded: true,
-          icon: const Icon(Icons.arrow_drop_down, color: AppColors.textPrimary),
+          dropdownColor: palette.surfaceElevated,
+          icon: Icon(Icons.arrow_drop_down, color: palette.textPrimary),
           items: controller.places.map((Place place) {
             return DropdownMenuItem<Place>(
               value: place,
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.location_on_outlined,
                     size: 18,
-                    color: AppColors.primary,
+                    color: palette.primary,
                   ),
                   const SizedBox(width: AppDimensions.spaceSmall),
                   Expanded(
@@ -49,7 +51,7 @@ class PlaceSelectorDropdown extends StatelessWidget {
                       place.name,
                       style: AppTypography.bodySmall.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: palette.textPrimary,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),

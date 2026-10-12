@@ -16,21 +16,43 @@ enum RecordFilterCriteria {
   final String label;
 }
 
-/// Controlador para la gestion de registros y filtrado.
+/// Controlador para la gestion de registros con busqueda avanzada, KPIs,
+/// estados de Skeleton Loading y paginacion progresiva.
 class RecordsController extends ChangeNotifier {
-  RecordsController({required this._repository}) {
+  RecordsController({required this.repository}) {
     loadRecords();
   }
 
-  final RecordsRepository _repository;
-  List<EventRecord> _records = [];
+  static const int pageSize = 6;
+
+  final RecordsRepository repository;
+  List<EventRecord> _records = <EventRecord>[];
   bool _isLoading = false;
+  String? _errorMessage;
   RecordFilterCriteria _filterCriteria = RecordFilterCriteria.all;
   String? _placeFilter;
+  String _searchQuery = '';
   bool _sortDescending = true;
+  int _visibleLimit = pageSize;
+
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  bool get hasCachedData => _records.isNotEmpty;
+  RecordFilterCriteria get filterCriteria => _filterCriteria;
+  bool get sortDescending => _sortDescending;
+  String? get placeFilter => _placeFilter;
+  String get searchQuery => _searchQuery;
+
+  int get totalCount => _records.length;
+  int get confirmedCount => _records
+      .where((EventRecord r) => r.syncStatus == RecordSyncStatus.confirmed)
+      .length;
+  int get pendingCount => _records
+      .where((EventRecord r) => r.syncStatus == RecordSyncStatus.pending)
+      .length;
 
   List<EventRecord> get records {
-    final List<EventRecord> filtered = _records.where((r) {
+    final List<EventRecord> filtered = _records.where((EventRecord r) {
       switch (_filterCriteria) {
         case RecordFilterCriteria.all:
           break;
@@ -50,20 +72,37 @@ class RecordsController extends ChangeNotifier {
           r.placeId != _placeFilter) {
         return false;
       }
+      if (_searchQuery.isNotEmpty) {
+        final String q = _searchQuery.toLowerCase();
+        final bool matches = r.id.toLowerCase().contains(q) ||
+            r.studentName.toLowerCase().contains(q) ||
+            r.studentCode.toLowerCase().contains(q) ||
+            r.placeName.toLowerCase().contains(q) ||
+            r.operatorName.toLowerCase().contains(q);
+        if (!matches) return false;
+      }
       return true;
     }).toList();
 
-    filtered.sort((a, b) => _sortDescending
+    filtered.sort((EventRecord a, EventRecord b) => _sortDescending
         ? b.timestamp.compareTo(a.timestamp)
         : a.timestamp.compareTo(b.timestamp));
 
     return filtered;
   }
 
-  bool get isLoading => _isLoading;
-  RecordFilterCriteria get filterCriteria => _filterCriteria;
-  bool get sortDescending => _sortDescending;
-  String? get placeFilter => _placeFilter;
+  List<EventRecord> get paginatedRecords {
+    final List<EventRecord> allFiltered = records;
+    if (allFiltered.length <= _visibleLimit) return allFiltered;
+    return allFiltered.take(_visibleLimit).toList();
+  }
+
+  bool get hasMorePages => records.length > _visibleLimit;
+
+  void loadMore() {
+    _visibleLimit += pageSize;
+    notifyListeners();
+  }
 
   RecordSyncStatus? get statusFilter {
     return switch (_filterCriteria) {
@@ -74,14 +113,25 @@ class RecordsController extends ChangeNotifier {
     };
   }
 
-  Future<void> loadRecords() async {
+  Future<void> loadRecords({bool forceSkeleton = false}) async {
     _isLoading = true;
+    _errorMessage = null;
+    if (forceSkeleton) {
+      _records = <EventRecord>[];
+    }
     notifyListeners();
 
-    _records = await _repository.getRecords();
-
-    _isLoading = false;
-    notifyListeners();
+    try {
+      if (forceSkeleton) {
+        await Future<void>.delayed(const Duration(milliseconds: 450));
+      }
+      _records = await repository.getRecords();
+    } catch (e) {
+      _errorMessage = 'Error al consultar la cola SQLite local: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<EventRecord> createRecord({
@@ -92,8 +142,9 @@ class RecordsController extends ChangeNotifier {
     required String placeName,
     required EventType eventType,
     required ReadingMedium medium,
+    String operatorName = 'Carlos Vega (op_puerta)',
   }) async {
-    final EventRecord record = await _repository.addRecord(
+    final EventRecord record = await repository.addRecord(
       studentId: studentId,
       studentCode: studentCode,
       studentName: studentName,
@@ -101,6 +152,7 @@ class RecordsController extends ChangeNotifier {
       placeName: placeName,
       eventType: eventType,
       medium: medium,
+      operatorName: operatorName,
     );
     await loadRecords();
     return record;
@@ -108,6 +160,14 @@ class RecordsController extends ChangeNotifier {
 
   void setFilterCriteria(RecordFilterCriteria criteria) {
     _filterCriteria = criteria;
+    _visibleLimit = pageSize;
+    notifyListeners();
+  }
+
+  void setSearchQuery(String query) {
+    if (_searchQuery == query) return;
+    _searchQuery = query;
+    _visibleLimit = pageSize;
     notifyListeners();
   }
 
@@ -123,11 +183,21 @@ class RecordsController extends ChangeNotifier {
       RecordSyncStatus.reviewRequired => RecordFilterCriteria.reviewRequired,
       null => RecordFilterCriteria.all,
     };
+    _visibleLimit = pageSize;
     notifyListeners();
   }
 
   void setPlaceFilter(String? placeId) {
     _placeFilter = placeId;
+    _visibleLimit = pageSize;
+    notifyListeners();
+  }
+
+  void clearFilters() {
+    _filterCriteria = RecordFilterCriteria.all;
+    _placeFilter = null;
+    _searchQuery = '';
+    _visibleLimit = pageSize;
     notifyListeners();
   }
 }

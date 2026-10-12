@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimensions.dart';
 import '../../core/constants/app_typography.dart';
+import '../../core/theme/nexid_palette.dart';
 
 /// Estado vacio claro sin pantallas de relleno (agent/03_DISENO.md).
 class EmptyState extends StatelessWidget {
@@ -20,6 +20,7 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppDimensions.spaceExtraLarge),
@@ -30,14 +31,14 @@ class EmptyState extends StatelessWidget {
             Icon(
               icon,
               size: 48.0,
-              color: AppColors.textSecondary,
+              color: palette.textSecondary,
             ),
             const SizedBox(height: AppDimensions.spaceMedium),
             Text(
               message,
               textAlign: TextAlign.center,
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: palette.textSecondary,
               ),
             ),
             if (actionLabel != null && onAction != null) ...[
@@ -45,7 +46,7 @@ class EmptyState extends StatelessWidget {
               OutlinedButton(
                 onPressed: onAction,
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.border),
+                  side: BorderSide(color: palette.border),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppDimensions.radius),
                   ),
@@ -53,7 +54,7 @@ class EmptyState extends StatelessWidget {
                 child: Text(
                   actionLabel!,
                   style: AppTypography.buttonText.copyWith(
-                    color: AppColors.primary,
+                    color: palette.primary,
                   ),
                 ),
               ),
