@@ -1,0 +1,22 @@
+# Reglas esenciales
+
+- Flutter/Dart para Android, trabajado en Android Studio.
+- Prohibidos monolitos. Una responsabilidad por archivo; funcionalidades separadas.
+- Desde la cuarta reutilización de una función, extraer a un archivo utils específico; widgets a componentes compartidos.
+- Una implementación por componente visual; variantes solo para diferencias reales. No confundir interfaces Dart con pantallas.
+- Azul sólido #1D4ED8, morado claro sólido #DDD6FE y Roboto como única tipografía. Sin neón ni degradados.
+- No emojis en código, comentarios, logs o UI. Logos e iconos son archivos.
+- Botones simples y claros; sin páginas informativas de relleno.
+- Antes de cualquier mutación leer 05_CAMBIOS.md. Documentar cada cambio en CHANGELOG.md y registrar el estado real.
+- Cambios de núcleo o permisos requieren aprobación explícita previa. Cambio incierto: backup verificado fuera de la carpeta principal antes de modificar. El backup no concede permiso.
+- Manejar errores sin ocultarlos, borrar datos ni reiniciar indiscriminadamente.
+- No inventar funciones de negocio ni afirmar pruebas no ejecutadas.
+- Consultar 00_INDEX.md para cargar únicamente el contexto necesario.
+- App adaptable a tamaños de ventana, orientación y texto ampliado; consultar 08_ADAPTABILIDAD.md.
+- Conexiones frecuentes, archivos/TXT y reportes: consultar 09_SERVIDOR.md antes de diseñar el flujo.
+- Versión normal desde 0.0.0; letras/números solo identifican cambios visuales/funcionales. Registrar lógica, motivos, diff y reversión; consultar 10_VERSIONADO.md.
+- Contexto confirmado: alumnos/lugares/registros/fotos, NFC completo autorizado y QR parcial por modalidad. Leer 04_PRODUCTO.md; no inventar el tipo de evento.
+- Servidor SOLO en subdominio Nexlabs con raíz/BD propias. Prohibido tocar el index o rutas del sitio principal.
+- Campos QR se limitan en servidor; permisos no se basan en confiar en source declarado por el cliente. Uploads permitidos según propósito y tipo real.
+- PHP confirmado para backend; SQLite confirmada para caché/cola móvil. Cargas cada 5 segundos mínimo, fallidos al final y una pasada final; segundo fallo requiere revisión manual. Ver 20 a 22 antes de tocar sincronización.
+- MariaDB es la BD central confirmada. SQLite local conserva un subconjunto útil/autorizado, fotos mínimas y pendientes; no replica toda MariaDB. Ver 23_CACHE_USABLE.md.

@@ -1,0 +1,56 @@
+# Changelog
+
+## Unreleased
+### 2026-10-11 — VIS-A / FUN-1 (Version 0.0.0+1)
+- Cambio: Creacion e implementacion completa de la arquitectura y diseno local de la aplicacion en Flutter (Dart) y capa nativa Android (Kotlin), evitando Java y monolitos.
+- Modulos implementados: `session` (login con perfiles de operador y roles), `places` (selector de puntos de control), `reading` (coordinador de captura NFC con proyeccion completa y QR con proyeccion parcial restringida), `students` (ficha y edicion autorizada), `records` (registro de ingreso/salida y filtrado por estado), `uploads` (validacion de fotos <2MB y formatos permitidos), `reports` (solicitud asincrona y descarga) y `sync` (simulador de cola outbox y banner de sincronizacion).
+- Permisos Android: Declarados `android.permission.NFC`, `android.permission.INTERNET`, `android.permission.CAMERA` y caracteristicas de hardware con `required="false"`.
+- Identidad visual: Tokens oficiales `#1D4ED8`, `#DDD6FE` (superficie con texto oscuro), Roboto, controles de 48px y cero emojis segun `BRANDING.md`.
+- Estado: Implementado y verificado mediante pruebas de widgets (`flutter test`).
+- Repositorio: Vinculado a `https://github.com/Quetzalq4321q/NexID-V2.git` con `.gitignore` oficial completo.
+
+### 2026-10-11 — Inicio Documental
+- Cambio: creación de carpeta agent/ con documentos Markdown y entrada AGENTS.md.
+- Motivo: reglas claras y carga selectiva de contexto para reducir tokens.
+- Estado: implementado y revisado como documentación; no activado en una app.
+- Validación: enlaces internos y estructura ZIP comprobados.
+- Núcleo/permisos: sin modificaciones. Backup: no aplica, archivos nuevos.
+
+## Formato para cambios futuros
+Fecha / motivo / módulo y archivos / antes-después / estado real / pruebas y resultado / aprobación si aplica / backup y hash si aplica / reversión.
+
+### 2026-10-11 — Ampliación documental (SIN_VERSION)
+- Incorporados uso multiadaptativo, servidor modular, consultas frecuentes, archivos/TXT y reportes en background.
+- Opciones de servidor admitidas: Node.js, Python y PHP; elección pendiente.
+- Propuesta inicial de etiqueta combinada reemplazada por la aclaración del usuario: versión numérica normal desde 0.0.0. Letras/números se conservan solo como IDs del historial.
+- Estado: documentación implementada, sin ejecución de app ni servidor.
+
+### 2026-10-11 — DOC: precisión del versionado y recuperación
+- Problema: la propuesta inicial confundía IDs de cambios con versión de la app.
+- Decisión: MAJOR.MINOR.PATCH desde 0.0.0; IDs VIS/FUN separados.
+- Antes: propuesta de etiqueta alfanumérica. Después: versión numérica, registro de lógica antes/después, razonamiento, diff, pruebas y reversión.
+- Archivos: 01_REGLAS.md, 10_VERSIONADO.md, 11_PLANTILLA_CAMBIO.md, índice y estado.
+- Estado: documentación implementada. No hubo cambios a código de app, servidor o datos.
+- Referencia Git: no aplica, kit nuevo sin repositorio; no se inventaron commits.
+- Recuperación: conservar esta aclaración del usuario; cualquier cambio futuro del contrato requiere su aprobación.
+
+### 2026-10-11 — DOC-NEXLABS-001
+- Incorporado producto Android NFC/QR, alumnos, lugares, registros, fotos, API, BD, seguridad de uploads y servidor exclusivo en subdominio Nexlabs.
+- Política propuesta: ficha NFC completa autorizada; QR con proyección parcial en servidor. Lectura no crea evento por defecto.
+- Estado: kit documental verificado; app, base y servidor no implementados ni desplegados.
+- Motivo, antes/después, backup, diff y reversión: [detalle](changes/DOC-NEXLABS-001.md).
+- Tipo NFC, evento, roles/campos, capacidades PHP/BD y subdominio: pendientes.
+
+### 2026-10-11 — DOC-NEXLABS-001, continuidad confirmada
+- PHP elegido por el usuario; SQLite local como respaldo ante latencia/fallo/saturación.
+- Definida cola de dos pasadas: 5 segundos entre envíos, rechazados recuperables al final, segundo fallo a revisión manual, mismo ID idempotente.
+- Antes: stack/cola no definidos. Después: contrato PHP/SQLite, estados durables, separación aceptado/confirmado y conciliación por operación.
+- Archivos: 20_SQLITE_LOCAL.md, 21_COLA_5_SEGUNDOS.md, 22_SERVIDOR_PHP.md y documentos relacionados.
+- Estado: documentación verificada; sin código ejecutado ni versión de app activada.
+- Backup/diff/reversión: changes/DOC-NEXLABS-001.md.
+
+### 2026-10-11 — DOC-NEXLABS-001, MariaDB y subconjunto local
+- MariaDB confirmada como base central; SQLite local limitada y suficiente para datos conocidos/visualización más pendientes.
+- Añadidos campos mínimos propuestos, precarga selectiva, fotos privadas, cursor consistente, frescura y separación NFC/QR también en caché.
+- Estado: documentación implementada, sin migraciones, datos reales o servicios activados.
+- Referencia y recuperación: changes/DOC-NEXLABS-001.md y diff de la entrega.
