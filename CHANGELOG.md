@@ -6,7 +6,36 @@ El proyecto utiliza versionado semántico formal (`MAJOR.MINOR.PATCH+BUILD`) a p
 
 ---
 
-## [Unreleased]
+## [0.0.4+4] - 2026-10-12
+
+### [VIS-D] Desplegable Unificado de Opciones y Filtros en Registros y Actualizacion de Versiones Internas
+- **Fecha:** 2026-10-12
+- **Categoría:** UI / Filtros / Versionado
+- **Estado:** Implementado y Verificado
+- **Solicitud del usuario:**
+  - Sustituir la fila horizontal de chips sueltos en la pantalla de Registros por un único desplegable integrado de opciones y filtros, eliminando el diseño tosco anterior.
+  - Actualizar formalmente las versiones internas del proyecto (pubspec.yaml, interfaz, constantes y documentación), reconociendo las iteraciones de entrega acumuladas (v0.0.1, v0.0.2, v0.0.3, hasta v0.0.4+4).
+
+- **Razonamiento y Solución:**
+  - La fila previa de `ChoiceChip` horizontales (`Todos`, `Pendientes`, `Confirmados`, `En Revision`) obligaba a desplazamiento lateral en pantallas angostas, ocupaba espacio vertical valioso y lucía tosca y fragmentada.
+  - Se creó el widget desacoplado `RecordsFilterDropdown` que unifica los criterios de filtro y opciones en un contenedor elegante (`Icons.tune`, desplegable `DropdownButton`, botón de alternancia cronológica con icono e indicador de conteo reactivo `StatusBadge`).
+  - Se extendió `RecordsController` con el enum `RecordFilterCriteria` (`all`, `pending`, `confirmed`, `reviewRequired`, `entrada`, `salida`) y ordenación cronológica ascendente/descendente (`sortDescending`), manteniendo compatibilidad total hacia atrás con `statusFilter`.
+  - Se creó la clase inmutable `AppVersion` (`lib/core/constants/app_version.dart`) para centralizar la versión técnica `0.0.4+4`, consumida por `SettingsPage`, `pubspec.yaml` y la suite de pruebas.
+
+- **Archivos creados:**
+  - `lib/core/constants/app_version.dart`: Centralización de versiones `0.0.4+4`.
+  - `lib/features/records/presentation/widgets/records_filter_dropdown.dart`: Componente desplegable de filtros y opciones (107 líneas).
+
+- **Archivos modificados:**
+  - `pubspec.yaml`: Versión incrementada a `0.0.4+4`.
+  - `lib/features/records/presentation/controllers/records_controller.dart`: Criterios ampliados y ordenación (134 líneas).
+  - `lib/features/records/presentation/pages/records_page.dart`: Integración de desplegable y remoción de chips (149 líneas).
+  - `lib/features/settings/presentation/pages/settings_page.dart`: Consumo de `AppVersion.label`.
+  - `test/widget_test.dart`: Validación del desplegable de registros y verificación de `v0.0.4`.
+
+---
+
+## [0.0.3+3] - 2026-10-12
 
 ### [VIS-C] Boton de Cuenta Estilo Google, Pestana de Ajustes y Limpieza de Navegacion
 - **Fecha:** 2026-10-12
@@ -39,6 +68,10 @@ El proyecto utiliza versionado semántico formal (`MAJOR.MINOR.PATCH+BUILD`) a p
   - `lib/app/app_dependencies.dart`: Proveedor de dependencias actualizado con `settingsController`.
   - `lib/app/app_shell.dart`: Boton avatar en AppBar y navegacion hacia "Ajustes" (204 lineas).
   - `test/widget_test.dart`: Cobertura completa del boton de cuenta, modal de perfil y pestana de ajustes.
+
+---
+
+## [0.0.2+2] - 2026-10-12
 
 ### [VIS-B] Corrección Integral de Desbordamientos Visuales y Adaptabilidad Multi-Pantalla
 - **Fecha:** 2026-10-12

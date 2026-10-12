@@ -1,7 +1,18 @@
 # Changelog
 
-## Unreleased
-### 2026-10-12 — VIS-C (Boton de Cuenta Estilo Google, Pestana de Ajustes y Remocion de Subidas)
+## [0.0.4+4] - 2026-10-12 — VIS-D (Desplegable Unificado en Registros y Versionado Interno)
+- Cambio: Sustitucion de chips horizontales en Registros por `RecordsFilterDropdown` (desplegable con criterios de sincronizacion y tipo, orden cronologico reactivo y contador), creacion de `AppVersion` (0.0.4+4) y actualizacion sincronizada de `pubspec.yaml`, `SettingsPage` y suite de pruebas.
+- Modulos y componentes intervenidos:
+  - `records_filter_dropdown.dart`: nuevo widget con dropdown de criterios, icono `tune`, boton de orden y badge de total.
+  - `records_controller.dart`: soporte para `RecordFilterCriteria` (`all`, `pending`, `confirmed`, `reviewRequired`, `entrada`, `salida`) y orden cronologico `sortDescending`.
+  - `records_page.dart`: sustitucion de la barra de `ChoiceChip` horizontales.
+  - `app_version.dart`: constantes centrales de version (`0.0.4+4`).
+  - `settings_page.dart`: visualizacion de version sincronizada.
+  - `pubspec.yaml`: version oficial elevada a `0.0.4+4`.
+- Regla no-monolitos: 100% cumplida (<250 lineas por archivo).
+- Pruebas: 100% de tests aprobados (`flutter test`) y 0 advertencias en `flutter analyze`.
+
+## [0.0.3+3] - 2026-10-12 — VIS-C (Boton de Cuenta Estilo Google, Pestana de Ajustes y Remocion de Subidas)
 - Cambio: Integracion de boton circular de cuenta estilo Google en AppBar con modal inferior de detalles, creacion del modulo y pantalla de Ajustes (preferencias de lectura, outbox/sync 5s, simulacion offline), y retiro de la pestana de Subidas de la barra principal.
 - Modulos y componentes intervenidos:
   - `google_account_avatar_button.dart`: avatar circular (36px, borde #DDD6FE) con soporte de iniciales y splash interactivo.
@@ -11,7 +22,7 @@
 - Regla no-monolitos: 100% de archivos <250 lineas y funciones <40 lineas.
 - Pruebas: 100% aprobadas con `flutter test` y 0 advertencias en `flutter analyze`.
 
-### 2026-10-12 — VIS-B (Adaptabilidad e Interfaces Responsivas)
+## [0.0.2+2] - 2026-10-12 — VIS-B (Adaptabilidad e Interfaces Responsivas)
 - Cambio: Correccion integral de excepciones `RenderFlex overflow` en pantallas compactas y extremas (360px y 320px).
 - Modulos y componentes intervenidos:
   - `primary_button.dart` y `secondary_button.dart`: proteccion de texto con `Flexible` y elipsis.

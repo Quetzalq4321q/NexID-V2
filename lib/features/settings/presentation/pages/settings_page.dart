@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/constants/app_version.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../places/presentation/controllers/places_controller.dart';
 import '../../../reading/domain/credential_models.dart';
@@ -186,7 +187,7 @@ class SettingsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('NexID Mobile v0.0.0+1 (Compilacion Local)', style: AppTypography.bodySmall),
+            Text('NexID Mobile ${AppVersion.label}', style: AppTypography.bodySmall),
             SizedBox(height: 4),
             Text('Persistencia: SQLite Outbox local (2 pasadas / 5s)', style: AppTypography.caption),
             SizedBox(height: 2),

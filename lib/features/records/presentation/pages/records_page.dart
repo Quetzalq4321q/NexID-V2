@@ -8,6 +8,7 @@ import '../../../../shared/widgets/status_badge.dart';
 import '../../../reading/domain/credential_models.dart';
 import '../../domain/record_models.dart';
 import '../controllers/records_controller.dart';
+import '../widgets/records_filter_dropdown.dart';
 
 /// Pantalla 4: Lista filtrada de eventos de asistencia y control.
 class RecordsPage extends StatelessWidget {
@@ -31,8 +32,11 @@ class RecordsPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Filtros de estado superiores
-                _buildFilterBar(),
+                // Desplegable unificado de opciones y filtros
+                RecordsFilterDropdown(
+                  controller: controller,
+                  totalCount: records.length,
+                ),
                 const Divider(height: 1, color: AppColors.border),
 
                 // Lista de eventos
@@ -67,45 +71,6 @@ class RecordsPage extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildFilterBar() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.spaceMedium,
-        vertical: AppDimensions.spaceSmall,
-      ),
-      child: Row(
-        children: [
-          _buildFilterChip('Todos', null),
-          const SizedBox(width: AppDimensions.spaceSmall),
-          _buildFilterChip('Pendientes', RecordSyncStatus.pending),
-          const SizedBox(width: AppDimensions.spaceSmall),
-          _buildFilterChip('Confirmados', RecordSyncStatus.confirmed),
-          const SizedBox(width: AppDimensions.spaceSmall),
-          _buildFilterChip('En Revision', RecordSyncStatus.reviewRequired),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, RecordSyncStatus? status) {
-    final bool isSelected = controller.statusFilter == status;
-    return ChoiceChip(
-      label: Text(
-        label,
-        style: AppTypography.caption.copyWith(
-          color: isSelected ? AppColors.background : AppColors.textPrimary,
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-        ),
-      ),
-      selected: isSelected,
-      selectedColor: AppColors.primary,
-      backgroundColor: AppColors.surface,
-      side: const BorderSide(color: AppColors.border),
-      onSelected: (_) => controller.setStatusFilter(status),
     );
   }
 

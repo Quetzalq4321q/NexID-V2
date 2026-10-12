@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nexid/app/app.dart';
+import 'package:nexid/features/records/presentation/widgets/records_filter_dropdown.dart';
 import 'package:nexid/features/session/presentation/widgets/google_account_avatar_button.dart';
 
 void main() {
@@ -60,10 +61,18 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
 
-    // Navega a Registros
+    // Navega a Registros y verifica el desplegable de opciones y filtros
     await tester.tap(find.text('Registros'));
     await tester.pumpAndSettle();
-    expect(find.text('Todos'), findsOneWidget);
+    expect(find.byType(RecordsFilterDropdown), findsOneWidget);
+    expect(find.text('Todos los registros'), findsOneWidget);
+
+    // Abre el desplegable de opciones y filtros
+    await tester.tap(find.text('Todos los registros'));
+    await tester.pumpAndSettle();
+    expect(find.text('Solo pendientes'), findsWidgets);
+    await tester.tap(find.text('Solo pendientes').last);
+    await tester.pumpAndSettle();
 
     // Navega a Alumnos
     await tester.tap(find.text('Alumnos'));
@@ -82,6 +91,8 @@ void main() {
     await tester.scrollUntilVisible(find.text('Sincronizacion y Red'), 100);
     expect(find.text('Sincronizacion y Red'), findsOneWidget);
     expect(find.text('Vibracion al detectar credencial'), findsWidgets);
+    await tester.scrollUntilVisible(find.textContaining('v0.0.4'), 100);
+    expect(find.textContaining('v0.0.4'), findsOneWidget);
   });
 
   testWidgets('NexID adaptabilidad en pantalla estrecha extrema (320px)', (WidgetTester tester) async {
