@@ -51,11 +51,11 @@ Esta prioridad está por encima de cualquier cambio estético, animación o ampl
 
 ---
 
-## Arquitectura General y Mapa de Documentación (`v0.0.8+8`)
+## Arquitectura General y Mapa de Documentación (`v0.0.9+9`)
 
 - **Código fuente (`lib/`)**:
   - `lib/app/`: Composición raíz (`app.dart`), contenedor adaptable (`app_shell.dart`), inyección (`app_dependencies.dart`) y temas (`app_theme.dart`).
-  - `lib/core/`: Constantes (`constants/`), paleta reactiva (`theme/nexid_palette.dart`), puente nativo Kotlin y telemetría (`platform/hardware_bridge.dart`, `device_capabilities_models.dart`), puntos de corte (`responsive/`) y motor de rendimiento de gama baja (`performance/`).
+  - `lib/core/`: Constantes (`constants/`), paleta reactiva en tonos neutros/azules (`theme/nexid_palette.dart`), puente nativo Kotlin y telemetría (`platform/hardware_bridge.dart`, `device_capabilities_models.dart`), puntos de corte (`responsive/`) y motor de rendimiento de gama baja (`performance/`).
   - `lib/shared/widgets/`: Componentes reutilizables y sistema ligero de Skeleton Loading (`skeleton/`).
   - `lib/features/`: Módulos desacoplados (`session`, `places`, `reading`, `students`, `records`, `reports`, `settings`, `sync`).
 - **Memoria Técnica y Misiones (`docs/` y `agent/`)**:

@@ -6,9 +6,9 @@ abstract final class AppColors {
   /// Azul primario solido.
   static const Color primary = Color(0xFF1D4ED8);
 
-  /// Morado claro solido para superficies.
+  /// Superficie de acento azul neutro claro (sin acentos morados).
   /// IMPORTANTE: Utilizar siempre con texto oscuro, nunca texto blanco.
-  static const Color surfaceAccent = Color(0xFFDDD6FE);
+  static const Color surfaceAccent = Color(0xFFDBEAFE);
 
   /// Fondo blanco principal.
   static const Color background = Color(0xFFFFFFFF);

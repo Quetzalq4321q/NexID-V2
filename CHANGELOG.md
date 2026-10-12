@@ -6,6 +6,24 @@ El proyecto utiliza versionado semántico formal (`MAJOR.MINOR.PATCH+BUILD`) a p
 
 ---
 
+## [0.0.9+9] - 2026-10-12
+
+### [VIS-SETTINGS-FINAL] Diseño Visual Definitivo de Configuración, Tarjeta de Optimización Automática y 8 Categorías con Subpantallas Dedicadas
+- **Fecha:** 2026-10-12
+- **Categoría:** Interfaz Visual (UI/UX) / Configuración / Detección de Hardware (Prioridad 0) / Accesibilidad (Prioridad 3)
+- **Estado:** Implementado y Verificado
+- **Solicitud del usuario:**
+  - Implementar en Flutter la distribución visual definitiva del apartado **Configuración** conectada con las funcionalidades existentes: encabezado compacto con flecha de retorno, título «Configuración» e icono de ajustes alineado; barra de búsqueda «Buscar un ajuste...»; tarjeta destacada **Optimización del dispositivo** (`Estado: Automática`, conectada a la detección real sin mostrar confirmación si la detección no ha concluido); y lista vertical ordenada de 8 categorías con subpantallas dedicadas.
+  - Utilizar tonos neutros y variantes azules (sin acentos morados) y mantener la **Configuración avanzada** oculta de la lista principal y restringida por permisos de Administrador.
+- **Archivos creados:**
+  - `lib/features/settings/presentation/widgets/device_optimization_banner.dart`
+- **Archivos modificados:**
+  - `lib/app/app_shell.dart`, `lib/core/constants/app_colors.dart`, `lib/core/constants/app_version.dart`, `lib/core/platform/hardware_bridge.dart`, `lib/core/theme/nexid_palette.dart`, `pubspec.yaml`
+  - `lib/features/settings/domain/settings_search_catalog.dart`, `lib/features/settings/presentation/controllers/settings_controller.dart`, `lib/features/settings/presentation/pages/settings_page.dart`, `lib/features/settings/presentation/widgets/settings_system_sections.dart`
+  - `AGENTS.md`, `docs/PROGRESS.md`, `docs/DECISIONS.md`, `docs/missions/DEVICE_CAPABILITIES_SETTINGS.md`, `docs/missions/THEMES_ACCESSIBILITY.md`, `agent/ESTADO.md`, `agent/CHANGELOG.md`, `test/widget_test.dart`, `test/device_capabilities_settings_test.dart`
+
+---
+
 ## [0.0.8+8] - 2026-10-12
 
 ### [HW-AUTO-SETTINGS] Detección Real de Hardware Android, Configuración Inteligente Automática, Buscador de Ajustes y Configuración Avanzada Restringida

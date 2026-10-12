@@ -44,6 +44,13 @@ class ConnectivitySyncSettingsCard extends StatelessWidget {
             trailing: const StatusBadge(label: '5s cola', type: BadgeType.info),
           ),
           Divider(height: 1, color: palette.border),
+          SwitchListTile(
+            title: const Text('Avisos de cola pendiente de sincronizacion'),
+            subtitle: const Text('Notifica eventos locales en espera de red'),
+            value: settingsController.syncQueueAlertsEnabled,
+            onChanged: settingsController.toggleSyncQueueAlerts,
+          ),
+          Divider(height: 1, color: palette.border),
           ListTile(
             title: const Text('Forzar sincronizacion ahora'),
             subtitle: const Text('Envia eventos pendientes hacia MariaDB'),
@@ -58,10 +65,9 @@ class ConnectivitySyncSettingsCard extends StatelessWidget {
   }
 }
 
-/// Seccion 6: NFC, QR, respuesta haptica/sonora y guia de lectura en 2 pasadas.
+/// Seccion 6: NFC, QR, respuesta haptica/sonora, alertas y guia en 2 pasadas.
 class NfcAndRecordsSettingsCard extends StatelessWidget {
   const NfcAndRecordsSettingsCard({super.key, required this.controller});
-
   final SettingsController controller;
 
   @override
@@ -90,22 +96,7 @@ class NfcAndRecordsSettingsCard extends StatelessWidget {
             ),
           ),
           Divider(height: 1, color: palette.border),
-          ListTile(
-            title: const Text('Medio preferido de lectura'),
-            subtitle: Text(
-              controller.preferredMedium == ReadingMedium.nfc ? 'NFC por proximidad' : 'QR por camara optica',
-            ),
-            trailing: DropdownButton<ReadingMedium>(
-              value: controller.preferredMedium,
-              dropdownColor: palette.surfaceElevated,
-              underline: const SizedBox.shrink(),
-              items: const [
-                DropdownMenuItem(value: ReadingMedium.nfc, child: Text('NFC')),
-                DropdownMenuItem(value: ReadingMedium.qr, child: Text('QR')),
-              ],
-              onChanged: (ReadingMedium? v) => v != null ? controller.setPreferredMedium(v) : null,
-            ),
-          ),
+          _buildMediumTile(palette),
           Divider(height: 1, color: palette.border),
           SwitchListTile(
             title: const Text('Vibracion al detectar credencial'),
@@ -119,6 +110,13 @@ class NfcAndRecordsSettingsCard extends StatelessWidget {
             onChanged: controller.toggleSoundOnScan,
           ),
           Divider(height: 1, color: palette.border),
+          SwitchListTile(
+            title: const Text('Alertas operativas de lectura'),
+            subtitle: const Text('Muestra avisos ante credenciales vencidas o bloqueadas'),
+            value: controller.operationalAlertsEnabled,
+            onChanged: controller.toggleOperationalAlerts,
+          ),
+          Divider(height: 1, color: palette.border),
           const ListTile(
             dense: true,
             leading: Icon(Icons.info_outline, size: 18),
@@ -129,56 +127,39 @@ class NfcAndRecordsSettingsCard extends StatelessWidget {
       ),
     );
   }
-}
 
-/// Seccion 7: Notificaciones y alertas operativas.
-class NotificationsSettingsCard extends StatelessWidget {
-  const NotificationsSettingsCard({super.key, required this.controller});
-
-  final SettingsController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final NexIdPalette palette = NexIdPalette.of(context);
-    return Material(
-      color: palette.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimensions.radius),
-        side: BorderSide(color: palette.border),
+  Widget _buildMediumTile(NexIdPalette palette) {
+    return ListTile(
+      title: const Text('Medio preferido de lectura'),
+      subtitle: Text(
+        controller.preferredMedium == ReadingMedium.nfc ? 'NFC por proximidad' : 'QR por camara optica',
       ),
-      child: Column(
-        children: [
-          SwitchListTile(
-            title: const Text('Alertas operativas de lectura'),
-            subtitle: const Text('Muestra avisos ante credenciales vencidas o bloqueadas'),
-            value: controller.operationalAlertsEnabled,
-            onChanged: controller.toggleOperationalAlerts,
-          ),
-          Divider(height: 1, color: palette.border),
-          SwitchListTile(
-            title: const Text('Avisos de cola pendiente de sincronizacion'),
-            subtitle: const Text('Notifica eventos locales en espera de red'),
-            value: controller.syncQueueAlertsEnabled,
-            onChanged: controller.toggleSyncQueueAlerts,
-          ),
+      trailing: DropdownButton<ReadingMedium>(
+        value: controller.preferredMedium,
+        dropdownColor: palette.surfaceElevated,
+        underline: const SizedBox.shrink(),
+        items: const [
+          DropdownMenuItem(value: ReadingMedium.nfc, child: Text('NFC')),
+          DropdownMenuItem(value: ReadingMedium.qr, child: Text('QR')),
         ],
+        onChanged: (ReadingMedium? v) => v != null ? controller.setPreferredMedium(v) : null,
       ),
     );
   }
 }
 
-/// Seccion 8: Privacidad, seguridad, cuenta activa y politicas protegidas.
+/// Seccion 7: Privacidad, seguridad, cuenta activa y politicas protegidas.
 class PrivacySecuritySettingsCard extends StatelessWidget {
   const PrivacySecuritySettingsCard({
     super.key,
     required this.user,
     required this.placeName,
     required this.onLogout,
+    required this.onResetDefaults,
   });
-
   final OperatorUser? user;
   final String placeName;
-  final VoidCallback onLogout;
+  final VoidCallback onLogout, onResetDefaults;
 
   @override
   Widget build(BuildContext context) {
@@ -196,11 +177,22 @@ class PrivacySecuritySettingsCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppDimensions.radius),
             side: BorderSide(color: palette.border),
           ),
-          child: const ListTile(
-            dense: true,
-            leading: Icon(Icons.lock_outline, size: 18),
-            title: Text('Politicas de seguridad protegidas (Inmutables)'),
-            subtitle: Text('La validacion NFC, SQLite local y la autoridad del servidor son protegidas.'),
+          child: Column(
+            children: [
+              const ListTile(
+                dense: true,
+                leading: Icon(Icons.lock_outline, size: 18),
+                title: Text('Politicas de seguridad protegidas (Inmutables)'),
+                subtitle: Text('La validacion NFC, SQLite local y la autoridad del servidor son protegidas.'),
+              ),
+              Divider(height: 1, color: palette.border),
+              ListTile(
+                dense: true,
+                leading: const Icon(Icons.restore_outlined, size: 18),
+                title: const Text('Restaurar ajustes de usuario'),
+                trailing: OutlinedButton(onPressed: onResetDefaults, child: const Text('Restaurar ajustes')),
+              ),
+            ],
           ),
         ),
       ],
@@ -208,16 +200,17 @@ class PrivacySecuritySettingsCard extends StatelessWidget {
   }
 }
 
-/// Seccion 9: Informacion de la aplicacion y resumen de hardware compatible.
+/// Seccion 8: Acerca de la aplicacion, version, soporte y diagnostico.
 class AppHardwareInfoCard extends StatelessWidget {
-  const AppHardwareInfoCard({super.key, required this.controller});
-
+  const AppHardwareInfoCard({super.key, required this.controller, required this.onOpenAdvanced});
   final SettingsController controller;
+  final VoidCallback onOpenAdvanced;
 
   @override
   Widget build(BuildContext context) {
     final NexIdPalette palette = NexIdPalette.of(context);
     final DeviceCapabilitiesSnapshot caps = controller.capabilities;
+    final TextStyle capStyle = AppTypography.caption.copyWith(color: palette.textSecondary);
     return Material(
       color: palette.surface,
       shape: RoundedRectangleBorder(
@@ -229,17 +222,16 @@ class AppHardwareInfoCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'NexID Mobile ${AppVersion.label}',
-              style: AppTypography.bodySmall.copyWith(color: palette.textPrimary, fontWeight: FontWeight.w700),
-            ),
-            Text(
-              'Hardware detectado: RAM ${caps.totalRamLabel} (${caps.availableRamLabel}) · CPU ${caps.processorSummaryLabel}',
-              style: AppTypography.caption.copyWith(color: palette.textSecondary),
-            ),
-            Text(
-              'Sistema: ${caps.androidVersionLabel} · Persistencia: SQLite Outbox local (2 pasadas / 5s)',
-              style: AppTypography.caption.copyWith(color: palette.textSecondary),
+            Text('NexID Mobile ${AppVersion.label}', style: AppTypography.bodySmall.copyWith(color: palette.textPrimary, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 4),
+            Text('Hardware detectado: RAM ${caps.totalRamLabel} (${caps.availableRamLabel}) · CPU ${caps.processorSummaryLabel}', style: capStyle),
+            Text('Sistema: ${caps.androidVersionLabel} · Persistencia: SQLite Outbox local (2 pasadas / 5s)', style: capStyle),
+            const SizedBox(height: AppDimensions.spaceSmall),
+            OutlinedButton.icon(
+              key: const Key('open_advanced_from_about_button'),
+              icon: const Icon(Icons.admin_panel_settings_outlined, size: 16),
+              label: const Text('Configuracion avanzada y diagnostico'),
+              onPressed: onOpenAdvanced,
             ),
           ],
         ),

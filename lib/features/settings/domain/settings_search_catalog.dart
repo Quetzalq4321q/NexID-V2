@@ -1,66 +1,82 @@
+import 'package:flutter/material.dart';
 import 'settings_models.dart';
 
-/// Categorias estructuradas del modulo de Ajustes (Secciones 5 y 6).
+/// Categorias oficiales del modulo de Configuracion en el orden visual definitivo.
+/// Las 8 primeras conforman la lista principal; `advanced` permanece oculta y restringida.
 enum SettingsSectionId {
   appearance(
     'Apariencia y personalizacion',
-    'Tema claro, oscuro o automatico y densidad visual de tarjetas',
+    'Tema, estilo y visualizacion.',
+    Icons.palette_outlined,
     false,
   ),
   accessibility(
     'Accesibilidad',
-    'Escala de fuente WCAG 2.2, alto contraste, animaciones y lector de pantalla',
+    'Texto, contraste y movimiento.',
+    Icons.accessibility_new_outlined,
     false,
   ),
   performance(
     'Rendimiento',
-    'Adaptacion inteligente automatica segun hardware real y ahorro de recursos',
+    'Optimizacion automatica.',
+    Icons.speed_outlined,
     false,
   ),
   storageCache(
     'Almacenamiento y cache',
-    'Presupuesto LRU de imagenes, espacio interno y limpieza temporal segura',
+    'Archivos temporales y espacio.',
+    Icons.storage_outlined,
     false,
   ),
   connectivitySync(
     'Conectividad y sincronizacion',
-    'Estado de red activa, cola automatica cada 5s y sincronizacion manual',
+    'Estado de conexion y datos.',
+    Icons.sync_outlined,
     false,
   ),
   nfcRecords(
     'NFC y registros',
-    'Disponibilidad del lector NFC, medio preferido, sonido, vibracion y guia',
-    false,
-  ),
-  notifications(
-    'Notificaciones',
-    'Avisos operativos de lectura de credenciales y alertas de cola pendiente',
+    'Lector, validacion y actividad.',
+    Icons.nfc_outlined,
     false,
   ),
   privacySecurity(
     'Privacidad y seguridad',
-    'Operador activo, rol, aislamiento de cache por alcance y reglas protegidas',
+    'Proteccion y sesion.',
+    Icons.shield_outlined,
     false,
   ),
   appInfo(
-    'Informacion de la aplicacion',
-    'Version instalada, resumen de hardware detectado y estado operativo',
+    'Acerca de la aplicacion',
+    'Version y soporte.',
+    Icons.info_outline,
     false,
   ),
   advanced(
     'Configuracion avanzada',
-    'Diagnostico de hardware y seleccion manual de perfil para administradores',
+    'Perfil manual, limites de cache, concurrencia y diagnostico NFC.',
+    Icons.tune_outlined,
     true,
   );
 
-  const SettingsSectionId(this.title, this.subtitle, this.isRestricted);
+  const SettingsSectionId(
+    this.title,
+    this.subtitle,
+    this.icon,
+    this.isRestricted,
+  );
 
   final String title;
   final String subtitle;
+  final IconData icon;
   final bool isRestricted;
+
+  /// Las 8 categorias publicas en el orden exacto requerido por el diseno.
+  static List<SettingsSectionId> get publicSections =>
+      values.where((SettingsSectionId s) => !s.isRestricted).toList();
 }
 
-/// Entrada indexada para el buscador local instantaneo de Ajustes.
+/// Entrada indexada para el buscador local instantaneo de Configuracion.
 class SettingSearchEntry {
   const SettingSearchEntry({
     required this.id,
@@ -70,10 +86,7 @@ class SettingSearchEntry {
     required this.layer,
     required this.keywords,
   });
-
-  final String id;
-  final String title;
-  final String subtitle;
+  final String id, title, subtitle;
   final SettingsSectionId section;
   final SettingLayerType layer;
   final List<String> keywords;
@@ -82,7 +95,6 @@ class SettingSearchEntry {
 /// Catalogo estatico e inmutable de busqueda local de configuraciones.
 class SettingsSearchCatalog {
   const SettingsSearchCatalog._();
-
   static const List<SettingSearchEntry> entries = <SettingSearchEntry>[
     SettingSearchEntry(
       id: 'theme_mode',
@@ -90,15 +102,15 @@ class SettingsSearchCatalog {
       subtitle: 'Sincroniza con el sistema operativo o fija apariencia visual',
       section: SettingsSectionId.appearance,
       layer: SettingLayerType.user,
-      keywords: <String>['tema', 'oscuro', 'claro', 'automatico', 'colores', 'apariencia', 'noche'],
+      keywords: <String>['tema', 'oscuro', 'claro', 'automatico', 'colores', 'apariencia', 'estilo'],
     ),
     SettingSearchEntry(
       id: 'compact_density',
       title: 'Densidad visual compacta',
-      subtitle: 'Reduce espaciados verticales para pantallas pequenas de 320 px',
+      subtitle: 'Adapta espaciados verticales para pantallas pequenas',
       section: SettingsSectionId.appearance,
       layer: SettingLayerType.user,
-      keywords: <String>['densidad', 'compacto', 'espacio', 'interfaz', 'tarjetas'],
+      keywords: <String>['densidad', 'compacto', 'espacio', 'visualizacion', 'tarjetas'],
     ),
     SettingSearchEntry(
       id: 'font_scale',
@@ -114,7 +126,7 @@ class SettingsSearchCatalog {
       subtitle: 'Refuerza bordes, textos e indicadores de estado',
       section: SettingsSectionId.accessibility,
       layer: SettingLayerType.user,
-      keywords: <String>['contraste', 'bordes', 'visibilidad', 'wcag', 'lectura'],
+      keywords: <String>['contraste', 'bordes', 'visibilidad', 'wcag'],
     ),
     SettingSearchEntry(
       id: 'reduce_motion',
@@ -127,18 +139,18 @@ class SettingsSearchCatalog {
     SettingSearchEntry(
       id: 'screen_reader',
       title: 'Compatibilidad con lector de pantalla',
-      subtitle: 'Amplia etiquetas semanticas TalkBack en botones e insignias',
+      subtitle: 'Amplia etiquetas semanticas TalkBack en controles',
       section: SettingsSectionId.accessibility,
       layer: SettingLayerType.user,
-      keywords: <String>['talkback', 'lector', 'voz', 'semantica', 'accesibilidad'],
+      keywords: <String>['talkback', 'lector', 'voz', 'semantica'],
     ),
     SettingSearchEntry(
       id: 'auto_performance',
-      title: 'Perfil automatico e inteligente de rendimiento',
-      subtitle: 'Detecta RAM, CPU, bateria y presion de memoria sin ajuste manual',
+      title: 'Optimizacion automatica del dispositivo',
+      subtitle: 'Adapta consumo de recursos segun capacidades reales de Android',
       section: SettingsSectionId.performance,
       layer: SettingLayerType.automatic,
-      keywords: <String>['rendimiento', 'automatico', 'ram', 'memoria', 'procesador', 'optimizacion'],
+      keywords: <String>['rendimiento', 'automatico', 'ram', 'memoria', 'optimizacion'],
     ),
     SettingSearchEntry(
       id: 'low_performance_mode',
@@ -151,66 +163,58 @@ class SettingsSearchCatalog {
     SettingSearchEntry(
       id: 'data_saver',
       title: 'Ahorro de datos y carga diferida en red movil',
-      subtitle: 'Limita precargas secundarias cuando la conexion es medida o inestable',
+      subtitle: 'Limita precargas secundarias cuando la conexion es inestable',
       section: SettingsSectionId.performance,
       layer: SettingLayerType.user,
       keywords: <String>['datos', 'red', 'movil', 'precarga', 'ahorro'],
     ),
     SettingSearchEntry(
       id: 'cache_cleanup',
-      title: 'Limpieza segura de cache temporal e imagenes',
+      title: 'Limpieza segura de archivos temporales y cache',
       subtitle: 'Libera memoria grafica y fichas LRU conservando la cola SQLite intacta',
       section: SettingsSectionId.storageCache,
       layer: SettingLayerType.user,
-      keywords: <String>['cache', 'almacenamiento', 'limpiar', 'imagenes', 'lru', 'memoria', 'sqlite'],
+      keywords: <String>['cache', 'almacenamiento', 'limpiar', 'imagenes', 'lru', 'espacio', 'sqlite'],
     ),
     SettingSearchEntry(
       id: 'sync_status',
-      title: 'Sincronizacion y cola local de 5 segundos',
-      subtitle: 'Estado de conexion, reintento automatico y envio manual a MariaDB',
+      title: 'Conectividad, sincronizacion y avisos de cola de 5s',
+      subtitle: 'Estado de conexion, alertas de pendientes y envio manual a MariaDB',
       section: SettingsSectionId.connectivitySync,
       layer: SettingLayerType.automatic,
-      keywords: <String>['sincronizar', 'conectividad', 'internet', 'wifi', 'offline', 'cola', 'mariadb'],
+      keywords: <String>['sincronizar', 'conectividad', 'internet', 'wifi', 'cola', 'mariadb', 'notificaciones'],
     ),
     SettingSearchEntry(
       id: 'nfc_settings',
-      title: 'Lector NFC, QR, vibracion y sonido de lectura',
-      subtitle: 'Estado real del chip NFC, medio preferido y guia de validacion en 2 pasadas',
+      title: 'Lector NFC, QR, vibracion, sonido y alertas de lectura',
+      subtitle: 'Estado del chip NFC, medio preferido y validacion en 2 pasadas',
       section: SettingsSectionId.nfcRecords,
       layer: SettingLayerType.user,
-      keywords: <String>['nfc', 'qr', 'tarjeta', 'credencial', 'vibracion', 'sonido', 'escaner', 'registro'],
-    ),
-    SettingSearchEntry(
-      id: 'notifications_alerts',
-      title: 'Alertas operativas y avisos de sincronizacion',
-      subtitle: 'Confirmaciones visuales en lectura y avisos de eventos pendientes',
-      section: SettingsSectionId.notifications,
-      layer: SettingLayerType.user,
-      keywords: <String>['notificaciones', 'alertas', 'avisos', 'sonido', 'pendientes'],
+      keywords: <String>['nfc', 'qr', 'tarjeta', 'credencial', 'vibracion', 'sonido', 'escaner', 'registro', 'alertas'],
     ),
     SettingSearchEntry(
       id: 'privacy_security',
-      title: 'Sesion activa, permisos y politicas protegidas',
-      subtitle: 'Cuenta de operador, aislamiento de cache y validacion de seguridad NFC',
+      title: 'Privacidad, sesion activa y politicas protegidas',
+      subtitle: 'Cuenta de operador, permisos de rol, cierre de sesion y reglas inmutables',
       section: SettingsSectionId.privacySecurity,
       layer: SettingLayerType.protectedPolicy,
       keywords: <String>['privacidad', 'seguridad', 'sesion', 'cuenta', 'operador', 'rol', 'cerrar'],
     ),
     SettingSearchEntry(
       id: 'app_hardware_info',
-      title: 'Version instalada y capacidades reales del dispositivo',
-      subtitle: 'RAM detectada, arquitectura CPU, version de Android y estado del sistema',
+      title: 'Acerca de la aplicacion, version y soporte de hardware',
+      subtitle: 'Version instalada, RAM detectada, arquitectura CPU y estado del sistema',
       section: SettingsSectionId.appInfo,
       layer: SettingLayerType.automatic,
-      keywords: <String>['version', 'informacion', 'hardware', 'android', 'celular', 'dispositivo', 'cpu'],
+      keywords: <String>['acerca', 'version', 'informacion', 'hardware', 'android', 'celular', 'soporte', 'cpu'],
     ),
     SettingSearchEntry(
       id: 'advanced_manual_profile',
-      title: 'Seleccion manual de perfil de rendimiento y simulacion RAM',
+      title: 'Configuracion avanzada: perfil manual, concurrencia y diagnostico',
       subtitle: 'Permite fijar Rendimiento ligero, equilibrado, completo o perfiles 2-4 GB',
       section: SettingsSectionId.advanced,
       layer: SettingLayerType.advanced,
-      keywords: <String>['avanzada', 'manual', 'simulacion', '2gb', '3gb', '4gb', 'administrador', 'diagnostico'],
+      keywords: <String>['avanzada', 'manual', 'simulacion', '2gb', '3gb', '4gb', 'administrador', 'diagnostico', 'concurrencia'],
     ),
   ];
 
@@ -232,6 +236,7 @@ class SettingsSearchCatalog {
         entry.title,
         entry.subtitle,
         entry.section.title,
+        entry.section.subtitle,
         entry.layer.label,
         ...entry.keywords,
       ].join(' ').toLowerCase();

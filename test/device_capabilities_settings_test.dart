@@ -61,10 +61,12 @@ void main() {
       final SettingsController ctrl = SettingsController(
         initialCapabilities: midRange,
       );
-      expect(ctrl.isAutoPerformance, isTrue);
+      expect(ctrl.isDetectionCompleted, isTrue);
+      expect(ctrl.optimizationStatusLabel, 'Automatica');
       expect(ctrl.activeAdaptiveLevel, AdaptivePerformanceLevel.full);
       ctrl.setDeviceProfile(DevicePerformanceProfile.ultraLowEnd2Gb);
       expect(ctrl.isAutoPerformance, isFalse);
+      expect(ctrl.optimizationStatusLabel, contains('Manual'));
       expect(ctrl.capabilities.totalRamMb, 6144);
       ctrl.restoreAutomaticPerformance();
       expect(ctrl.isAutoPerformance, isTrue);
@@ -74,27 +76,27 @@ void main() {
   );
 
   test(
-    'Buscador local de configuraciones y filtrado de opciones avanzadas por permisos',
+    'Orden de las 8 categorias publicas, buscador local y filtrado por permisos',
     () {
-      // Usuario normal (canAccessAdvanced: false) no ve opciones restringidas
-      final List<SettingSearchEntry> operatorAll =
-          SettingsSearchCatalog.search('', canAccessAdvanced: false);
+      expect(SettingsSectionId.publicSections.length, 8);
       expect(
-        operatorAll.any((SettingSearchEntry e) => e.section.isRestricted),
-        isFalse,
+        SettingsSectionId.publicSections.first,
+        SettingsSectionId.appearance,
+      );
+      expect(
+        SettingsSectionId.publicSections.last,
+        SettingsSectionId.appInfo,
       );
 
       final List<SettingSearchEntry> operatorAdvSearch =
           SettingsSearchCatalog.search('simulacion 2gb', canAccessAdvanced: false);
       expect(operatorAdvSearch, isEmpty);
 
-      // Administrador (canAccessAdvanced: true) encuentra opciones avanzadas
       final List<SettingSearchEntry> adminAdvSearch =
           SettingsSearchCatalog.search('simulacion 2gb', canAccessAdvanced: true);
       expect(adminAdvSearch, isNotEmpty);
       expect(adminAdvSearch.first.section, SettingsSectionId.advanced);
 
-      // Busqueda por palabra clave asocia correctamente su seccion
       final List<SettingSearchEntry> cacheSearch =
           SettingsSearchCatalog.search('sqlite cache', canAccessAdvanced: false);
       expect(cacheSearch, isNotEmpty);
@@ -103,7 +105,7 @@ void main() {
   );
 
   testWidgets(
-    'Buscador superior en Ajustes y acceso restringido vs autorizado a Configuracion avanzada',
+    'Diseno visual definitivo de Configuracion, buscador y Configuracion avanzada oculta',
     (WidgetTester tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
@@ -121,7 +123,18 @@ void main() {
       await tester.tap(find.text('Ajustes'));
       await tester.pumpAndSettle();
 
-      // Verifica buscador en la parte superior y busqueda sin coincidencias
+      // Verifica encabezado, tarjeta de Optimizacion del dispositivo y 8 categorias
+      expect(find.text('Configuracion'), findsOneWidget);
+      expect(find.text('Optimizacion del dispositivo'), findsOneWidget);
+      expect(find.text('Estado: Automatica'), findsOneWidget);
+      expect(
+        find.text(
+          'El sistema adapta el consumo de recursos segun las capacidades y condiciones del dispositivo',
+        ),
+        findsOneWidget,
+      );
+
+      // Verifica buscador "Buscar un ajuste..." y navegacion directa al pulsar resultado
       final Finder searchInput = find.byKey(const Key('settings_search_input'));
       expect(searchInput, findsOneWidget);
       await tester.enterText(searchInput, 'inexistente_xyz');
@@ -131,10 +144,9 @@ void main() {
       await tester.tap(find.byKey(const Key('settings_search_clear')));
       await tester.pumpAndSettle();
 
-      // Verifica que Operador estandar tiene Configuracion avanzada restringida
-      await tester.ensureVisible(
-        find.text('Configuracion avanzada restringida'),
-      );
+      // Configuracion avanzada esta oculta de la lista principal y protegida por permisos
+      expect(find.text('Panel Avanzado de Diagnostico y Simulacion'), findsNothing);
+      await tester.tap(find.byKey(const Key('settings_header_icon')));
       await tester.pumpAndSettle();
       expect(find.text('Configuracion avanzada restringida'), findsOneWidget);
       expect(

@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.0.9+9] - 2026-10-12 — VIS-SETTINGS-FINAL (Diseno Visual Definitivo de Configuracion, Tarjeta de Optimizacion Automatica y 8 Categorias Dedicadas)
+- Cambio: Implementacion del diseno visual definitivo del apartado **Configuracion** (`SettingsPage`): encabezado compacto con flecha de regreso (`Icons.arrow_back`), titulo «Configuracion» e icono de ajustes alineado (`SettingsHeaderBar`); barra de busqueda redondeada «Buscar un ajuste...» con filtrado y navegacion directa; tarjeta destacada **Optimizacion del dispositivo** (`DeviceOptimizationBannerCard`) conectada al estado real de deteccion (`isDetectionCompleted` -> `Estado: Automatica`); lista vertical ordenada de 8 categorias (`Apariencia y personalizacion`, `Accesibilidad`, `Rendimiento`, `Almacenamiento y cache`, `Conectividad y sincronizacion`, `NFC y registros`, `Privacidad y seguridad`, `Acerca de la aplicacion`) con navegacion a subpantallas dedicadas; paleta en tonos neutros y variantes azules sin acentos morados; y **Configuracion avanzada** oculta de la lista principal y protegida por permisos reales de Administrador (`SessionController.canAccessAdvancedSettings`).
+- Modulos y componentes intervenidos:
+  - `lib/features/settings/`: `device_optimization_banner.dart`, `settings_page.dart`, `settings_search_catalog.dart`, `settings_controller.dart`, `settings_system_sections.dart`.
+  - `lib/core/`: `app_colors.dart`, `nexid_palette.dart`, `hardware_bridge.dart`, `app_version.dart`, `app_shell.dart`.
+  - `docs/` y `test/`: `DEVICE_CAPABILITIES_SETTINGS.md`, `THEMES_ACCESSIBILITY.md`, `DECISIONS.md`, `PROGRESS.md`, `widget_test.dart`, `device_capabilities_settings_test.dart`.
+- Regla no-monolitos: 100% cumplida (<250 lineas por archivo y funciones <40 lineas).
+- Pruebas: 8/8 aprobadas en `flutter test` y 0 advertencias en `flutter analyze`.
+
 ## [0.0.8+8] - 2026-10-12 — HW-AUTO-SETTINGS (Deteccion Real de Hardware Android, Adaptacion Inteligente de Rendimiento, Buscador de Ajustes y Configuracion Avanzada Restringida)
 - Cambio: Implementacion en Kotlin (`DeviceCapabilitiesManager.kt`) y Dart (`DeviceCapabilitiesSnapshot`) de deteccion real de capacidades del dispositivo (RAM total/disponible, `isLowRamDevice`, heap del proceso, arquitectura y nucleos CPU, almacenamiento libre, version de Android, OpenGL/Vulkan, NFC, ahorro de bateria, estado termico y conectividad) sin inventar valores cuando el SO no los expone; perfil automatico e inteligente de rendimiento activo por defecto (`isAutoPerformance = true`, niveles `Rendimiento ligero`, `equilibrado` y `completo`); reorganizacion completa de `SettingsPage` en 9 secciones operativas + 10ma seccion de **Configuracion avanzada** restringida a `UserRole.administrador` o autorizacion verificada en `SessionController`; y buscador local instantaneo en la parte superior de Ajustes (`SettingsSearchCatalog`).
 - Modulos y componentes intervenidos:

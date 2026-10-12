@@ -206,6 +206,7 @@ class _AppShellState extends State<AppShell> {
           sessionController: deps.sessionController,
           placesController: deps.placesController,
           syncController: deps.syncController,
+          onBackToPreviousTab: () => setState(() => _currentIndex = 0),
         ),
       _ => ReadingPage(
           readingController: deps.readingController,

@@ -19,6 +19,8 @@ class SettingsController extends ChangeNotifier {
         _capabilities = initialCapabilities ??
             _persistedCapabilities ??
             DeviceCapabilitiesSnapshot.fallbackWhenUnavailable(),
+        _isDetectionCompleted =
+            initialCapabilities != null || _persistedCapabilities != null,
         _settings =
             initialSettings ?? _persistedSettings ?? const AppSettings() {
     _recommendedProfile = DevicePerformanceProfile.resolveAutomaticProfile(
@@ -39,6 +41,7 @@ class SettingsController extends ChangeNotifier {
 
   final HardwareBridge _hardwareBridge;
   DeviceCapabilitiesSnapshot _capabilities;
+  bool _isDetectionCompleted;
   DevicePerformanceProfile _recommendedProfile =
       DevicePerformanceProfile.lowEnd3Gb;
   AppSettings _settings;
@@ -47,12 +50,19 @@ class SettingsController extends ChangeNotifier {
 
   AppSettings get settings => _settings;
   DeviceCapabilitiesSnapshot get capabilities => _capabilities;
+  bool get isDetectionCompleted => _isDetectionCompleted;
   DevicePerformanceProfile get recommendedProfile => _recommendedProfile;
-  AdaptivePerformanceLevel get recommendedAdaptiveLevel =>
-      _recommendedProfile.adaptiveLevel;
-  AdaptivePerformanceLevel get activeAdaptiveLevel =>
-      _settings.deviceProfile.adaptiveLevel;
+  AdaptivePerformanceLevel get recommendedAdaptiveLevel => _recommendedProfile.adaptiveLevel;
+  AdaptivePerformanceLevel get activeAdaptiveLevel => _settings.deviceProfile.adaptiveLevel;
   bool get isAutoPerformance => _settings.isAutoPerformance;
+
+  /// Etiqueta de estado real de la tarjeta de Optimizacion del dispositivo.
+  String get optimizationStatusLabel {
+    if (!_isDetectionCompleted) return 'Verificando capacidades...';
+    if (!_settings.isAutoPerformance) return 'Manual (${activeAdaptiveLevel.label})';
+    return 'Automatica';
+  }
+
   AppThemePreference get themePreference => _settings.themePreference;
   ThemeMode get themeMode => _settings.themePreference.toThemeMode;
   bool get compactDensity => _settings.compactDensity;
@@ -75,19 +85,13 @@ class SettingsController extends ChangeNotifier {
   String get searchQuery => _searchQuery;
 
   bool get effectiveReduceMotion =>
-      _settings.reduceMotion ||
-      _settings.lowPerformanceMode ||
-      _settings.deviceProfile.budget.forceLightweightUi;
+      _settings.reduceMotion || _settings.lowPerformanceMode || _settings.deviceProfile.budget.forceLightweightUi;
 
-  bool isEffectiveDark(BuildContext context) {
-    final Brightness platformBrightness =
-        MediaQuery.platformBrightnessOf(context);
-    return switch (_settings.themePreference) {
-      AppThemePreference.dark => true,
-      AppThemePreference.light => false,
-      AppThemePreference.system => platformBrightness == Brightness.dark,
-    };
-  }
+  bool isEffectiveDark(BuildContext context) => switch (_settings.themePreference) {
+        AppThemePreference.dark => true,
+        AppThemePreference.light => false,
+        AppThemePreference.system => MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+      };
 
   Future<void> detectAndAdaptHardware() async {
     final DeviceCapabilitiesSnapshot snapshot =
@@ -98,6 +102,7 @@ class SettingsController extends ChangeNotifier {
   void applyCapabilitiesSnapshot(DeviceCapabilitiesSnapshot snapshot) {
     _capabilities = snapshot;
     _persistedCapabilities = snapshot;
+    _isDetectionCompleted = true;
     _recommendedProfile = DevicePerformanceProfile.resolveAutomaticProfile(
       snapshot,
       memoryPressureEvents: DeviceMemoryGuard.instance.memoryCleanupCount,
@@ -149,23 +154,18 @@ class SettingsController extends ChangeNotifier {
         canAccessAdvanced: canAccessAdvanced,
       );
 
-  void setThemePreference(AppThemePreference preference) =>
-      _update(_settings.copyWith(themePreference: preference));
-
-  void toggleCompactDensity(bool value) =>
-      _update(_settings.copyWith(compactDensity: value));
-
-  void setFontScalePreset(FontScalePreset preset) =>
-      _update(_settings.copyWith(fontScalePreset: preset));
-
-  void toggleHighContrast(bool value) =>
-      _update(_settings.copyWith(highContrast: value));
-
-  void toggleReduceMotion(bool value) =>
-      _update(_settings.copyWith(reduceMotion: value));
-
-  void toggleScreenReaderOptimized(bool value) =>
-      _update(_settings.copyWith(screenReaderOptimized: value));
+  void setThemePreference(AppThemePreference p) =>
+      _update(_settings.copyWith(themePreference: p));
+  void toggleCompactDensity(bool v) =>
+      _update(_settings.copyWith(compactDensity: v));
+  void setFontScalePreset(FontScalePreset p) =>
+      _update(_settings.copyWith(fontScalePreset: p));
+  void toggleHighContrast(bool v) =>
+      _update(_settings.copyWith(highContrast: v));
+  void toggleReduceMotion(bool v) =>
+      _update(_settings.copyWith(reduceMotion: v));
+  void toggleScreenReaderOptimized(bool v) =>
+      _update(_settings.copyWith(screenReaderOptimized: v));
 
   void setDeviceProfile(
     DevicePerformanceProfile profile, {
@@ -189,34 +189,28 @@ class SettingsController extends ChangeNotifier {
     ));
   }
 
-  void toggleLowPerformanceMode(bool value) =>
-      _update(_settings.copyWith(lowPerformanceMode: value));
-
-  void toggleDataSaverMode(bool value) =>
-      _update(_settings.copyWith(dataSaverMode: value));
+  void toggleLowPerformanceMode(bool v) =>
+      _update(_settings.copyWith(lowPerformanceMode: v));
+  void toggleDataSaverMode(bool v) =>
+      _update(_settings.copyWith(dataSaverMode: v));
 
   void evictTemporaryMemoryNow() {
     DeviceMemoryGuard.instance.evictTransientMemory();
     notifyListeners();
   }
 
-  void setPreferredMedium(ReadingMedium medium) =>
-      _update(_settings.copyWith(preferredMedium: medium));
-
-  void toggleVibrateOnScan(bool value) =>
-      _update(_settings.copyWith(vibrateOnScan: value));
-
-  void toggleSoundOnScan(bool value) =>
-      _update(_settings.copyWith(soundOnScan: value));
-
-  void toggleOperationalAlerts(bool value) =>
-      _update(_settings.copyWith(operationalAlertsEnabled: value));
-
-  void toggleSyncQueueAlerts(bool value) =>
-      _update(_settings.copyWith(syncQueueAlertsEnabled: value));
-
-  void toggleSimulateOffline(bool value) =>
-      _update(_settings.copyWith(simulateOffline: value));
+  void setPreferredMedium(ReadingMedium m) =>
+      _update(_settings.copyWith(preferredMedium: m));
+  void toggleVibrateOnScan(bool v) =>
+      _update(_settings.copyWith(vibrateOnScan: v));
+  void toggleSoundOnScan(bool v) =>
+      _update(_settings.copyWith(soundOnScan: v));
+  void toggleOperationalAlerts(bool v) =>
+      _update(_settings.copyWith(operationalAlertsEnabled: v));
+  void toggleSyncQueueAlerts(bool v) =>
+      _update(_settings.copyWith(syncQueueAlertsEnabled: v));
+  void toggleSimulateOffline(bool v) =>
+      _update(_settings.copyWith(simulateOffline: v));
 
   void resetToDefaults() {
     _update(AppSettings(

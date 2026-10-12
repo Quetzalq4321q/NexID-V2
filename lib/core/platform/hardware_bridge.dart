@@ -36,9 +36,7 @@ class NfcTagEvent {
 
 /// Puente de comunicacion con la capa nativa Kotlin (NFC Reader Mode y Camara QR).
 class HardwareBridge {
-  HardwareBridge() {
-    _channel.setMethodCallHandler(_handleNativeCallback);
-  }
+  HardwareBridge();
 
   static const MethodChannel _channel =
       MethodChannel('com.nexlabs.nexid/hardware');
@@ -47,6 +45,9 @@ class HardwareBridge {
 
   void setNfcTagListener(void Function(NfcTagEvent event)? listener) {
     _onNfcTagRead = listener;
+    if (listener != null) {
+      _channel.setMethodCallHandler(_handleNativeCallback);
+    }
   }
 
   Future<dynamic> _handleNativeCallback(MethodCall call) async {
@@ -70,14 +71,13 @@ class HardwareBridge {
   Future<DeviceCapabilitiesSnapshot> getDeviceCapabilities() async {
     try {
       final Map<dynamic, dynamic>? raw = await _channel
-          .invokeMethod<Map<dynamic, dynamic>>('getDeviceCapabilities');
+          .invokeMethod<Map<dynamic, dynamic>>('getDeviceCapabilities')
+          .timeout(const Duration(milliseconds: 60), onTimeout: () => null);
       if (raw == null) {
         return DeviceCapabilitiesSnapshot.fallbackWhenUnavailable();
       }
       return DeviceCapabilitiesSnapshot.fromMap(raw);
-    } on MissingPluginException {
-      return DeviceCapabilitiesSnapshot.fallbackWhenUnavailable();
-    } on PlatformException {
+    } catch (_) {
       return DeviceCapabilitiesSnapshot.fallbackWhenUnavailable();
     }
   }

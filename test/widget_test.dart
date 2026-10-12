@@ -19,7 +19,7 @@ void main() {
     expect(find.text('Iniciar Sesion'), findsOneWidget);
   });
 
-  testWidgets('NexID navegacion, accesibilidad Claro/Oscuro, Alumnos, Registros y PDF A4', (WidgetTester tester) async {
+  testWidgets('NexID navegacion, Configuracion definitiva, Claro/Oscuro, Alumnos, Registros y PDF A4', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -28,7 +28,6 @@ void main() {
     await tester.pumpWidget(const NexIdApp());
     await tester.pumpAndSettle();
 
-    // Ingresa credenciales de prueba
     await tester.enterText(find.byType(TextField).first, 'operador.puerta1');
     await tester.enterText(find.byType(TextField).last, 'demopassword');
     await tester.tap(find.text('Iniciar Sesion'));
@@ -43,7 +42,6 @@ void main() {
     expect(find.byType(RecordsFilterDropdown), findsOneWidget);
     expect(find.text('Total Eventos'), findsOneWidget);
 
-    // Abre el detalle auditable de un registro
     await tester.tap(find.text('Ana Maria Morales Quispe').first);
     await tester.pumpAndSettle();
     expect(find.textContaining('Detalle Auditable de Registro'), findsOneWidget);
@@ -75,25 +73,34 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
 
-    // 4. Navega a Ajustes y verifica el sistema de Accesibilidad y Temas (Claro/Oscuro/Auto)
+    // 4. Navega a Ajustes y verifica el diseno definitivo de Configuracion
     await tester.tap(find.text('Ajustes'));
     await tester.pumpAndSettle();
-    expect(find.byType(ThemeAppearanceCard), findsOneWidget);
-    expect(find.text('Apariencia y Tema del Sistema'), findsOneWidget);
+    expect(find.text('Configuracion'), findsOneWidget);
+    expect(find.text('Optimizacion del dispositivo'), findsOneWidget);
+    expect(find.text('Apariencia y personalizacion'), findsOneWidget);
 
-    // Cambia a Modo Oscuro y verifica que la UI no presente errores
+    // Entra a Apariencia y personalizacion y prueba Claro / Oscuro
+    await tester.tap(find.byKey(const Key('settings_category_appearance')));
+    await tester.pumpAndSettle();
+    expect(find.byType(ThemeAppearanceCard), findsOneWidget);
+
     await tester.tap(find.text('Oscuro'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Oscuro activo'), findsOneWidget);
 
-    // Cambia a Modo Claro y verifica independencia visual
     await tester.tap(find.text('Claro'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Claro activo'), findsOneWidget);
 
-    await tester.ensureVisible(find.textContaining('v0.0.8'));
+    // Regresa al listado principal de Configuracion y abre Acerca de la aplicacion
+    await tester.tap(find.byKey(const Key('settings_back_button')));
     await tester.pumpAndSettle();
-    expect(find.textContaining('v0.0.8'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('settings_category_appInfo')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('settings_category_appInfo')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('v0.0.9'), findsOneWidget);
   });
 
   testWidgets('NexID adaptabilidad en pantalla estrecha extrema (320px)', (WidgetTester tester) async {
@@ -115,6 +122,7 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.settings_outlined));
     await tester.pumpAndSettle();
-    expect(find.text('Apariencia y Tema del Sistema'), findsOneWidget);
+    expect(find.text('Configuracion'), findsOneWidget);
+    expect(find.text('Optimizacion del dispositivo'), findsOneWidget);
   });
 }
