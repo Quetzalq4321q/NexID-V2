@@ -22,15 +22,15 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final NexIdPalette palette = NexIdPalette.of(context);
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spaceExtraLarge),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppDimensions.spaceLarge),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 48.0,
+              size: 44.0,
               color: palette.textSecondary,
             ),
             const SizedBox(height: AppDimensions.spaceMedium),
@@ -42,7 +42,7 @@ class EmptyState extends StatelessWidget {
               ),
             ),
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: AppDimensions.spaceLarge),
+              const SizedBox(height: AppDimensions.spaceMedium),
               OutlinedButton(
                 onPressed: onAction,
                 style: OutlinedButton.styleFrom(

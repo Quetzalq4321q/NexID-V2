@@ -11,10 +11,11 @@ import '../../../session/presentation/controllers/session_controller.dart';
 import '../../../sync/presentation/controllers/sync_controller.dart';
 import '../controllers/settings_controller.dart';
 import '../widgets/accessibility_controls_card.dart';
+import '../widgets/low_end_performance_card.dart';
 import '../widgets/operator_profile_card.dart';
 import '../widgets/theme_appearance_card.dart';
 
-/// Pantalla 5: Configuracion, apariencia, accesibilidad WCAG 2.2 y preferencias.
+/// Pantalla 5: Configuracion, apariencia, accesibilidad WCAG 2.2 y Prioridad 0.
 class SettingsPage extends StatelessWidget {
   const SettingsPage({
     super.key,
@@ -58,6 +59,8 @@ class SettingsPage extends StatelessWidget {
                     ThemeAppearanceCard(controller: settingsController),
                     const SizedBox(height: AppDimensions.spaceMedium),
                     AccessibilityControlsCard(controller: settingsController),
+                    const SizedBox(height: AppDimensions.spaceMedium),
+                    LowEndPerformanceCard(controller: settingsController),
                     const SizedBox(height: AppDimensions.spaceLarge),
                     if (user != null) ...[
                       _buildSectionHeader('Cuenta Operativa Activa', palette),
@@ -93,10 +96,7 @@ class SettingsPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppDimensions.spaceSmall),
       child: Text(
         title,
-        style: AppTypography.caption.copyWith(
-          color: palette.textSecondary,
-          fontWeight: FontWeight.w700,
-        ),
+        style: AppTypography.caption.copyWith(color: palette.textSecondary, fontWeight: FontWeight.w700),
       ),
     );
   }

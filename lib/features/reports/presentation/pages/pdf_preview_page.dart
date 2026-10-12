@@ -8,7 +8,8 @@ import '../../../records/domain/record_models.dart';
 import '../../../students/domain/student_models.dart';
 import '../widgets/pdf_a4_sheet_widget.dart';
 
-/// Vista previa interactiva de documento PDF institucional en formato A4.
+/// Vista previa interactiva de documento PDF institucional en formato A4
+/// optimizada con RepaintBoundary e hidratacion bajo demanda (Prioridad 0).
 class PdfPreviewPage extends StatefulWidget {
   const PdfPreviewPage({
     super.key,
@@ -26,6 +27,7 @@ class PdfPreviewPage extends StatefulWidget {
 class _PdfPreviewPageState extends State<PdfPreviewPage> {
   late PdfTemplateType _templateType;
   Student? _selectedStudent;
+  bool _didHydrateInitial = false;
   final DateTime _issuedAt = DateTime.now();
 
   @override
@@ -36,12 +38,16 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final NexIdPalette palette = NexIdPalette.of(context);
-    final AppDependencies deps = AppDependencies.of(context);
-    final List<Student> allStudents = deps.studentsController.students;
-    final List<EventRecord> allRecords = deps.recordsController.records;
-    final Student activeStudent = _selectedStudent ??
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didHydrateInitial) {
+      _didHydrateInitial = true;
+      _hydrateSelectedStudentIfNeeded();
+    }
+  }
+
+  Student _fallbackStudent(List<Student> allStudents) {
+    return _selectedStudent ??
         (allStudents.isNotEmpty
             ? allStudents.first
             : Student(
@@ -52,6 +58,29 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
                 status: 'Matriculado Regular',
                 updatedAt: _issuedAt,
               ));
+  }
+
+  Future<void> _hydrateSelectedStudentIfNeeded() async {
+    final AppDependencies deps = AppDependencies.of(context);
+    final Student base = _fallbackStudent(deps.studentsController.students);
+    if (base.courses.isNotEmpty) {
+      _selectedStudent = base;
+      return;
+    }
+    final Student hydrated =
+        await deps.studentsController.hydrateStudentForProfile(base);
+    if (mounted) {
+      setState(() => _selectedStudent = hydrated);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
+    final AppDependencies deps = AppDependencies.of(context);
+    final List<Student> allStudents = deps.studentsController.students;
+    final List<EventRecord> allRecords = deps.recordsController.records;
+    final Student activeStudent = _fallbackStudent(allStudents);
 
     return Scaffold(
       backgroundColor: palette.background,
@@ -65,17 +94,19 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildControlToolbar(palette, allStudents, activeStudent),
+            _buildControlToolbar(deps, palette, allStudents, activeStudent),
             Divider(height: 1, color: palette.border),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(AppDimensions.spaceLarge),
                 child: Center(
-                  child: PdfA4SheetWidget(
-                    templateType: _templateType,
-                    student: activeStudent,
-                    records: allRecords,
-                    issuedAt: _issuedAt,
+                  child: RepaintBoundary(
+                    child: PdfA4SheetWidget(
+                      templateType: _templateType,
+                      student: activeStudent,
+                      records: allRecords,
+                      issuedAt: _issuedAt,
+                    ),
                   ),
                 ),
               ),
@@ -88,6 +119,7 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
   }
 
   Widget _buildControlToolbar(
+    AppDependencies deps,
     NexIdPalette palette,
     List<Student> allStudents,
     Student activeStudent,
@@ -140,13 +172,17 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
                       ),
                     );
                   }).toList(),
-                  onChanged: (String? id) {
+                  onChanged: (String? id) async {
                     if (id == null) return;
                     final Student found = allStudents.firstWhere(
                       (Student s) => s.id == id,
                       orElse: () => activeStudent,
                     );
-                    setState(() => _selectedStudent = found);
+                    final Student hydrated = await deps.studentsController
+                        .hydrateStudentForProfile(found);
+                    if (mounted) {
+                      setState(() => _selectedStudent = hydrated);
+                    }
                   },
                 ),
               ),

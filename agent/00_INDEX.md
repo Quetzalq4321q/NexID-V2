@@ -30,3 +30,4 @@ AGENTS.md es punto de entrada para herramientas que lo reconocen; en otras dar P
 - Construcción del backend confirmado: 22_SERVIDOR_PHP.md.
 - Subconjunto local para uso/visualización y sincronización selectiva: 23_CACHE_USABLE.md.
 - Accesibilidad WCAG 2.2, temas Claro/Oscuro/Automático, Skeletons y PDF A4: 24_ACCESIBILIDAD_Y_TEMAS.md.
+- Prioridad 0 (Gama Baja 2-4 GB RAM) y Memoria Técnica entre Agentes: ../docs/missions/PRIORITY_0_PERFORMANCE.md, ../docs/DECISIONS.md y ../docs/PROGRESS.md.

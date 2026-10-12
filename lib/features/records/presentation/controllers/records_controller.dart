@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
+import '../../../../core/performance/device_performance_tier.dart';
+import '../../../../core/performance/priority_task_scheduler.dart';
 import '../../../reading/domain/credential_models.dart';
 import '../../data/records_repository.dart';
 import '../../domain/record_models.dart';
@@ -16,8 +19,8 @@ enum RecordFilterCriteria {
   final String label;
 }
 
-/// Controlador para la gestion de registros con busqueda avanzada, KPIs,
-/// estados de Skeleton Loading y paginacion progresiva.
+/// Controlador para la gestion de registros con busqueda con debounce, KPIs,
+/// estados de Skeleton Loading y paginacion progresiva segun PRIORIDAD 0.
 class RecordsController extends ChangeNotifier {
   RecordsController({required this.repository}) {
     loadRecords();
@@ -34,6 +37,7 @@ class RecordsController extends ChangeNotifier {
   String _searchQuery = '';
   bool _sortDescending = true;
   int _visibleLimit = pageSize;
+  Timer? _searchDebounceTimer;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -122,10 +126,16 @@ class RecordsController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      if (forceSkeleton) {
-        await Future<void>.delayed(const Duration(milliseconds: 450));
-      }
-      _records = await repository.getRecords();
+      _records =
+          await PriorityTaskScheduler.instance.schedule<List<EventRecord>>(
+        priority: TaskPriority.medium,
+        action: () async {
+          if (forceSkeleton) {
+            await Future<void>.delayed(const Duration(milliseconds: 180));
+          }
+          return repository.getRecords();
+        },
+      );
     } catch (e) {
       _errorMessage = 'Error al consultar la cola SQLite local: $e';
     } finally {
@@ -144,15 +154,18 @@ class RecordsController extends ChangeNotifier {
     required ReadingMedium medium,
     String operatorName = 'Carlos Vega (op_puerta)',
   }) async {
-    final EventRecord record = await repository.addRecord(
-      studentId: studentId,
-      studentCode: studentCode,
-      studentName: studentName,
-      placeId: placeId,
-      placeName: placeName,
-      eventType: eventType,
-      medium: medium,
-      operatorName: operatorName,
+    final EventRecord record =
+        await PriorityTaskScheduler.instance.runCritical<EventRecord>(
+      () => repository.addRecord(
+        studentId: studentId,
+        studentCode: studentCode,
+        studentName: studentName,
+        placeId: placeId,
+        placeName: placeName,
+        eventType: eventType,
+        medium: medium,
+        operatorName: operatorName,
+      ),
     );
     await loadRecords();
     return record;
@@ -165,10 +178,23 @@ class RecordsController extends ChangeNotifier {
   }
 
   void setSearchQuery(String query) {
+    _searchDebounceTimer?.cancel();
     if (_searchQuery == query) return;
     _searchQuery = query;
     _visibleLimit = pageSize;
     notifyListeners();
+  }
+
+  void setSearchQueryDebounced(String query) {
+    _searchDebounceTimer?.cancel();
+    final int debounceMs =
+        DeviceMemoryGuard.instance.currentBudget.searchDebounceMs;
+    _searchDebounceTimer = Timer(Duration(milliseconds: debounceMs), () {
+      if (_searchQuery == query) return;
+      _searchQuery = query;
+      _visibleLimit = pageSize;
+      notifyListeners();
+    });
   }
 
   void toggleSortOrder() {
@@ -194,10 +220,17 @@ class RecordsController extends ChangeNotifier {
   }
 
   void clearFilters() {
+    _searchDebounceTimer?.cancel();
     _filterCriteria = RecordFilterCriteria.all;
     _placeFilter = null;
     _searchQuery = '';
     _visibleLimit = pageSize;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _searchDebounceTimer?.cancel();
+    super.dispose();
   }
 }

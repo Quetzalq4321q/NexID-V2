@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/performance/device_performance_tier.dart';
 import '../../reading/domain/credential_models.dart';
 
 /// Opciones de preferencia de apariencia (Claro, Oscuro, Automatico).
@@ -35,7 +36,7 @@ enum FontScalePreset {
   final String label;
 }
 
-/// Configuracion operativa, de apariencia y accesibilidad del terminal.
+/// Configuracion operativa, de apariencia, accesibilidad y rendimiento (Prioridad 0).
 class AppSettings {
   const AppSettings({
     this.themePreference = AppThemePreference.system,
@@ -43,6 +44,8 @@ class AppSettings {
     this.highContrast = false,
     this.reduceMotion = false,
     this.screenReaderOptimized = false,
+    this.deviceProfile = DevicePerformanceProfile.lowEnd3Gb,
+    this.lowPerformanceMode = true,
     this.preferredMedium = ReadingMedium.nfc,
     this.vibrateOnScan = true,
     this.soundOnScan = true,
@@ -55,6 +58,8 @@ class AppSettings {
   final bool highContrast;
   final bool reduceMotion;
   final bool screenReaderOptimized;
+  final DevicePerformanceProfile deviceProfile;
+  final bool lowPerformanceMode;
   final ReadingMedium preferredMedium;
   final bool vibrateOnScan;
   final bool soundOnScan;
@@ -67,6 +72,8 @@ class AppSettings {
     bool? highContrast,
     bool? reduceMotion,
     bool? screenReaderOptimized,
+    DevicePerformanceProfile? deviceProfile,
+    bool? lowPerformanceMode,
     ReadingMedium? preferredMedium,
     bool? vibrateOnScan,
     bool? soundOnScan,
@@ -80,6 +87,8 @@ class AppSettings {
       reduceMotion: reduceMotion ?? this.reduceMotion,
       screenReaderOptimized:
           screenReaderOptimized ?? this.screenReaderOptimized,
+      deviceProfile: deviceProfile ?? this.deviceProfile,
+      lowPerformanceMode: lowPerformanceMode ?? this.lowPerformanceMode,
       preferredMedium: preferredMedium ?? this.preferredMedium,
       vibrateOnScan: vibrateOnScan ?? this.vibrateOnScan,
       soundOnScan: soundOnScan ?? this.soundOnScan,
@@ -95,6 +104,8 @@ class AppSettings {
       'highContrast': highContrast,
       'reduceMotion': reduceMotion,
       'screenReaderOptimized': screenReaderOptimized,
+      'deviceProfile': deviceProfile.name,
+      'lowPerformanceMode': lowPerformanceMode,
       'preferredMedium': preferredMedium.name,
       'vibrateOnScan': vibrateOnScan,
       'soundOnScan': soundOnScan,

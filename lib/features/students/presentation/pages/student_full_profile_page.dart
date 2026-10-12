@@ -11,14 +11,47 @@ import '../../domain/student_models.dart';
 import '../widgets/student_profile_tabs.dart';
 import 'student_edit_page.dart';
 
-/// Expediente integral del alumno organizado por pestañas para evitar saturacion.
-class StudentFullProfilePage extends StatelessWidget {
+/// Expediente integral del alumno que hidrata bajo demanda los datos
+/// secundarios (cursos, documentos y seguimiento) al abrir la ficha.
+class StudentFullProfilePage extends StatefulWidget {
   const StudentFullProfilePage({
     super.key,
     required this.student,
   });
 
   final Student student;
+
+  @override
+  State<StudentFullProfilePage> createState() => _StudentFullProfilePageState();
+}
+
+class _StudentFullProfilePageState extends State<StudentFullProfilePage> {
+  late Student _hydratedStudent;
+  bool _didRequestHydration = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _hydratedStudent = widget.student;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didRequestHydration) {
+      _didRequestHydration = true;
+      _hydrateSecondaryData();
+    }
+  }
+
+  Future<void> _hydrateSecondaryData() async {
+    final AppDependencies deps = AppDependencies.of(context);
+    final Student full = await deps.studentsController
+        .hydrateStudentForProfile(widget.student);
+    if (mounted) {
+      setState(() => _hydratedStudent = full);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +79,7 @@ class StudentFullProfilePage extends StatelessWidget {
                   MaterialPageRoute<void>(
                     builder: (_) => PdfPreviewPage(
                       initialTemplate: PdfTemplateType.studentFicha,
-                      initialStudent: student,
+                      initialStudent: _hydratedStudent,
                     ),
                   ),
                 );
@@ -60,11 +93,11 @@ class StudentFullProfilePage extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (_) => StudentEditPage(
-                        studentId: student.id,
-                        initialName: student.fullName,
-                        initialCareer: student.career,
-                        initialFaculty: student.faculty ?? '',
-                        initialDocument: student.documentNumber ?? '',
+                        studentId: _hydratedStudent.id,
+                        initialName: _hydratedStudent.fullName,
+                        initialCareer: _hydratedStudent.career,
+                        initialFaculty: _hydratedStudent.faculty ?? '',
+                        initialDocument: _hydratedStudent.documentNumber ?? '',
                       ),
                     ),
                   );
@@ -89,9 +122,9 @@ class StudentFullProfilePage extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  StudentPersonalTab(student: student),
-                  StudentAcademicTab(student: student),
-                  StudentFollowUpTab(student: student),
+                  StudentPersonalTab(student: _hydratedStudent),
+                  StudentAcademicTab(student: _hydratedStudent),
+                  StudentFollowUpTab(student: _hydratedStudent),
                 ],
               ),
             ),
@@ -102,59 +135,53 @@ class StudentFullProfilePage extends StatelessWidget {
   }
 
   Widget _buildProfileSummaryHeader(NexIdPalette palette) {
-    final bool isRegular = student.status.toLowerCase().contains('regular');
+    final bool isRegular =
+        _hydratedStudent.status.toLowerCase().contains('regular');
     return Container(
       color: palette.surface,
       padding: const EdgeInsets.all(AppDimensions.spaceLarge),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AvatarPlaceholder(name: student.fullName, size: 60),
-              const SizedBox(width: AppDimensions.spaceMedium),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          AvatarPlaceholder(name: _hydratedStudent.fullName, size: 60),
+          const SizedBox(width: AppDimensions.spaceMedium),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _hydratedStudent.fullName,
+                  style: AppTypography.titleMedium.copyWith(
+                    color: palette.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${_hydratedStudent.code} · ${_hydratedStudent.career}',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: palette.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8.0,
+                  runSpacing: 6.0,
                   children: [
-                    Text(
-                      student.fullName,
-                      style: AppTypography.titleMedium.copyWith(
-                        color: palette.textPrimary,
+                    StatusBadge(
+                      label: _hydratedStudent.status,
+                      type: isRegular ? BadgeType.confirmed : BadgeType.pending,
+                    ),
+                    if (_hydratedStudent.isDemoExtendedData)
+                      const StatusBadge(
+                        label: 'Secciones Academicas Demo',
+                        type: BadgeType.info,
+                        maxWidth: 190,
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${student.code} · ${student.career}',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: palette.textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 8.0,
-                      runSpacing: 6.0,
-                      children: [
-                        StatusBadge(
-                          label: student.status,
-                          type: isRegular
-                              ? BadgeType.confirmed
-                              : BadgeType.pending,
-                        ),
-                        if (student.isDemoExtendedData)
-                          const StatusBadge(
-                            label: 'Secciones Academicas Demo',
-                            type: BadgeType.info,
-                            maxWidth: 190,
-                          ),
-                      ],
-                    ),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

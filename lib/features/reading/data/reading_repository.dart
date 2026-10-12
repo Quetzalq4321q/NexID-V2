@@ -46,8 +46,7 @@ class ReadingRepository {
     required ReadingMedium medium,
     required String placeId,
   }) async {
-    // Simulacion de latencia local
-    await Future<void>.delayed(const Duration(milliseconds: 350));
+    // Resolucion local inmediata sin esperas artificiales (Prioridad 0)
 
     final Map<String, dynamic> data = _mockDatabase[token] ??
         {
