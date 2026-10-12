@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import '../../../../core/performance/device_performance_tier.dart';
+import '../../../../core/performance/priority_task_scheduler.dart';
 import '../../../reading/domain/credential_models.dart';
 import '../../domain/settings_models.dart';
 
-/// Controlador local con persistencia en sesion para apariencia, accesibilidad y lectura.
+/// Controlador local con persistencia en sesion para apariencia, accesibilidad,
+/// lectura y perfiles de rendimiento para dispositivos de gama baja (Prioridad 0).
 class SettingsController extends ChangeNotifier {
   SettingsController({AppSettings? initialSettings})
-      : _settings = initialSettings ?? _persistedSettings ?? const AppSettings();
+      : _settings =
+            initialSettings ?? _persistedSettings ?? const AppSettings() {
+    _applyPerformancePolicy();
+  }
 
   /// Almacenamiento local persistente durante el ciclo de vida del proceso.
   static AppSettings? _persistedSettings;
@@ -20,11 +26,20 @@ class SettingsController extends ChangeNotifier {
   bool get highContrast => _settings.highContrast;
   bool get reduceMotion => _settings.reduceMotion;
   bool get screenReaderOptimized => _settings.screenReaderOptimized;
+  DevicePerformanceProfile get deviceProfile => _settings.deviceProfile;
+  PerformanceBudget get performanceBudget => _settings.deviceProfile.budget;
+  bool get lowPerformanceMode => _settings.lowPerformanceMode;
   ReadingMedium get preferredMedium => _settings.preferredMedium;
   bool get vibrateOnScan => _settings.vibrateOnScan;
   bool get soundOnScan => _settings.soundOnScan;
   bool get simulateOffline => _settings.simulateOffline;
   int get syncIntervalSeconds => _settings.syncIntervalSeconds;
+
+  /// Determina si se deben simplificar las animaciones (accesibilidad o gama baja).
+  bool get effectiveReduceMotion =>
+      _settings.reduceMotion ||
+      _settings.lowPerformanceMode ||
+      _settings.deviceProfile.budget.forceLightweightUi;
 
   /// Resuelve si el tema activo en pantalla es oscuro considerando el SO.
   bool isEffectiveDark(BuildContext context) {
@@ -62,6 +77,26 @@ class SettingsController extends ChangeNotifier {
     _update(_settings.copyWith(screenReaderOptimized: value));
   }
 
+  void setDeviceProfile(DevicePerformanceProfile profile) {
+    if (_settings.deviceProfile == profile) return;
+    _update(
+      _settings.copyWith(
+        deviceProfile: profile,
+        lowPerformanceMode: profile.budget.forceLightweightUi,
+      ),
+    );
+  }
+
+  void toggleLowPerformanceMode(bool value) {
+    if (_settings.lowPerformanceMode == value) return;
+    _update(_settings.copyWith(lowPerformanceMode: value));
+  }
+
+  void evictTemporaryMemoryNow() {
+    DeviceMemoryGuard.instance.evictTransientMemory();
+    notifyListeners();
+  }
+
   void setPreferredMedium(ReadingMedium medium) {
     if (_settings.preferredMedium == medium) return;
     _update(_settings.copyWith(preferredMedium: medium));
@@ -86,9 +121,17 @@ class SettingsController extends ChangeNotifier {
     _update(const AppSettings());
   }
 
+  void _applyPerformancePolicy() {
+    DeviceMemoryGuard.instance.applyProfile(_settings.deviceProfile);
+    PriorityTaskScheduler.instance.configureMaxConcurrency(
+      _settings.deviceProfile.budget.maxConcurrentBackgroundTasks,
+    );
+  }
+
   void _update(AppSettings next) {
     _settings = next;
     _persistedSettings = next;
+    _applyPerformancePolicy();
     notifyListeners();
   }
 }

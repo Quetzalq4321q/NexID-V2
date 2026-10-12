@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/performance/device_performance_tier.dart';
 import '../features/places/data/places_repository.dart';
 import '../features/places/presentation/controllers/places_controller.dart';
 import '../features/reading/data/reading_repository.dart';
@@ -21,8 +22,8 @@ import 'app_dependencies.dart';
 import 'app_shell.dart';
 import 'app_theme.dart';
 
-/// Composicion raiz de la aplicacion NexID con gestion reactiva de temas
-/// y accesibilidad WCAG 2.2.
+/// Composicion raiz de la aplicacion NexID con gestion reactiva de temas,
+/// accesibilidad WCAG 2.2 y observador de ciclo de vida/memoria (Prioridad 0).
 class NexIdApp extends StatefulWidget {
   const NexIdApp({super.key});
 
@@ -30,7 +31,7 @@ class NexIdApp extends StatefulWidget {
   State<NexIdApp> createState() => _NexIdAppState();
 }
 
-class _NexIdAppState extends State<NexIdApp> {
+class _NexIdAppState extends State<NexIdApp> with WidgetsBindingObserver {
   late final SessionRepository _sessionRepository;
   late final PlacesRepository _placesRepository;
   late final ReadingRepository _readingRepository;
@@ -53,6 +54,7 @@ class _NexIdAppState extends State<NexIdApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _sessionRepository = SessionRepository();
     _placesRepository = PlacesRepository();
     _readingRepository = ReadingRepository();
@@ -74,7 +76,21 @@ class _NexIdAppState extends State<NexIdApp> {
   }
 
   @override
+  void didHaveMemoryPressure() {
+    DeviceMemoryGuard.instance.evictTransientMemory();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      DeviceMemoryGuard.instance.evictTransientMemory();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _sessionController.dispose();
     _placesController.dispose();
     _readingController.dispose();
@@ -103,7 +119,7 @@ class _NexIdAppState extends State<NexIdApp> {
         listenable: _settingsController,
         builder: (BuildContext context, _) {
           final bool highContrast = _settingsController.highContrast;
-          final bool reduceMotion = _settingsController.reduceMotion;
+          final bool reduceMotion = _settingsController.effectiveReduceMotion;
 
           return MaterialApp(
             title: 'NexID',
@@ -113,7 +129,7 @@ class _NexIdAppState extends State<NexIdApp> {
             themeMode: _settingsController.themeMode,
             themeAnimationDuration: reduceMotion
                 ? Duration.zero
-                : const Duration(milliseconds: 220),
+                : const Duration(milliseconds: 180),
             themeAnimationCurve: Curves.easeOutCubic,
             builder: (BuildContext context, Widget? child) {
               final MediaQueryData mediaQuery = MediaQuery.of(context);

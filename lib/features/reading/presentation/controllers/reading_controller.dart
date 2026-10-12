@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../../../core/performance/priority_task_scheduler.dart';
 import '../../../../core/platform/hardware_bridge.dart';
 import '../../data/reading_repository.dart';
 import '../../domain/credential_models.dart';
@@ -172,6 +173,9 @@ class ReadingController extends ChangeNotifier {
     await _hardwareBridge.openAppSettings();
   }
 
+  String? _lastScanSignature;
+  DateTime? _lastScanTimestamp;
+
   Future<void> simulateScan({
     required String token,
     required String placeId,
@@ -181,23 +185,37 @@ class ReadingController extends ChangeNotifier {
     if (cleanToken.isEmpty) return;
 
     final ReadingMedium effectiveMedium = forceMedium ?? _selectedMedium;
+    final String signature = '$placeId:${effectiveMedium.name}:$cleanToken';
+    final DateTime now = DateTime.now();
+    if (_lastScanSignature == signature &&
+        _lastScanTimestamp != null &&
+        now.difference(_lastScanTimestamp!) <
+            const Duration(milliseconds: 1200) &&
+        _captureState == CaptureState.resolved) {
+      return;
+    }
+
     _selectedMedium = effectiveMedium;
     _captureState = CaptureState.resolving;
     _errorMessage = null;
     notifyListeners();
 
-    try {
-      final ResolvedCredential result = await _repository.resolveCredential(
-        token: cleanToken,
-        medium: effectiveMedium,
-        placeId: placeId,
-      );
-      _lastResult = result;
-      _captureState = CaptureState.resolved;
-    } catch (e) {
-      _errorMessage = 'Error al procesar la credencial leida.';
-      _captureState = CaptureState.error;
-    }
+    await PriorityTaskScheduler.instance.runCritical<void>(() async {
+      try {
+        final ResolvedCredential result = await _repository.resolveCredential(
+          token: cleanToken,
+          medium: effectiveMedium,
+          placeId: placeId,
+        );
+        _lastResult = result;
+        _lastScanSignature = signature;
+        _lastScanTimestamp = DateTime.now();
+        _captureState = CaptureState.resolved;
+      } catch (e) {
+        _errorMessage = 'Error al procesar la credencial leida.';
+        _captureState = CaptureState.error;
+      }
+    });
 
     notifyListeners();
   }
@@ -205,6 +223,8 @@ class ReadingController extends ChangeNotifier {
   void resetCapture() {
     _captureState = CaptureState.idle;
     _lastResult = null;
+    _lastScanSignature = null;
+    _lastScanTimestamp = null;
     _errorMessage = null;
     notifyListeners();
   }

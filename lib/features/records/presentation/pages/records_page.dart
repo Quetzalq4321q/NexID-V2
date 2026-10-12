@@ -67,7 +67,8 @@ class RecordsPage extends StatelessWidget {
                               'Buscar por ID, alumno, operador o punto...',
                           prefixIcon: Icon(Icons.search),
                         ),
-                        onChanged: controller.setSearchQuery,
+                        onChanged: controller.setSearchQueryDebounced,
+                        onSubmitted: controller.setSearchQuery,
                       ),
                       const SizedBox(height: AppDimensions.spaceSmall),
                       RecordsFilterDropdown(
@@ -93,6 +94,8 @@ class RecordsPage extends StatelessWidget {
                     ),
                     child: ListView.separated(
                       padding: const EdgeInsets.all(AppDimensions.spaceLarge),
+                      addAutomaticKeepAlives: false,
+                      addRepaintBoundaries: true,
                       itemCount: visibleRecords.length +
                           (controller.hasMorePages ? 1 : 0),
                       separatorBuilder: (_, _) =>

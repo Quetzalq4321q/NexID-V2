@@ -6,6 +6,35 @@ El proyecto utiliza versionado semántico formal (`MAJOR.MINOR.PATCH+BUILD`) a p
 
 ---
 
+## [0.0.7+7] - 2026-10-12
+
+### [PERF-0] PRIORIDAD 0 — Optimización Extrema para Dispositivos Android de Gama Baja (2–4 GB RAM) y Memoria Técnica Persistente entre Agentes
+- **Fecha:** 2026-10-12
+- **Categoría:** Rendimiento / Memoria RAM / Concurrencia / NFC Crítico / Documentación de Continuidad
+- **Estado:** Implementado y Verificado
+- **Solicitud del usuario:**
+  - Priorizar por encima de cualquier cambio estético la fluidez y estabilidad en celulares Android económicos (Samsung Galaxy A13, Galaxy A14, Redmi 15C, 2 GB / 3 GB / 4 GB de RAM, CPU lenta y red inestable).
+  - Implementar simulación de dispositivos limitados, gestión inteligente de RAM (`ImageCache` y caché LRU acotada), liberación automática en segundo plano o baja memoria sin borrar la cola SQLite, priorización de procesos (NFC en prioridad crítica, PDF en Isolate de baja prioridad), hidratación diferida de fichas de alumnos, debounce en búsquedas y suite de 12 escenarios de prueba.
+  - Integrar la memoria técnica persistente en `AGENTS.md`, `agent/` y `docs/missions/` para continuidad automática entre agentes.
+- **Archivos creados:**
+  - `lib/core/performance/device_performance_tier.dart`
+  - `lib/core/performance/priority_task_scheduler.dart`
+  - `lib/core/performance/bounded_lru_cache.dart`
+  - `lib/features/settings/presentation/widgets/low_end_performance_card.dart`
+  - `test/performance_low_end_test.dart`
+  - `docs/DECISIONS.md`, `docs/PROGRESS.md`
+  - `docs/missions/PRIORITY_0_PERFORMANCE.md`, `docs/missions/UI_RESPONSIVENESS.md`, `docs/missions/THEMES_ACCESSIBILITY.md`, `docs/missions/NFC_VALIDATION.md`, `docs/missions/STUDENTS_RECORDS.md`, `docs/missions/REPORTS_PDF.md`
+- **Archivos modificados:**
+  - `lib/app/app.dart`, `lib/core/constants/app_version.dart`, `pubspec.yaml`
+  - `lib/features/settings/domain/settings_models.dart`, `lib/features/settings/presentation/controllers/settings_controller.dart`, `lib/features/settings/presentation/pages/settings_page.dart`
+  - `lib/features/students/data/students_repository.dart`, `lib/features/students/presentation/controllers/students_controller.dart`, `lib/features/students/presentation/pages/students_page.dart`, `lib/features/students/presentation/pages/student_full_profile_page.dart`
+  - `lib/features/reading/presentation/controllers/reading_controller.dart`
+  - `lib/features/records/presentation/controllers/records_controller.dart`, `lib/features/records/presentation/pages/records_page.dart`
+  - `lib/features/reports/presentation/controllers/reports_controller.dart`, `lib/features/reports/presentation/pages/pdf_preview_page.dart`
+  - `AGENTS.md`, `agent/00_INDEX.md`, `agent/ESTADO.md`, `agent/CHANGELOG.md`, `test/widget_test.dart`
+
+---
+
 ## [0.0.6+6] - 2026-10-12
 
 ### [VIS-F / FUN-3] Sistema de Accesibilidad WCAG 2.2, Temas Independientes Claro/Oscuro, Skeleton Loading, Expediente de Alumnos, Auditoria de Registros y Vista Previa PDF A4

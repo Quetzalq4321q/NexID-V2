@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.7+7] - 2026-10-12 — PERF-0 (PRIORIDAD 0: Optimizacion Extrema para Dispositivos Android de Gama Baja 2-4 GB RAM y Memoria Tecnica entre Agentes)
+- Cambio: Implementacion integral de Prioridad 0 para celulares Android economicos (Samsung Galaxy A13, Galaxy A14, Redmi 15C, 2 GB / 3 GB / 4 GB RAM) con perfiles de hardware simulables (`DevicePerformanceProfile`), guardian de memoria RAM (`DeviceMemoryGuard` ante `didHaveMemoryPressure` y `AppLifecycleState.paused`), cache LRU acotada con deduplicacion en vuelo (`BoundedLruCache`), planificador por prioridades (`PriorityTaskScheduler`: lectura NFC en `TaskPriority.critical`, listas en `medium`, reportes PDF en `low` + `Isolate.run`), proyeccion ligera en listado de alumnos con hidratacion diferida de fichas, busqueda con debounce y sistema de memoria tecnica persistente en `AGENTS.md` y `docs/`.
+- Modulos y componentes intervenidos:
+  - `lib/core/performance/`: `device_performance_tier.dart`, `priority_task_scheduler.dart`, `bounded_lru_cache.dart`.
+  - `lib/features/settings/`: `low_end_performance_card.dart`, `settings_models.dart`, `settings_controller.dart`, `settings_page.dart`.
+  - `lib/features/students/`, `records/`, `reading/` y `reports/`: proyeccion ligera, cache LRU, debounce, `RepaintBoundary` y `TaskPriority.critical`.
+  - `AGENTS.md`, `docs/DECISIONS.md`, `docs/PROGRESS.md` y `docs/missions/`: documentacion centralizada de continuidad entre agentes.
+- Regla no-monolitos: 100% cumplida (<250 lineas por archivo).
+- Pruebas: 100% aprobadas (`test/widget_test.dart` + 12 escenarios de gama baja en `test/performance_low_end_test.dart`) y 0 advertencias en `flutter analyze`.
+
 ## [0.0.6+6] - 2026-10-12 — VIS-F / FUN-3 (Accesibilidad WCAG 2.2, Temas Independientes Claro/Oscuro, Skeleton Loading, Ampliacion de Alumnos/Registros y Vista Previa PDF A4)
 - Cambio: Implementacion integral de accesibilidad WCAG 2.2 con deteccion automatica del tema del SO (`Claro`, `Oscuro`, `Automatico`), tokens semanticos independientes (`NexIdPalette`), escala tipografica (90%-130%), alto contraste y reduccion de movimiento; sistema global de Skeleton Loading (`DataStateBoundary`, `ShimmerBox`, `StudentListSkeleton`, `RecordListSkeleton`); ampliacion del modulo de alumnos en 3 pestañas (`Personal`, `Academico`, `Seguimiento` con datos demo identificados); enriquecimiento del modulo de registros con KPIs, busqueda avanzada, paginacion progresiva y hoja modal de auditoria (`RecordDetailSheet`); y muestra interactiva de documento PDF en formato A4 (`PdfPreviewPage`, `PdfA4SheetWidget`).
 - Modulos y componentes intervenidos:

@@ -12,8 +12,8 @@ import '../../domain/student_models.dart';
 import '../controllers/students_controller.dart';
 import 'student_full_profile_page.dart';
 
-/// Pantalla 3: Directorio de alumnos con filtros avanzados, KPIs, Skeleton
-/// Loading y acceso al expediente integral por pestañas.
+/// Pantalla 3: Directorio de alumnos con construccion diferida, paginacion
+/// progresiva, KPIs, Skeleton Loading y acceso al expediente bajo demanda.
 class StudentsPage extends StatelessWidget {
   const StudentsPage({
     super.key,
@@ -28,7 +28,8 @@ class StudentsPage extends StatelessWidget {
       listenable: controller,
       builder: (BuildContext context, _) {
         final NexIdPalette palette = NexIdPalette.of(context);
-        final List<Student> students = controller.students;
+        final List<Student> visibleStudents = controller.paginatedStudents;
+        final int totalFiltered = controller.students.length;
 
         return Scaffold(
           backgroundColor: palette.background,
@@ -69,7 +70,7 @@ class StudentsPage extends StatelessWidget {
                 Expanded(
                   child: DataStateBoundary(
                     isLoading: controller.isLoading,
-                    hasData: students.isNotEmpty,
+                    hasData: visibleStudents.isNotEmpty,
                     errorMessage: controller.errorMessage,
                     onRetry: () => controller.loadStudents(forceSkeleton: true),
                     skeleton: const StudentListSkeleton(),
@@ -81,13 +82,27 @@ class StudentsPage extends StatelessWidget {
                     ),
                     child: ListView.separated(
                       padding: const EdgeInsets.all(AppDimensions.spaceLarge),
-                      itemCount: students.length,
+                      addAutomaticKeepAlives: false,
+                      addRepaintBoundaries: true,
+                      itemCount: visibleStudents.length +
+                          (controller.hasMorePages ? 1 : 0),
                       separatorBuilder: (_, _) =>
                           const SizedBox(height: AppDimensions.spaceSmall),
                       itemBuilder: (BuildContext context, int index) {
+                        if (index == visibleStudents.length) {
+                          return Center(
+                            child: OutlinedButton.icon(
+                              icon: const Icon(Icons.expand_more, size: 18),
+                              label: Text(
+                                'Cargar mas alumnos (${visibleStudents.length} de $totalFiltered)',
+                              ),
+                              onPressed: controller.loadMore,
+                            ),
+                          );
+                        }
                         return _buildStudentCard(
                           context,
-                          students[index],
+                          visibleStudents[index],
                           palette,
                         );
                       },
@@ -112,7 +127,8 @@ class StudentsPage extends StatelessWidget {
               hintText: 'Buscar por nombre, codigo, DNI o carrera...',
               prefixIcon: Icon(Icons.search),
             ),
-            onChanged: controller.setSearchQuery,
+            onChanged: controller.setSearchQueryDebounced,
+            onSubmitted: controller.setSearchQuery,
           ),
         ),
         const SizedBox(width: AppDimensions.spaceSmall),

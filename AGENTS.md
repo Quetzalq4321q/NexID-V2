@@ -1,75 +1,74 @@
 # Entrada del agente
 
-Antes de trabajar lee agent/00_INDEX.md y agent/01_REGLAS.md. Antes de modificar cualquier archivo lee agent/05_CAMBIOS.md. Después carga solo los documentos indicados para tu tarea. Al retomar lee agent/ESTADO.md y el historial relevante. Estas reglas aplican a todo el proyecto. No modifiques las reglas para eludirlas; cambios a este contrato requieren aprobación del usuario.
+Antes de trabajar lee `agent/00_INDEX.md`, `agent/01_REGLAS.md` y `docs/PROGRESS.md`. Antes de modificar cualquier archivo lee `agent/05_CAMBIOS.md` y `docs/DECISIONS.md`. Después carga solo los documentos indicados para tu tarea. Al finalizar cualquier cambio relevante, actualiza `docs/PROGRESS.md`, `agent/ESTADO.md` y `CHANGELOG.md`. Estas reglas aplican a todo el proyecto. No modifiques las reglas para eludirlas; cambios a este contrato requieren aprobación del usuario.
 
 ---
 
-## Arquitectura General y Organizacion de Modulos (`v0.0.6+6`)
+## Orden General de Prioridades Permanentes
 
-El proyecto **NexID** sigue una arquitectura modular estricta por funcionalidad (feature-first) con separacion entre `domain`, `data` y `presentation`, cumpliendo la regla anti-monolitos (`< 250 lineas` por archivo y `< 40 lineas` por funcion) y cero emojis:
-
-- `lib/app/`: Composicion raiz (`app.dart`), contenedor de navegacion adaptable (`app_shell.dart`), inyeccion de dependencias (`app_dependencies.dart`) y temas independientes (`app_theme.dart`).
-- `lib/core/`:
-  - `constants/`: Dimensiones (`app_dimensions.dart`), tipografia Roboto (`app_typography.dart`), paleta base (`app_colors.dart`) y versionado (`app_version.dart`).
-  - `theme/`: Tokens semanticos reactivos (`nexid_palette.dart`) mediante `ThemeExtension<NexIdPalette>`.
-  - `platform/`: Puente nativo Kotlin (`hardware_bridge.dart`) para lector NFC y camara QR.
-  - `responsive/`: Puntos de corte (`responsive_layout.dart`).
-- `lib/shared/widgets/`: Componentes reutilizables (`PrimaryButton`, `SecondaryButton`, `StatusBadge`, `AvatarPlaceholder`, `EmptyState`) y sistema de Skeleton Loading (`skeleton/shimmer_skeleton.dart`, `skeleton/module_skeletons.dart`).
-- `lib/features/`:
-  - `session/`: Autenticacion de operadores, roles y modal estilo cuenta Google.
-  - `places/`: Seleccion de puntos de control.
-  - `reading/`: Coordinacion de lectura fisica NFC (proyeccion completa) y QR (proyeccion parcial).
-  - `students/`: Padron de alumnos, KPIs, filtros y expediente integral por pestañas (`Personal`, `Academico`, `Seguimiento`).
-  - `records/`: Historial auditable con busqueda avanzada, desplegable unificado, paginacion progresiva y hoja modal de auditoria (`RecordDetailSheet`).
-  - `reports/`: Trabajos de reporte y vista previa de documentos PDF en formato A4 (`PdfPreviewPage`, `PdfA4SheetWidget`).
-  - `settings/`: Preferencias operativas, deteccion automatica del tema del SO y controles de accesibilidad WCAG 2.2.
-  - `sync/`: Motor local de sincronizacion en dos pasadas con intervalos de 5 segundos.
+1. **PRIORIDAD 0:** Estabilidad y optimización extrema para dispositivos Android económicos de 2–4 GB de RAM (`docs/missions/PRIORITY_0_PERFORMANCE.md`).
+2. **PRIORIDAD 1:** Corrección de errores funcionales, especialmente lectura NFC, registros y persistencia local (`docs/missions/NFC_VALIDATION.md`).
+3. **PRIORIDAD 2:** Interfaces responsivas (320 px a tablet) y eliminación de deformaciones (`docs/missions/UI_RESPONSIVENESS.md`).
+4. **PRIORIDAD 3:** Independencia de los temas claro y oscuro, accesibilidad WCAG 2.2 y paleta institucional (`docs/missions/THEMES_ACCESSIBILITY.md`).
+5. **PRIORIDAD 4:** Optimización de alumnos, matrícula, fotografías y presentación de registros (`docs/missions/STUDENTS_RECORDS.md`).
+6. **PRIORIDAD 5:** Skeletons ligeros, caché LRU, cargas progresivas y microinteracciones subordinadas a la Prioridad 0.
+7. **PRIORIDAD 6:** Conservación y optimización asíncrona de reportes PDF A4 y funcionalidades adicionales (`docs/missions/REPORTS_PDF.md`).
 
 ---
 
-## Sistema de Accesibilidad (WCAG 2.2) y Gestion de Temas
+## PRIORIDAD 0 — Compatibilidad y rendimiento en dispositivos de gama baja
 
-1. **Deteccion y Modos (`AppThemePreference`)**:
-   - `system` (`Automatico`): Detecta `MediaQuery.platformBrightnessOf(context)` en tiempo real.
-   - `light` (`Claro`): Activa `AppTheme.light(highContrast: ...)`.
-   - `dark` (`Oscuro`): Activa `AppTheme.dark(highContrast: ...)`.
-2. **Independencia entre Modo Claro y Modo Oscuro**:
-   - **Prohibido** usar colores estaticos (`Colors.white`, `Colors.black`, `AppColors.background`) directamente en las vistas de la aplicacion.
-   - **Obligatorio** consumir `final NexIdPalette palette = NexIdPalette.of(context);` para fondos (`palette.background`), tarjetas (`palette.surface`), modales (`palette.surfaceElevated`), bordes (`palette.border`), textos (`palette.textPrimary`, `palette.textSecondary`) y estados semanticos (`palette.success`, `palette.warning`, `palette.error`).
-   - Excepcion unica: El lienzo de hoja impresa A4 (`PdfA4SheetWidget`) conserva fondo de papel blanco para representar fielmente el documento fisico antes de imprimir.
-3. **Controles de Accesibilidad (`SettingsController`)**:
-   - Escala tipografica (`90%`, `100%`, `115%`, `130%`) inyectada en `MediaQuery.textScaler`.
-   - Modo de Alto Contraste (`WCAG 2.2 AAA`) con bordes reforzados y contraste incrementado.
-   - Reduccion de movimiento (`reduceMotion`) que desactiva animaciones decorativas y reemplaza el barrido shimmer por bloques estaticos.
-   - Compatibilidad con lectores de pantalla mediante nodos `Semantics` y `Tooltip`.
+Esta prioridad está por encima de cualquier cambio estético, animación o ampliación de información:
 
----
-
-## Uso del Sistema Global de Skeleton Loading
-
-- Toda pantalla conectada a datos (`StudentsPage`, `RecordsPage`) debe envolver su listado en `DataStateBoundary` (`lib/shared/widgets/skeleton/shimmer_skeleton.dart`).
-- Nunca mostrar pantallas vacias o spinners aislados en la primera carga: utilizar el skeleton estructural especifico del modulo (`StudentListSkeleton`, `RecordListSkeleton`, `KpiSummarySkeleton` en `lib/shared/widgets/skeleton/module_skeletons.dart`).
-- Cuando existen datos en cache local (`hasCachedData == true`), mantener los datos visibles durante la recarga y mostrar un indicador lineal superior sin bloquear la interaccion.
-
----
-
-## Lineamientos de Animaciones y Microinteracciones
-
-- Utilizar duraciones cortas y naturales (`180ms` a `220ms`, `Curves.easeOutCubic`).
-- Consultar siempre `MediaQuery.disableAnimationsOf(context)` o `settingsController.reduceMotion` antes de ejecutar transiciones (`AnimatedSwitcher`, `ShimmerBox`).
-
----
-
-## Modulos de Alumnos, Registros y Flujo de Generacion PDF (A4)
-
-- **Alumnos (`features/students/`)**: El modelo `Student` preserva los campos minimos de `agent/23_CACHE_USABLE.md` y separa las secciones extendidas de demostracion (`isDemoExtendedData = true`) en tres pestañas (`StudentPersonalTab`, `StudentAcademicTab`, `StudentFollowUpTab`).
-- **Registros (`features/records/`)**: Cada `EventRecord` conserva `idempotencyKey`, `operatorName`, `lastModifiedAt`, `relatedInfo` y `changeHistory`. El listado aplica paginacion progresiva (`pageSize = 6`) para proteger la memoria.
-- **Vista Previa PDF A4 (`features/reports/`)**: `PdfPreviewPage` renderiza la maqueta institucional A4 (`PdfA4SheetWidget` y `PdfA4SectionsWidget`) para *Ficha Institucional de Alumno* y *Reporte General de Registros*.
+1. **Dispositivos y Perfiles Objetivo (`lib/core/performance/device_performance_tier.dart`)**:
+   - Diseñado pensando primero en un celular Android económico con **2 GB de RAM**, procesador lento, almacenamiento eMMC lento y red inestable (Samsung Galaxy A13, Samsung Galaxy A14, Xiaomi Redmi 15C y equivalentes).
+   - Cuatro perfiles simulables y auditables en tiempo real desde Ajustes:
+     - `ultraLowEnd2Gb`: 2 GB RAM · Cache imágenes 20 / 8 MB · Máx. 3 fichas extendidas en RAM · Lote de lista = 6.
+     - `lowEnd3Gb` (Por defecto): 3 GB RAM · Cache imágenes 35 / 14 MB · Máx. 5 fichas extendidas en RAM · Lote de lista = 8.
+     - `budgetMid4Gb`: 4 GB RAM · Cache imágenes 50 / 24 MB · Máx. 8 fichas extendidas en RAM · Lote de lista = 10.
+     - `adverseConditions`: 2.5 GB RAM · Red inestable · Lote de lista = 6 · Debounce de búsqueda = 300 ms.
+2. **Reglas de Consumo de Memoria (`DeviceMemoryGuard`)**:
+   - `NexIdApp` observa `didHaveMemoryPressure()` y `didChangeAppLifecycleState(AppLifecycleState.paused / detached)` para liberar inmediatamente `PaintingBinding.instance.imageCache` y cachés temporales de detalle.
+   - **Prohibido** precargar toda la base de datos o todas las fotografías de alumnos en memoria.
+   - Todos los `ChangeNotifier`, `Timer` de debounce y listeners nativos deben liberarse en `dispose()`.
+3. **Estrategias de Caché (`lib/core/performance/bounded_lru_cache.dart`)**:
+   - `BoundedLruCache` impone límite estricto de entradas (`maxEntries`), expiración por `TTL` y deduplicación de peticiones en vuelo (`putIfAbsentAsync`).
+   - **Separación estricta**: La limpieza de caché temporal jamás borra ni altera los registros pendientes de sincronización en SQLite (`outbox` / `RecordsRepository`).
+4. **Carga Progresiva de Información**:
+   - El listado de alumnos (`StudentsRepository.getStudents()`) carga únicamente los campos esenciales de resumen.
+   - Los cursos, documentos, observaciones e historial (`hydrateStudentDetail`) se cargan bajo demanda únicamente cuando el usuario abre `StudentFullProfilePage` o `PdfPreviewPage`.
+5. **Priorización de Procesos (`lib/core/performance/priority_task_scheduler.dart`)**:
+   - `TaskPriority.critical`: Lectura/validación NFC, creación de registros y respuesta táctil inmediata (`runCritical`). Pausa el inicio de tareas de baja prioridad.
+   - `TaskPriority.medium`: Carga paginada de listas visibles e hidratación de expediente activo.
+   - `TaskPriority.low`: Preparación de reportes pesados ejecutada mediante `Isolate.run` (`runCpuIntensive`) sin bloquear el hilo principal. Nunca usar `sleep` bloqueante.
+6. **Restricciones de Animaciones e Interfaz**:
+   - Cuando `effectiveReduceMotion` está activo (automático en perfiles de 2–3 GB o Modo de Rendimiento Reducido), `ShimmerBox` renderiza bloques estáticos sin `AnimationController` y `AppShell` conmuta vistas sin transiciones costosas.
+   - Prohibido usar desenfoques (`BackdropFilter`), transparencias anidadas o sombras pesadas.
+7. **Criterios de Optimización para Flutter**:
+   - Listas grandes deben usar `ListView.separated` / `ListView.builder` con `addAutomaticKeepAlives: false` y `addRepaintBoundaries: true`.
+   - Búsquedas de texto deben usar debounce (`setSearchQueryDebounced`).
+   - Lienzos complejos como `PdfA4SheetWidget` deben aislarse dentro de `RepaintBoundary`.
+8. **Pruebas Obligatorias antes de Aprobar Cambios**:
+   - Ejecutar `flutter analyze` (`0` incidencias) y `flutter test` verificando `test/widget_test.dart` y los 12 escenarios de `test/performance_low_end_test.dart`.
+   - Verificar que el 100% de los archivos `.dart` tengan `< 250 líneas` y cada función `< 40 líneas`.
 
 ---
 
-## Restricciones de Seguridad, Base de Datos y Datos Sensibles
+## Arquitectura General y Mapa de Documentación (`v0.0.7+7`)
 
-- No modificar el esquema SQLite ni el backend PHP/MariaDB sin validacion previa de relaciones.
-- Respetar la politica de proyeccion (`agent/13_NFC_QR.md`): NFC habilita ficha completa autorizada; QR restringe datos sensibles como el DNI.
-- No exponer datos personales de estudiantes en `debugPrint`, logs de consola ni reportes no autorizados.
+- **Código fuente (`lib/`)**:
+  - `lib/app/`: Composición raíz (`app.dart`), contenedor adaptable (`app_shell.dart`), inyección (`app_dependencies.dart`) y temas (`app_theme.dart`).
+  - `lib/core/`: Constantes (`constants/`), paleta reactiva (`theme/nexid_palette.dart`), puente nativo Kotlin (`platform/hardware_bridge.dart`), puntos de corte (`responsive/`) y motor de rendimiento de gama baja (`performance/`).
+  - `lib/shared/widgets/`: Componentes reutilizables y sistema ligero de Skeleton Loading (`skeleton/`).
+  - `lib/features/`: Módulos desacoplados (`session`, `places`, `reading`, `students`, `records`, `reports`, `settings`, `sync`).
+- **Memoria Técnica y Misiones (`docs/` y `agent/`)**:
+  - Índice de reglas base y contratos de servidor/SQLite: [`agent/00_INDEX.md`](file:///c:/Users/User/StudioProjects/NexID/agent/00_INDEX.md) y [`agent/ESTADO.md`](file:///c:/Users/User/StudioProjects/NexID/agent/ESTADO.md).
+  - Estado de avance, pruebas y guía para el siguiente agente: [`docs/PROGRESS.md`](file:///c:/Users/User/StudioProjects/NexID/docs/PROGRESS.md).
+  - Decisiones arquitectónicas consolidadas: [`docs/DECISIONS.md`](file:///c:/Users/User/StudioProjects/NexID/docs/DECISIONS.md).
+  - Misiones específicas:
+    - [`docs/missions/PRIORITY_0_PERFORMANCE.md`](file:///c:/Users/User/StudioProjects/NexID/docs/missions/PRIORITY_0_PERFORMANCE.md)
+    - [`docs/missions/NFC_VALIDATION.md`](file:///c:/Users/User/StudioProjects/NexID/docs/missions/NFC_VALIDATION.md)
+    - [`docs/missions/UI_RESPONSIVENESS.md`](file:///c:/Users/User/StudioProjects/NexID/docs/missions/UI_RESPONSIVENESS.md)
+    - [`docs/missions/THEMES_ACCESSIBILITY.md`](file:///c:/Users/User/StudioProjects/NexID/docs/missions/THEMES_ACCESSIBILITY.md)
+    - [`docs/missions/STUDENTS_RECORDS.md`](file:///c:/Users/User/StudioProjects/NexID/docs/missions/STUDENTS_RECORDS.md)
+    - [`docs/missions/REPORTS_PDF.md`](file:///c:/Users/User/StudioProjects/NexID/docs/missions/REPORTS_PDF.md)
