@@ -1,11 +1,13 @@
 # Estado de Avance, Pruebas y Continuidad entre Agentes (`PROGRESS.md`)
 
-## 1. Ultima Tarea Realizada (`v0.0.7+7`)
-Implementacion integral de **PRIORIDAD 0 — Optimizacion Extrema para Dispositivos Android de Gama Baja (2–4 GB de RAM)** y del sistema de **Memoria Tecnica y Continuidad entre Agentes**.
+## 1. Ultima Tarea Realizada (`v0.0.8+8`)
+Implementacion de **Deteccion Real de Hardware Android (`DeviceCapabilitiesManager.kt`), Adaptacion Automatica de Rendimiento (`isAutoPerformance = true`), Reorganizacion Completa de Ajustes en 10 Secciones, Buscador Superior de Configuraciones y Configuracion Avanzada Restringida por Permisos**.
 
 ## 2. Estado de Funcionalidades
 | Modulo / Mision | Estado | Archivos Clave |
 |---|---|---|
+| Deteccion nativa de hardware Android + Adaptacion automatica | **Verificado** | `DeviceCapabilitiesManager.kt`, `device_capabilities_models.dart`, `device_performance_tier.dart` |
+| Ajustes reorganizados en 10 secciones + Buscador superior + Avanzado restringido | **Verificado** | `settings_search_catalog.dart`, `settings_page.dart`, `settings_system_sections.dart`, `advanced_settings_card.dart` |
 | Prioridad 0: Perfiles 2-4 GB RAM, LRU, `ImageCache` y `PriorityTaskScheduler` | **Verificado** | `lib/core/performance/device_performance_tier.dart`, `priority_task_scheduler.dart`, `bounded_lru_cache.dart` |
 | Ciclo de vida y liberacion automatica de RAM (`didHaveMemoryPressure`, `paused`) | **Verificado** | `lib/app/app.dart`, `lib/features/settings/presentation/widgets/low_end_performance_card.dart` |
 | Lectura NFC en `TaskPriority.critical` + deduplicacion de escaneo | **Verificado** | `lib/features/reading/presentation/controllers/reading_controller.dart` |
@@ -17,23 +19,15 @@ Implementacion integral de **PRIORIDAD 0 — Optimizacion Extrema para Dispositi
 
 ## 3. Pruebas Ejecutadas y Resultados Reales
 1. **Analisis Estatico (`flutter analyze`)**: `0` errores, `0` advertencias.
-2. **Regla Anti-Monolitos**: 100% de archivos `.dart` en `lib/` y `test/` con `< 250 lineas`.
+2. **Regla Anti-Monolitos**: 100% de archivos `.dart` en `lib/` y `test/` con `< 250 lineas` y funciones `< 40 lineas`.
 3. **Suite Funcional y Adaptabilidad (`test/widget_test.dart`)**: 3/3 pruebas aprobadas (incluyendo pantalla estrecha extrema de `320x640 px`).
-4. **Suite de 12 Escenarios de Rendimiento en Gama Baja (`test/performance_low_end_test.dart`)**:
-   - Arranque en frio y autenticacion (`< 2500 ms`).
-   - Navegacion rapida por los 5 modulos sin bloqueos.
-   - Padron extenso de `150` alumnos con construccion diferida de solo `6` tarjetas visibles en perfil de `2 GB RAM`.
-   - Cache LRU de fichas extendidas estrictamente limitada a `<= 3` fichas en `2 GB RAM`.
-   - Preempcion de lectura NFC (`TaskPriority.critical`, `< 800 ms`) durante compilacion concurrente de reporte PDF.
-   - Simulacion offline + recuperacion en sincronizacion sin perdida de registros en cola.
-   - Liberacion automatica de cache temporal al pasar a `AppLifecycleState.paused` y ante `handleMemoryPressure()`, preservando intactos los registros de SQLite/Outbox.
-5. **Perfilado Real en Dispositivo Fisico Android (`build apk --profile` en `MVJBINXKLJAUZLQS` / `com.nexlabs.nexid`)**:
-   - **Inicio en frio (`LaunchState: COLD`)**: `TotalTime: 947 ms` (`WaitTime: 950 ms`).
-   - **Huella de Memoria (`dumpsys meminfo`)**: `Java Heap: 12,656 KB (~12.3 MB)`, `Native Heap: 35,224 KB (~34.4 MB)`, `Code: 52,020 KB`, `Activities: 1`, `WebViews: 0`.
-   - **Optimizacion de recursos (`Tree-shaking`)**: `MaterialIcons-Regular.otf` reducido un `99.4%` (`1.64 MB -> 9.7 KB`).
+4. **Suite de 12 Escenarios de Rendimiento en Gama Baja (`test/performance_low_end_test.dart`)**: 2/2 bloques aprobados cubriendo los 12 escenarios obligatorios de gama baja.
+5. **Suite de Deteccion de Hardware, Adaptacion Automatica, Buscador y Permisos Avanzados (`test/device_capabilities_settings_test.dart`)**: 3/3 pruebas aprobadas verificando telemetria real, respaldo cuando Android omite valores (`null`), adaptacion automatica para 2 GB / 3 GB / 4 GB, buscador local de configuraciones y restriccion de Configuracion avanzada por rol `UserRole.administrador`.
+6. **Perfilado Real en Dispositivo Fisico Android (`build apk --profile` en `MVJBINXKLJAUZLQS` / `com.nexlabs.nexid`)**:
+   - Inicio en frio `< 1000 ms` y huella Java Heap `~12.6 MB`.
 
 ## 4. Limitaciones de las Pruebas y Guia para el Siguiente Agente
-- **Limitacion de entorno**: Los perfiles de 2 GB, 3 GB y 4 GB de RAM se validan mediante presupuestos estrictos en `DeviceMemoryGuard`, pruebas automatizadas de presion de memoria (`handleMemoryPressure`) y compilacion real de APK/perfilado en el dispositivo conectado (`2506BPN68G`). Las pruebas de campo con tarjetas fisicas MIFARE/DESFire reales en puntos de control dependen de la sesion fisica del operador.
+- **Limitacion de entorno**: En pruebas unitarias de escritorio donde el canal nativo de Android no esta activo, `DeviceCapabilitiesSnapshot.fallbackWhenUnavailable()` reporta `isRealAndroidTelemetry = false` y mantiene los campos no expuestos como `null` sin inventar cifras, aplicando el perfil equilibrado seguro. En el dispositivo Android real conectado, `DeviceCapabilitiesManager.kt` entrega las metricas nativas del sistema operativo.
 - **Proxima accion recomendada**:
   1. Si el usuario solicita el documento Markdown especifico de reproduccion/modificacion del PDF A4 tras revisar la muestra, ampliar `docs/missions/REPORTS_PDF.md`.
   2. No tocar servidor PHP ni MariaDB hasta recibir autorizacion explicita del usuario (`agent/05_CAMBIOS.md`).

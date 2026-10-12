@@ -73,11 +73,13 @@ class _NexIdAppState extends State<NexIdApp> with WidgetsBindingObserver {
     _reportsController = ReportsController(repository: _reportsRepository);
     _syncController = SyncController(repository: _syncRepository);
     _settingsController = SettingsController();
+    _settingsController.detectAndAdaptHardware();
   }
 
   @override
   void didHaveMemoryPressure() {
     DeviceMemoryGuard.instance.evictTransientMemory();
+    _settingsController.onRuntimeMemoryPressure();
   }
 
   @override

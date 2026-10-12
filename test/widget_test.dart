@@ -91,8 +91,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Claro activo'), findsOneWidget);
 
-    await tester.scrollUntilVisible(find.textContaining('v0.0.7'), 120);
-    expect(find.textContaining('v0.0.7'), findsOneWidget);
+    await tester.ensureVisible(find.textContaining('v0.0.8'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('v0.0.8'), findsOneWidget);
   });
 
   testWidgets('NexID adaptabilidad en pantalla estrecha extrema (320px)', (WidgetTester tester) async {

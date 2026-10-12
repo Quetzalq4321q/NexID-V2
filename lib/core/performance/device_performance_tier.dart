@@ -1,7 +1,37 @@
 import 'package:flutter/painting.dart';
+import '../platform/device_capabilities_models.dart';
 
-/// Perfiles de simulacion y operacion para dispositivos Android economicos
-/// segun PRIORIDAD 0 (2 GB, 3 GB, 4 GB de RAM y condiciones adversas).
+/// Niveles internos de adaptacion inteligente de rendimiento (PRIORIDAD 0).
+enum AdaptivePerformanceLevel {
+  lightweight(
+    'Rendimiento ligero',
+    'Caches reducidas, sin animaciones costosas y 1 tarea secundaria maxima',
+  ),
+  balanced(
+    'Rendimiento equilibrado',
+    'Equilibrio entre consumo de RAM, carga progresiva y fluidez operativa',
+  ),
+  full(
+    'Rendimiento completo',
+    'Capacidad grafica y de cache ampliada con prioridad critica para NFC',
+  );
+
+  const AdaptivePerformanceLevel(this.label, this.description);
+
+  final String label;
+  final String description;
+
+  DevicePerformanceProfile get defaultProfile {
+    return switch (this) {
+      AdaptivePerformanceLevel.lightweight =>
+        DevicePerformanceProfile.ultraLowEnd2Gb,
+      AdaptivePerformanceLevel.balanced => DevicePerformanceProfile.lowEnd3Gb,
+      AdaptivePerformanceLevel.full => DevicePerformanceProfile.budgetMid4Gb,
+    };
+  }
+}
+
+/// Perfiles de presupuesto operativo y simulacion auditable (PRIORIDAD 0).
 enum DevicePerformanceProfile {
   ultraLowEnd2Gb(
     'Gama baja extrema (2 GB RAM)',
@@ -24,6 +54,17 @@ enum DevicePerformanceProfile {
 
   final String label;
   final String description;
+
+  AdaptivePerformanceLevel get adaptiveLevel {
+    return switch (this) {
+      DevicePerformanceProfile.ultraLowEnd2Gb =>
+        AdaptivePerformanceLevel.lightweight,
+      DevicePerformanceProfile.adverseConditions =>
+        AdaptivePerformanceLevel.lightweight,
+      DevicePerformanceProfile.lowEnd3Gb => AdaptivePerformanceLevel.balanced,
+      DevicePerformanceProfile.budgetMid4Gb => AdaptivePerformanceLevel.full,
+    };
+  }
 
   PerformanceBudget get budget {
     return switch (this) {
@@ -76,6 +117,39 @@ enum DevicePerformanceProfile {
           maxConcurrentBackgroundTasks: 1,
         ),
     };
+  }
+
+  /// Determina automaticamente el perfil optimo evaluando RAM total/disponible,
+  /// heap del proceso, ahorro de bateria, estado termico, red y presion de RAM.
+  static DevicePerformanceProfile resolveAutomaticProfile(
+    DeviceCapabilitiesSnapshot capabilities, {
+    int memoryPressureEvents = 0,
+  }) {
+    if (capabilities.isSeverelyMemoryConstrained || memoryPressureEvents >= 2) {
+      return DevicePerformanceProfile.ultraLowEnd2Gb;
+    }
+    if (!capabilities.hasActiveNetwork &&
+        (capabilities.isModeratelyConstrained ||
+            capabilities.hasThermalOrPowerConstraint)) {
+      return DevicePerformanceProfile.adverseConditions;
+    }
+    if (!capabilities.isRealAndroidTelemetry ||
+        capabilities.totalRamMb == null) {
+      return memoryPressureEvents > 0
+          ? DevicePerformanceProfile.ultraLowEnd2Gb
+          : DevicePerformanceProfile.lowEnd3Gb;
+    }
+    if (capabilities.isModeratelyConstrained &&
+        capabilities.hasThermalOrPowerConstraint) {
+      return DevicePerformanceProfile.ultraLowEnd2Gb;
+    }
+    if (capabilities.isModeratelyConstrained ||
+        capabilities.hasThermalOrPowerConstraint ||
+        capabilities.isStorageConstrained ||
+        memoryPressureEvents == 1) {
+      return DevicePerformanceProfile.lowEnd3Gb;
+    }
+    return DevicePerformanceProfile.budgetMid4Gb;
   }
 }
 
@@ -153,7 +227,8 @@ class DeviceMemoryGuard {
     } catch (_) {
       // Seguro en entornos sin binding grafico activo.
     }
-    for (final void Function() callback in List<void Function()>.from(_cleanupCallbacks)) {
+    for (final void Function() callback
+        in List<void Function()>.from(_cleanupCallbacks)) {
       callback();
     }
   }

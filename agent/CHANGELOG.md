@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.0.8+8] - 2026-10-12 — HW-AUTO-SETTINGS (Deteccion Real de Hardware Android, Adaptacion Inteligente de Rendimiento, Buscador de Ajustes y Configuracion Avanzada Restringida)
+- Cambio: Implementacion en Kotlin (`DeviceCapabilitiesManager.kt`) y Dart (`DeviceCapabilitiesSnapshot`) de deteccion real de capacidades del dispositivo (RAM total/disponible, `isLowRamDevice`, heap del proceso, arquitectura y nucleos CPU, almacenamiento libre, version de Android, OpenGL/Vulkan, NFC, ahorro de bateria, estado termico y conectividad) sin inventar valores cuando el SO no los expone; perfil automatico e inteligente de rendimiento activo por defecto (`isAutoPerformance = true`, niveles `Rendimiento ligero`, `equilibrado` y `completo`); reorganizacion completa de `SettingsPage` en 9 secciones operativas + 10ma seccion de **Configuracion avanzada** restringida a `UserRole.administrador` o autorizacion verificada en `SessionController`; y buscador local instantaneo en la parte superior de Ajustes (`SettingsSearchCatalog`).
+- Modulos y componentes intervenidos:
+  - `android/app/src/main/kotlin/com/nexlabs/nexid/`: `DeviceCapabilitiesManager.kt`, `MainActivity.kt`, `AndroidManifest.xml`.
+  - `lib/core/platform/` y `lib/core/performance/`: `device_capabilities_models.dart`, `hardware_bridge.dart`, `device_performance_tier.dart`.
+  - `lib/features/settings/`: `settings_models.dart`, `settings_search_catalog.dart`, `settings_controller.dart`, `settings_page.dart`, `low_end_performance_card.dart`, `settings_system_sections.dart`, `advanced_settings_card.dart`, `theme_appearance_card.dart`.
+  - `lib/features/session/`: `session_models.dart`, `session_controller.dart`.
+  - `docs/missions/DEVICE_CAPABILITIES_SETTINGS.md`, `AGENTS.md`, `docs/PROGRESS.md`, `docs/DECISIONS.md`.
+- Regla no-monolitos: 100% cumplida (<250 lineas por archivo y funciones <40 lineas).
+- Pruebas: 8/8 aprobadas en `flutter test` (`widget_test.dart`, `performance_low_end_test.dart`, `device_capabilities_settings_test.dart`) y 0 advertencias en `flutter analyze`.
+
 ## [0.0.7+7] - 2026-10-12 — PERF-0 (PRIORIDAD 0: Optimizacion Extrema para Dispositivos Android de Gama Baja 2-4 GB RAM y Memoria Tecnica entre Agentes)
 - Cambio: Implementacion integral de Prioridad 0 para celulares Android economicos (Samsung Galaxy A13, Galaxy A14, Redmi 15C, 2 GB / 3 GB / 4 GB RAM) con perfiles de hardware simulables (`DevicePerformanceProfile`), guardian de memoria RAM (`DeviceMemoryGuard` ante `didHaveMemoryPressure` y `AppLifecycleState.paused`), cache LRU acotada con deduplicacion en vuelo (`BoundedLruCache`), planificador por prioridades (`PriorityTaskScheduler`: lectura NFC en `TaskPriority.critical`, listas en `medium`, reportes PDF en `low` + `Isolate.run`), proyeccion ligera en listado de alumnos con hidratacion diferida de fichas, busqueda con debounce y sistema de memoria tecnica persistente en `AGENTS.md` y `docs/`.
 - Modulos y componentes intervenidos:

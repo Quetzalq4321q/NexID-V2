@@ -16,6 +16,7 @@ class MainActivity : FlutterActivity() {
 
     private var nfcManager: NfcHardwareManager? = null
     private var cameraQrManager: CameraQrManager? = null
+    private var capabilitiesManager: DeviceCapabilitiesManager? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -23,11 +24,14 @@ class MainActivity : FlutterActivity() {
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, HARDWARE_CHANNEL)
         val nfc = NfcHardwareManager(this, channel)
         val camera = CameraQrManager(this)
+        val capabilities = DeviceCapabilitiesManager(applicationContext)
         nfcManager = nfc
         cameraQrManager = camera
+        capabilitiesManager = capabilities
 
         channel.setMethodCallHandler { call, result ->
             when (call.method) {
+                "getDeviceCapabilities" -> result.success(capabilities.getCapabilitiesSnapshot())
                 "getNfcStatus" -> result.success(nfc.getNfcStatus())
                 "startNfcReader" -> result.success(nfc.startReaderMode())
                 "stopNfcReader" -> {

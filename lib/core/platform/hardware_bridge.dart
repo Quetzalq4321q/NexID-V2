@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'device_capabilities_models.dart';
 
 /// Estado real del adaptador fisico NFC en el dispositivo Android.
 enum NfcHardwareStatus {
@@ -63,6 +64,21 @@ class HardwareBridge {
           NfcTagEvent(token: token, uid: uid, techList: techList),
         );
       }
+    }
+  }
+
+  Future<DeviceCapabilitiesSnapshot> getDeviceCapabilities() async {
+    try {
+      final Map<dynamic, dynamic>? raw = await _channel
+          .invokeMethod<Map<dynamic, dynamic>>('getDeviceCapabilities');
+      if (raw == null) {
+        return DeviceCapabilitiesSnapshot.fallbackWhenUnavailable();
+      }
+      return DeviceCapabilitiesSnapshot.fromMap(raw);
+    } on MissingPluginException {
+      return DeviceCapabilitiesSnapshot.fallbackWhenUnavailable();
+    } on PlatformException {
+      return DeviceCapabilitiesSnapshot.fallbackWhenUnavailable();
     }
   }
 

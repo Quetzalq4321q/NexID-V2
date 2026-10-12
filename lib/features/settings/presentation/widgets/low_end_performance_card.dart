@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/performance/device_performance_tier.dart';
+import '../../../../core/platform/device_capabilities_models.dart';
 import '../../../../core/theme/nexid_palette.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../controllers/settings_controller.dart';
 
-/// Tarjeta de configuracion y simulacion de dispositivos Android de gama baja
-/// conforme a PRIORIDAD 0 (2 GB, 3 GB, 4 GB de RAM y condiciones adversas).
+/// Seccion 3: Rendimiento automatico e inteligente sin seleccion manual de RAM
+/// para el usuario estandar, mas Seccion 4: Almacenamiento y cache segura.
 class LowEndPerformanceCard extends StatelessWidget {
   const LowEndPerformanceCard({
     super.key,
@@ -19,8 +20,8 @@ class LowEndPerformanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final NexIdPalette palette = NexIdPalette.of(context);
-    final PerformanceBudget budget = controller.performanceBudget;
-    final int maxMb = (budget.maxImageCacheBytes / (1024 * 1024)).round();
+    final AdaptivePerformanceLevel level = controller.activeAdaptiveLevel;
+    final bool isAuto = controller.isAutoPerformance;
 
     return Material(
       color: palette.surface,
@@ -29,7 +30,7 @@ class LowEndPerformanceCard extends StatelessWidget {
         side: BorderSide(color: palette.border),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spaceLarge),
+        padding: const EdgeInsets.all(AppDimensions.spaceMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -38,7 +39,7 @@ class LowEndPerformanceCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Optimización Gama Baja (Prioridad 0)',
+                    'Adaptacion Inteligente de Rendimiento',
                     style: AppTypography.titleMedium.copyWith(
                       fontSize: 16,
                       color: palette.textPrimary,
@@ -46,49 +47,55 @@ class LowEndPerformanceCard extends StatelessWidget {
                   ),
                 ),
                 StatusBadge(
-                  label: '${budget.simulatedTotalRamMb ~/ 1024} GB RAM',
-                  type: BadgeType.info,
+                  label: isAuto ? 'Automatico activo' : 'Modo manual',
+                  type: isAuto ? BadgeType.confirmed : BadgeType.pending,
                 ),
               ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              controller.deviceProfile.description,
-              style: AppTypography.caption.copyWith(
-                color: palette.textSecondary,
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.all(AppDimensions.spaceSmall),
+              decoration: BoxDecoration(
+                color: palette.surfaceSubtle,
+                borderRadius: BorderRadius.circular(AppDimensions.radius),
+                border: Border.all(color: palette.border),
               ),
-            ),
-            const SizedBox(height: AppDimensions.spaceMedium),
-            DropdownButtonFormField<DevicePerformanceProfile>(
-              initialValue: controller.deviceProfile,
-              isExpanded: true,
-              dropdownColor: palette.surfaceElevated,
-              decoration: const InputDecoration(
-                labelText: 'Perfil de hardware objetivo / simulado',
-              ),
-              items: DevicePerformanceProfile.values
-                  .map((DevicePerformanceProfile p) {
-                return DropdownMenuItem<DevicePerformanceProfile>(
-                  value: p,
-                  child: Text(
-                    p.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Perfil activo: ${level.label}',
                     style: AppTypography.bodySmall.copyWith(
                       color: palette.textPrimary,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                );
-              }).toList(),
-              onChanged: (DevicePerformanceProfile? val) {
-                if (val != null) controller.setDeviceProfile(val);
-              },
+                  const SizedBox(height: 2),
+                  Text(
+                    level.description,
+                    style: AppTypography.caption.copyWith(
+                      color: palette.textSecondary,
+                    ),
+                  ),
+                  if (!isAuto) ...[
+                    const SizedBox(height: 6),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.auto_mode_outlined, size: 16),
+                        label: const Text('Restaurar perfil automatico'),
+                        onPressed: controller.restoreAutomaticPerformance,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-            const SizedBox(height: AppDimensions.spaceSmall),
+            const SizedBox(height: AppDimensions.spaceXSmall),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(
-                'Modo de rendimiento reducido',
+                'Modo de ahorro de recursos visuales',
                 style: AppTypography.bodySmall.copyWith(
                   color: palette.textPrimary,
                   fontWeight: FontWeight.w600,
@@ -104,35 +111,99 @@ class LowEndPerformanceCard extends StatelessWidget {
               onChanged: controller.toggleLowPerformanceMode,
             ),
             Divider(height: 1, color: palette.border),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                'Ahorro de datos y carga diferida en red movil',
+                style: AppTypography.bodySmall.copyWith(
+                  color: palette.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                'Reduce precargas secundarias cuando la red es inestable',
+                style: AppTypography.caption.copyWith(
+                  color: palette.textSecondary,
+                ),
+              ),
+              value: controller.dataSaverMode,
+              onChanged: controller.toggleDataSaverMode,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Seccion 4: Almacenamiento y cache temporal separada de la cola SQLite.
+class StorageAndCacheCard extends StatelessWidget {
+  const StorageAndCacheCard({
+    super.key,
+    required this.controller,
+    required this.pendingSyncCount,
+  });
+
+  final SettingsController controller;
+  final int pendingSyncCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final NexIdPalette palette = NexIdPalette.of(context);
+    final PerformanceBudget budget = controller.performanceBudget;
+    final DeviceCapabilitiesSnapshot caps = controller.capabilities;
+    final int maxMb = (budget.maxImageCacheBytes / (1024 * 1024)).round();
+
+    return Material(
+      color: palette.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radius),
+        side: BorderSide(color: palette.border),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimensions.spaceMedium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Presupuesto de Cache y Almacenamiento Local',
+              style: AppTypography.titleMedium.copyWith(
+                fontSize: 16,
+                color: palette.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Cache img: max ${budget.maxImageCacheCount} ($maxMb MB) · Fichas RAM: ${budget.maxHydratedStudentDetails} · Lote: ${budget.listPageSize}',
+              style: AppTypography.caption.copyWith(
+                color: palette.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Almacenamiento interno libre: ${caps.storageAvailableLabel} · Cola SQLite protegida: $pendingSyncCount pendientes',
+              style: AppTypography.caption.copyWith(
+                color: palette.textSecondary,
+              ),
+            ),
             const SizedBox(height: AppDimensions.spaceSmall),
-            Wrap(
-              spacing: 8.0,
-              runSpacing: 6.0,
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Text(
-                  'Cache img: max ${budget.maxImageCacheCount} ($maxMb MB) · Fichas RAM: ${budget.maxHydratedStudentDetails} · Lote: ${budget.listPageSize}',
-                  style: AppTypography.caption.copyWith(
-                    color: palette.textSecondary,
-                  ),
-                ),
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.cleaning_services_outlined, size: 16),
-                  label: const Text('Liberar cache temporal'),
-                  onPressed: () {
-                    controller.evictTemporaryMemoryNow();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Memoria temporal e imagenes liberadas. Cola SQLite intacta.',
-                        ),
-                        duration: Duration(seconds: 2),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.cleaning_services_outlined, size: 16),
+                label: const Text('Liberar cache temporal'),
+                onPressed: () {
+                  controller.evictTemporaryMemoryNow();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Memoria temporal e imagenes liberadas. Cola SQLite intacta.',
                       ),
-                    );
-                  },
-                ),
-              ],
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),

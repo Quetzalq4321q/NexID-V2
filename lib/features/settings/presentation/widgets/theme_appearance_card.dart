@@ -39,6 +39,26 @@ class ThemeAppearanceCard extends StatelessWidget {
             _buildModeOptionsRow(palette),
             const SizedBox(height: AppDimensions.spaceSmall),
             _buildActiveSummaryBar(palette, isOsDark, isEffectiveDark),
+            const SizedBox(height: AppDimensions.spaceXSmall),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: Text(
+                'Densidad visual compacta',
+                style: AppTypography.bodySmall.copyWith(
+                  color: palette.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                'Optimiza espaciados verticales para pantallas pequenas',
+                style: AppTypography.caption.copyWith(
+                  color: palette.textSecondary,
+                ),
+              ),
+              value: controller.compactDensity,
+              onChanged: controller.toggleCompactDensity,
+            ),
           ],
         ),
       ),

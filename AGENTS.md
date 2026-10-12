@@ -6,7 +6,7 @@ Antes de trabajar lee `agent/00_INDEX.md`, `agent/01_REGLAS.md` y `docs/PROGRESS
 
 ## Orden General de Prioridades Permanentes
 
-1. **PRIORIDAD 0:** Estabilidad y optimización extrema para dispositivos Android económicos de 2–4 GB de RAM (`docs/missions/PRIORITY_0_PERFORMANCE.md`).
+1. **PRIORIDAD 0:** Estabilidad, detección real de hardware Android, adaptación inteligente automática y optimización extrema para dispositivos económicos de 2–4 GB de RAM (`docs/missions/PRIORITY_0_PERFORMANCE.md` y `docs/missions/DEVICE_CAPABILITIES_SETTINGS.md`).
 2. **PRIORIDAD 1:** Corrección de errores funcionales, especialmente lectura NFC, registros y persistencia local (`docs/missions/NFC_VALIDATION.md`).
 3. **PRIORIDAD 2:** Interfaces responsivas (320 px a tablet) y eliminación de deformaciones (`docs/missions/UI_RESPONSIVENESS.md`).
 4. **PRIORIDAD 3:** Independencia de los temas claro y oscuro, accesibilidad WCAG 2.2 y paleta institucional (`docs/missions/THEMES_ACCESSIBILITY.md`).
@@ -20,15 +20,12 @@ Antes de trabajar lee `agent/00_INDEX.md`, `agent/01_REGLAS.md` y `docs/PROGRESS
 
 Esta prioridad está por encima de cualquier cambio estético, animación o ampliación de información:
 
-1. **Dispositivos y Perfiles Objetivo (`lib/core/performance/device_performance_tier.dart`)**:
+1. **Detección Nativa de Hardware y Adaptación Automática (`DeviceCapabilitiesManager.kt` + `lib/core/performance/device_performance_tier.dart`)**:
    - Diseñado pensando primero en un celular Android económico con **2 GB de RAM**, procesador lento, almacenamiento eMMC lento y red inestable (Samsung Galaxy A13, Samsung Galaxy A14, Xiaomi Redmi 15C y equivalentes).
-   - Cuatro perfiles simulables y auditables en tiempo real desde Ajustes:
-     - `ultraLowEnd2Gb`: 2 GB RAM · Cache imágenes 20 / 8 MB · Máx. 3 fichas extendidas en RAM · Lote de lista = 6.
-     - `lowEnd3Gb` (Por defecto): 3 GB RAM · Cache imágenes 35 / 14 MB · Máx. 5 fichas extendidas en RAM · Lote de lista = 8.
-     - `budgetMid4Gb`: 4 GB RAM · Cache imágenes 50 / 24 MB · Máx. 8 fichas extendidas en RAM · Lote de lista = 10.
-     - `adverseConditions`: 2.5 GB RAM · Red inestable · Lote de lista = 6 · Debounce de búsqueda = 300 ms.
+   - En el arranque (`SettingsController.detectAndAdaptHardware()`), consulta directamente a Android (`ActivityManager`, `PowerManager`, `StatFs`, `ConnectivityManager`, `Build`) y selecciona automáticamente el nivel adaptativo (`Rendimiento ligero`, `Rendimiento equilibrado`, `Rendimiento completo`) con `isAutoPerformance = true` por defecto.
+   - El usuario normal no debe configurar manualmente la RAM de su teléfono; la selección manual (`ultraLowEnd2Gb`, `lowEnd3Gb`, `budgetMid4Gb`, `adverseConditions`) está restringida a **Configuración avanzada** con permisos reales de Administrador (`SessionController.canAccessAdvancedSettings`) y jamás falsifica los datos reales de hardware.
 2. **Reglas de Consumo de Memoria (`DeviceMemoryGuard`)**:
-   - `NexIdApp` observa `didHaveMemoryPressure()` y `didChangeAppLifecycleState(AppLifecycleState.paused / detached)` para liberar inmediatamente `PaintingBinding.instance.imageCache` y cachés temporales de detalle.
+   - `NexIdApp` observa `didHaveMemoryPressure()` y `didChangeAppLifecycleState(AppLifecycleState.paused / detached)` para liberar inmediatamente `PaintingBinding.instance.imageCache`, cachés temporales de detalle y degradar automáticamente el perfil ante presión de memoria.
    - **Prohibido** precargar toda la base de datos o todas las fotografías de alumnos en memoria.
    - Todos los `ChangeNotifier`, `Timer` de debounce y listeners nativos deben liberarse en `dispose()`.
 3. **Estrategias de Caché (`lib/core/performance/bounded_lru_cache.dart`)**:
@@ -49,16 +46,16 @@ Esta prioridad está por encima de cualquier cambio estético, animación o ampl
    - Búsquedas de texto deben usar debounce (`setSearchQueryDebounced`).
    - Lienzos complejos como `PdfA4SheetWidget` deben aislarse dentro de `RepaintBoundary`.
 8. **Pruebas Obligatorias antes de Aprobar Cambios**:
-   - Ejecutar `flutter analyze` (`0` incidencias) y `flutter test` verificando `test/widget_test.dart` y los 12 escenarios de `test/performance_low_end_test.dart`.
+   - Ejecutar `flutter analyze` (`0` incidencias) y `flutter test` verificando `test/widget_test.dart`, `test/performance_low_end_test.dart` y `test/device_capabilities_settings_test.dart`.
    - Verificar que el 100% de los archivos `.dart` tengan `< 250 líneas` y cada función `< 40 líneas`.
 
 ---
 
-## Arquitectura General y Mapa de Documentación (`v0.0.7+7`)
+## Arquitectura General y Mapa de Documentación (`v0.0.8+8`)
 
 - **Código fuente (`lib/`)**:
   - `lib/app/`: Composición raíz (`app.dart`), contenedor adaptable (`app_shell.dart`), inyección (`app_dependencies.dart`) y temas (`app_theme.dart`).
-  - `lib/core/`: Constantes (`constants/`), paleta reactiva (`theme/nexid_palette.dart`), puente nativo Kotlin (`platform/hardware_bridge.dart`), puntos de corte (`responsive/`) y motor de rendimiento de gama baja (`performance/`).
+  - `lib/core/`: Constantes (`constants/`), paleta reactiva (`theme/nexid_palette.dart`), puente nativo Kotlin y telemetría (`platform/hardware_bridge.dart`, `device_capabilities_models.dart`), puntos de corte (`responsive/`) y motor de rendimiento de gama baja (`performance/`).
   - `lib/shared/widgets/`: Componentes reutilizables y sistema ligero de Skeleton Loading (`skeleton/`).
   - `lib/features/`: Módulos desacoplados (`session`, `places`, `reading`, `students`, `records`, `reports`, `settings`, `sync`).
 - **Memoria Técnica y Misiones (`docs/` y `agent/`)**:
@@ -67,6 +64,7 @@ Esta prioridad está por encima de cualquier cambio estético, animación o ampl
   - Decisiones arquitectónicas consolidadas: [`docs/DECISIONS.md`](file:///c:/Users/User/StudioProjects/NexID/docs/DECISIONS.md).
   - Misiones específicas:
     - [`docs/missions/PRIORITY_0_PERFORMANCE.md`](file:///c:/Users/User/StudioProjects/NexID/docs/missions/PRIORITY_0_PERFORMANCE.md)
+    - [`docs/missions/DEVICE_CAPABILITIES_SETTINGS.md`](file:///c:/Users/User/StudioProjects/NexID/docs/missions/DEVICE_CAPABILITIES_SETTINGS.md)
     - [`docs/missions/NFC_VALIDATION.md`](file:///c:/Users/User/StudioProjects/NexID/docs/missions/NFC_VALIDATION.md)
     - [`docs/missions/UI_RESPONSIVENESS.md`](file:///c:/Users/User/StudioProjects/NexID/docs/missions/UI_RESPONSIVENESS.md)
     - [`docs/missions/THEMES_ACCESSIBILITY.md`](file:///c:/Users/User/StudioProjects/NexID/docs/missions/THEMES_ACCESSIBILITY.md)

@@ -25,6 +25,7 @@ class OperatorUser {
   bool get canEditStudents => role == UserRole.administrador;
   bool get canUploadPhotos => role == UserRole.administrador || role == UserRole.operador;
   bool get canRegisterEvents => role != UserRole.lector;
+  bool get canAccessAdvancedSettings => role == UserRole.administrador;
 }
 
 /// Estado inmutable de la sesion.

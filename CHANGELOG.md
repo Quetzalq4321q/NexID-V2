@@ -6,6 +6,33 @@ El proyecto utiliza versionado semántico formal (`MAJOR.MINOR.PATCH+BUILD`) a p
 
 ---
 
+## [0.0.8+8] - 2026-10-12
+
+### [HW-AUTO-SETTINGS] Detección Real de Hardware Android, Configuración Inteligente Automática, Buscador de Ajustes y Configuración Avanzada Restringida
+- **Fecha:** 2026-10-12
+- **Categoría:** Hardware Nativo (Kotlin) / Rendimiento Adaptativo (Prioridad 0) / Ajustes / Seguridad por Roles
+- **Estado:** Implementado y Verificado
+- **Solicitud del usuario:**
+  - Consultar directamente la información real de hardware y estado del sistema operativo Android (`ActivityManager`, `PackageManager`, `PowerManager`, `StatFs`, `BatteryManager`, `ConnectivityManager`, `Build`) sin inventar cifras ni depender del nombre comercial del teléfono.
+  - Implementar adaptación automática e inteligente de rendimiento por defecto (`Rendimiento ligero`, `Rendimiento equilibrado`, `Rendimiento completo`) sin que el usuario normal tenga que elegir manualmente entre 2 GB, 3 GB o 4 GB de RAM.
+  - Reorganizar completamente el apartado de Ajustes en categorías claras con un buscador superior instantáneo y aislar las opciones manuales/técnicas en **Configuración avanzada** protegida por permisos reales de Administrador.
+- **Archivos creados:**
+  - `android/app/src/main/kotlin/com/nexlabs/nexid/DeviceCapabilitiesManager.kt`
+  - `lib/core/platform/device_capabilities_models.dart`
+  - `lib/features/settings/domain/settings_search_catalog.dart`
+  - `lib/features/settings/presentation/widgets/settings_system_sections.dart`
+  - `lib/features/settings/presentation/widgets/advanced_settings_card.dart`
+  - `docs/missions/DEVICE_CAPABILITIES_SETTINGS.md`
+  - `test/device_capabilities_settings_test.dart`
+- **Archivos modificados:**
+  - `android/app/src/main/AndroidManifest.xml`, `android/app/src/main/kotlin/com/nexlabs/nexid/MainActivity.kt`
+  - `lib/core/platform/hardware_bridge.dart`, `lib/core/performance/device_performance_tier.dart`, `lib/core/constants/app_version.dart`, `pubspec.yaml`, `lib/app/app.dart`
+  - `lib/features/session/domain/session_models.dart`, `lib/features/session/presentation/controllers/session_controller.dart`
+  - `lib/features/settings/domain/settings_models.dart`, `lib/features/settings/presentation/controllers/settings_controller.dart`, `lib/features/settings/presentation/pages/settings_page.dart`, `lib/features/settings/presentation/widgets/low_end_performance_card.dart`, `lib/features/settings/presentation/widgets/theme_appearance_card.dart`
+  - `AGENTS.md`, `docs/PROGRESS.md`, `docs/DECISIONS.md`, `docs/missions/PRIORITY_0_PERFORMANCE.md`, `agent/00_INDEX.md`, `agent/ESTADO.md`, `agent/CHANGELOG.md`, `test/widget_test.dart`
+
+---
+
 ## [0.0.7+7] - 2026-10-12
 
 ### [PERF-0] PRIORIDAD 0 — Optimización Extrema para Dispositivos Android de Gama Baja (2–4 GB RAM) y Memoria Técnica Persistente entre Agentes
