@@ -4,6 +4,36 @@ Todas las modificaciones notables de este proyecto están documentadas en este a
 
 El proyecto utiliza versionado semántico formal (`MAJOR.MINOR.PATCH+BUILD`) a partir de la versión base `0.0.0+1`.
 
+## [0.0.10+10] - 2026-10-18
+
+### [VIS-ICON-PERSIST-VITALITY] Iconografia Completa, Pantallas de Carga Vivas, Persistencia Real de Preferencias y Claridad en Azul y Tipografia
+- **Fecha:** 2026-10-18
+- **Categoría:** Iconografia / Interfaz Visual / Persistencia Nativa / Estados de Carga / Accesibilidad
+- **Estado:** Implementado y Verificado
+- **Solicitud del usuario:**
+  - Agregar a la aplicacion la iconografia completa estandarizada y unificada.
+  - Implementar una mejor carga inicial (splash screen con vida visual) y pantallas de carga con vida activa que eviten pantallas muertas, blancas o vacias.
+  - Asegurar la persistencia real de las preferencias de usuario para que cambios de color, tema y accesibilidad se guarden y recuerden tras reiniciar la app.
+  - Generar mayor claridad en el azul institucional unico (#1D4ED8) y en la tipografia, eliminando dispersion y colores oscuros fijos que entorpecian el modo oscuro.
+- **Archivos creados:**
+  - `lib/core/constants/app_icons.dart`
+  - `lib/shared/widgets/app_logo.dart`
+  - `lib/shared/widgets/lively_state_view.dart`
+  - `lib/features/session/presentation/pages/startup_splash_screen.dart`
+  - `android/app/src/main/res/drawable-night/launch_background.xml`
+  - `test/icons_loading_persistence_test.dart`
+- **Archivos modificados:**
+  - `android/app/src/main/kotlin/com/nexlabs/nexid/MainActivity.kt`
+  - `android/app/src/main/res/drawable/launch_background.xml`
+  - `android/app/src/main/res/drawable-v21/launch_background.xml`
+  - `lib/app/app.dart`, `lib/app/app_shell.dart`, `lib/app/app_theme.dart`
+  - `lib/core/constants/app_colors.dart`, `lib/core/constants/app_typography.dart`, `lib/core/constants/app_version.dart`
+  - `lib/core/platform/hardware_bridge.dart`, `lib/core/theme/nexid_palette.dart`
+  - `lib/features/session/presentation/pages/login_page.dart`
+  - `lib/features/settings/domain/settings_models.dart`, `lib/features/settings/presentation/controllers/settings_controller.dart`
+  - `lib/shared/widgets/empty_state.dart`, `pubspec.yaml`, `test/widget_test.dart`
+  - `docs/PROGRESS.md`, `agent/ESTADO.md`
+
 ---
 
 ## [0.0.9+9] - 2026-10-12

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/theme/nexid_palette.dart';
+import '../../../../shared/widgets/app_logo.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/session_models.dart';
 import '../controllers/session_controller.dart';
@@ -65,18 +66,9 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: palette.primary,
-                      borderRadius: BorderRadius.circular(AppDimensions.radius),
-                    ),
-                    child: Icon(
-                      Icons.nfc_outlined,
-                      size: 36,
-                      color: palette.onPrimary,
-                    ),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: NexIdAppLogo(size: 60),
                   ),
                   const SizedBox(height: AppDimensions.spaceLarge),
                   Text(

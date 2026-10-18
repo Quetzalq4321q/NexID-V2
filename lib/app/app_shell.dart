@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../core/constants/app_dimensions.dart';
+import '../core/constants/app_icons.dart';
 import '../core/constants/app_typography.dart';
 import '../core/responsive/responsive_layout.dart';
 import '../core/theme/nexid_palette.dart';
+import '../shared/widgets/app_logo.dart';
 import '../features/reading/presentation/pages/reading_page.dart';
 import '../features/records/presentation/pages/records_page.dart';
 import '../features/reports/presentation/pages/reports_page.dart';
@@ -39,19 +41,7 @@ class _AppShellState extends State<AppShell> {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: palette.primary,
-                borderRadius: BorderRadius.circular(6.0),
-              ),
-              child: Icon(
-                Icons.nfc,
-                size: 20,
-                color: palette.onPrimary,
-              ),
-            ),
+            const NexIdAppLogo(size: 32, borderRadius: 6.0),
             const SizedBox(width: AppDimensions.spaceSmall),
             Flexible(
               child: Text(
@@ -106,28 +96,28 @@ class _AppShellState extends State<AppShell> {
                     labelType: NavigationRailLabelType.all,
                     destinations: const [
                       NavigationRailDestination(
-                        icon: Icon(Icons.qr_code_scanner_outlined),
-                        selectedIcon: Icon(Icons.qr_code_scanner),
+                        icon: Icon(AppIcons.qr),
+                        selectedIcon: Icon(AppIcons.qrFilled),
                         label: Text('Lectura'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.list_alt_outlined),
-                        selectedIcon: Icon(Icons.list_alt),
+                        icon: Icon(AppIcons.records),
+                        selectedIcon: Icon(AppIcons.recordsFilled),
                         label: Text('Registros'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.people_alt_outlined),
-                        selectedIcon: Icon(Icons.people_alt),
+                        icon: Icon(AppIcons.students),
+                        selectedIcon: Icon(AppIcons.studentsFilled),
                         label: Text('Alumnos'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.assessment_outlined),
-                        selectedIcon: Icon(Icons.assessment),
+                        icon: Icon(AppIcons.reports),
+                        selectedIcon: Icon(AppIcons.reportsFilled),
                         label: Text('Reportes'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.settings_outlined),
-                        selectedIcon: Icon(Icons.settings),
+                        icon: Icon(AppIcons.settings),
+                        selectedIcon: Icon(AppIcons.settingsFilled),
                         label: Text('Ajustes'),
                       ),
                     ],
@@ -159,28 +149,28 @@ class _AppShellState extends State<AppShell> {
               indicatorColor: palette.surfaceAccent,
               destinations: const [
                 NavigationDestination(
-                  icon: Icon(Icons.qr_code_scanner_outlined),
-                  selectedIcon: Icon(Icons.qr_code_scanner),
+                  icon: Icon(AppIcons.qr),
+                  selectedIcon: Icon(AppIcons.qrFilled),
                   label: 'Lectura',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.list_alt_outlined),
-                  selectedIcon: Icon(Icons.list_alt),
+                  icon: Icon(AppIcons.records),
+                  selectedIcon: Icon(AppIcons.recordsFilled),
                   label: 'Registros',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.people_alt_outlined),
-                  selectedIcon: Icon(Icons.people_alt),
+                  icon: Icon(AppIcons.students),
+                  selectedIcon: Icon(AppIcons.studentsFilled),
                   label: 'Alumnos',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.assessment_outlined),
-                  selectedIcon: Icon(Icons.assessment),
+                  icon: Icon(AppIcons.reports),
+                  selectedIcon: Icon(AppIcons.reportsFilled),
                   label: 'Reportes',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.settings_outlined),
-                  selectedIcon: Icon(Icons.settings),
+                  icon: Icon(AppIcons.settings),
+                  selectedIcon: Icon(AppIcons.settingsFilled),
                   label: 'Ajustes',
                 ),
               ],

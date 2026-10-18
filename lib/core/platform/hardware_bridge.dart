@@ -168,6 +168,28 @@ class HardwareBridge {
     }
   }
 
+  Future<bool> savePreferences(String json) async {
+    try {
+      final bool? ok = await _channel.invokeMethod<bool>(
+        'savePreferences',
+        <String, dynamic>{'preferences': json},
+      ).timeout(const Duration(milliseconds: 60), onTimeout: () => false);
+      return ok ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<String?> loadPreferences() async {
+    try {
+      return await _channel
+          .invokeMethod<String>('loadPreferences')
+          .timeout(const Duration(milliseconds: 60), onTimeout: () => null);
+    } catch (_) {
+      return null;
+    }
+  }
+
   CameraPermissionStatus _parseCameraStatus(String? raw) {
     return switch (raw) {
       'granted' => CameraPermissionStatus.granted,

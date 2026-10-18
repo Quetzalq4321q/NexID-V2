@@ -49,6 +49,17 @@ class MainActivity : FlutterActivity() {
                     camera.openAppSettings()
                     result.success(true)
                 }
+                "savePreferences" -> {
+                    val json = call.argument<String>("preferences")
+                    val prefs = getSharedPreferences("nexid_app_prefs", MODE_PRIVATE)
+                    prefs.edit().putString("settings_json", json).apply()
+                    result.success(true)
+                }
+                "loadPreferences" -> {
+                    val prefs = getSharedPreferences("nexid_app_prefs", MODE_PRIVATE)
+                    val json = prefs.getString("settings_json", null)
+                    result.success(json)
+                }
                 else -> result.notImplemented()
             }
         }

@@ -177,21 +177,15 @@ abstract final class AppTheme {
         thickness: 1,
       ),
       textTheme: TextTheme(
-        headlineMedium: AppTypography.titleLarge.copyWith(
-          color: palette.textPrimary,
-        ),
-        titleMedium: AppTypography.titleMedium.copyWith(
-          color: palette.textPrimary,
-        ),
-        bodyLarge: AppTypography.bodyMedium.copyWith(
-          color: palette.textPrimary,
-        ),
-        bodyMedium: AppTypography.bodySmall.copyWith(
-          color: palette.textSecondary,
-        ),
-        bodySmall: AppTypography.caption.copyWith(
-          color: palette.textSecondary,
-        ),
+        headlineMedium: AppTypography.titleLarge.copyWith(color: palette.textPrimary),
+        titleLarge: AppTypography.titleLarge.copyWith(color: palette.textPrimary),
+        titleMedium: AppTypography.titleMedium.copyWith(color: palette.textPrimary),
+        titleSmall: AppTypography.titleSmall.copyWith(color: palette.textPrimary),
+        bodyLarge: AppTypography.bodyMedium.copyWith(color: palette.textPrimary),
+        bodyMedium: AppTypography.bodySmall.copyWith(color: palette.textSecondary),
+        bodySmall: AppTypography.caption.copyWith(color: palette.textSecondary),
+        labelLarge: AppTypography.buttonText.copyWith(color: palette.textPrimary),
+        labelSmall: AppTypography.caption.copyWith(color: palette.textSecondary),
       ),
     );
   }

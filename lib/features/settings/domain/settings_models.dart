@@ -154,4 +154,44 @@ class AppSettings {
       'syncIntervalSeconds': syncIntervalSeconds,
     };
   }
+
+  factory AppSettings.fromMap(Map<dynamic, dynamic>? map) {
+    if (map == null) return const AppSettings();
+    final String? themeStr = map['themePreference'] as String?;
+    final String? fontStr = map['fontScalePreset'] as String?;
+    final String? profileStr = map['deviceProfile'] as String?;
+    final String? mediumStr = map['preferredMedium'] as String?;
+
+    return AppSettings(
+      themePreference: AppThemePreference.values.firstWhere(
+        (e) => e.name == themeStr,
+        orElse: () => AppThemePreference.system,
+      ),
+      compactDensity: map['compactDensity'] as bool? ?? false,
+      fontScalePreset: FontScalePreset.values.firstWhere(
+        (e) => e.name == fontStr,
+        orElse: () => FontScalePreset.normal,
+      ),
+      highContrast: map['highContrast'] as bool? ?? false,
+      reduceMotion: map['reduceMotion'] as bool? ?? false,
+      screenReaderOptimized: map['screenReaderOptimized'] as bool? ?? false,
+      isAutoPerformance: map['isAutoPerformance'] as bool? ?? true,
+      deviceProfile: DevicePerformanceProfile.values.firstWhere(
+        (e) => e.name == profileStr,
+        orElse: () => DevicePerformanceProfile.lowEnd3Gb,
+      ),
+      lowPerformanceMode: map['lowPerformanceMode'] as bool? ?? true,
+      dataSaverMode: map['dataSaverMode'] as bool? ?? false,
+      preferredMedium: ReadingMedium.values.firstWhere(
+        (e) => e.name == mediumStr,
+        orElse: () => ReadingMedium.nfc,
+      ),
+      vibrateOnScan: map['vibrateOnScan'] as bool? ?? true,
+      soundOnScan: map['soundOnScan'] as bool? ?? true,
+      operationalAlertsEnabled: map['operationalAlertsEnabled'] as bool? ?? true,
+      syncQueueAlertsEnabled: map['syncQueueAlertsEnabled'] as bool? ?? true,
+      simulateOffline: map['simulateOffline'] as bool? ?? false,
+      syncIntervalSeconds: map['syncIntervalSeconds'] as int? ?? 5,
+    );
+  }
 }

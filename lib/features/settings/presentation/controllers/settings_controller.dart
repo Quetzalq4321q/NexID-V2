@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../../core/performance/device_performance_tier.dart';
 import '../../../../core/performance/priority_task_scheduler.dart';
@@ -8,8 +9,7 @@ import '../../../reading/domain/credential_models.dart';
 import '../../domain/settings_models.dart';
 import '../../domain/settings_search_catalog.dart';
 
-/// Controlador reactivo de configuracion, deteccion real de hardware Android,
-/// adaptacion automatica de rendimiento (Prioridad 0) y buscador de ajustes.
+/// Controlador reactivo de configuracion, hardware, persistencia en SharedPreferences y rendimiento.
 class SettingsController extends ChangeNotifier {
   SettingsController({
     AppSettings? initialSettings,
@@ -56,7 +56,6 @@ class SettingsController extends ChangeNotifier {
   AdaptivePerformanceLevel get activeAdaptiveLevel => _settings.deviceProfile.adaptiveLevel;
   bool get isAutoPerformance => _settings.isAutoPerformance;
 
-  /// Etiqueta de estado real de la tarjeta de Optimizacion del dispositivo.
   String get optimizationStatusLabel {
     if (!_isDetectionCompleted) return 'Verificando capacidades...';
     if (!_settings.isAutoPerformance) return 'Manual (${activeAdaptiveLevel.label})';
@@ -94,9 +93,26 @@ class SettingsController extends ChangeNotifier {
       };
 
   Future<void> detectAndAdaptHardware() async {
+    await _loadPersistedPreferences();
     final DeviceCapabilitiesSnapshot snapshot =
         await _hardwareBridge.getDeviceCapabilities();
     applyCapabilitiesSnapshot(snapshot);
+  }
+
+  Future<void> _loadPersistedPreferences() async {
+    try {
+      final String? jsonStr = await _hardwareBridge.loadPreferences();
+      if (jsonStr != null && jsonStr.isNotEmpty) {
+        final dynamic decoded = jsonDecode(jsonStr);
+        if (decoded is Map) {
+          final AppSettings loaded = AppSettings.fromMap(decoded);
+          _settings = loaded;
+          _persistedSettings = loaded;
+          _applyPerformancePolicy();
+          notifyListeners();
+        }
+      }
+    } catch (_) {}
   }
 
   void applyCapabilitiesSnapshot(DeviceCapabilitiesSnapshot snapshot) {
@@ -149,28 +165,16 @@ class SettingsController extends ChangeNotifier {
   }
 
   List<SettingSearchEntry> searchSettings({required bool canAccessAdvanced}) =>
-      SettingsSearchCatalog.search(
-        _searchQuery,
-        canAccessAdvanced: canAccessAdvanced,
-      );
+      SettingsSearchCatalog.search(_searchQuery, canAccessAdvanced: canAccessAdvanced);
 
-  void setThemePreference(AppThemePreference p) =>
-      _update(_settings.copyWith(themePreference: p));
-  void toggleCompactDensity(bool v) =>
-      _update(_settings.copyWith(compactDensity: v));
-  void setFontScalePreset(FontScalePreset p) =>
-      _update(_settings.copyWith(fontScalePreset: p));
-  void toggleHighContrast(bool v) =>
-      _update(_settings.copyWith(highContrast: v));
-  void toggleReduceMotion(bool v) =>
-      _update(_settings.copyWith(reduceMotion: v));
-  void toggleScreenReaderOptimized(bool v) =>
-      _update(_settings.copyWith(screenReaderOptimized: v));
+  void setThemePreference(AppThemePreference p) => _update(_settings.copyWith(themePreference: p));
+  void toggleCompactDensity(bool v) => _update(_settings.copyWith(compactDensity: v));
+  void setFontScalePreset(FontScalePreset p) => _update(_settings.copyWith(fontScalePreset: p));
+  void toggleHighContrast(bool v) => _update(_settings.copyWith(highContrast: v));
+  void toggleReduceMotion(bool v) => _update(_settings.copyWith(reduceMotion: v));
+  void toggleScreenReaderOptimized(bool v) => _update(_settings.copyWith(screenReaderOptimized: v));
 
-  void setDeviceProfile(
-    DevicePerformanceProfile profile, {
-    bool manualOverride = true,
-  }) {
+  void setDeviceProfile(DevicePerformanceProfile profile, {bool manualOverride = true}) {
     _update(_settings.copyWith(
       isAutoPerformance: !manualOverride,
       deviceProfile: profile,
@@ -189,28 +193,20 @@ class SettingsController extends ChangeNotifier {
     ));
   }
 
-  void toggleLowPerformanceMode(bool v) =>
-      _update(_settings.copyWith(lowPerformanceMode: v));
-  void toggleDataSaverMode(bool v) =>
-      _update(_settings.copyWith(dataSaverMode: v));
+  void toggleLowPerformanceMode(bool v) => _update(_settings.copyWith(lowPerformanceMode: v));
+  void toggleDataSaverMode(bool v) => _update(_settings.copyWith(dataSaverMode: v));
 
   void evictTemporaryMemoryNow() {
     DeviceMemoryGuard.instance.evictTransientMemory();
     notifyListeners();
   }
 
-  void setPreferredMedium(ReadingMedium m) =>
-      _update(_settings.copyWith(preferredMedium: m));
-  void toggleVibrateOnScan(bool v) =>
-      _update(_settings.copyWith(vibrateOnScan: v));
-  void toggleSoundOnScan(bool v) =>
-      _update(_settings.copyWith(soundOnScan: v));
-  void toggleOperationalAlerts(bool v) =>
-      _update(_settings.copyWith(operationalAlertsEnabled: v));
-  void toggleSyncQueueAlerts(bool v) =>
-      _update(_settings.copyWith(syncQueueAlertsEnabled: v));
-  void toggleSimulateOffline(bool v) =>
-      _update(_settings.copyWith(simulateOffline: v));
+  void setPreferredMedium(ReadingMedium m) => _update(_settings.copyWith(preferredMedium: m));
+  void toggleVibrateOnScan(bool v) => _update(_settings.copyWith(vibrateOnScan: v));
+  void toggleSoundOnScan(bool v) => _update(_settings.copyWith(soundOnScan: v));
+  void toggleOperationalAlerts(bool v) => _update(_settings.copyWith(operationalAlertsEnabled: v));
+  void toggleSyncQueueAlerts(bool v) => _update(_settings.copyWith(syncQueueAlertsEnabled: v));
+  void toggleSimulateOffline(bool v) => _update(_settings.copyWith(simulateOffline: v));
 
   void resetToDefaults() {
     _update(AppSettings(
@@ -232,6 +228,9 @@ class SettingsController extends ChangeNotifier {
     _persistedSettings = next;
     _applyPerformancePolicy();
     notifyListeners();
+    try {
+      _hardwareBridge.savePreferences(jsonEncode(next.toMap()));
+    } catch (_) {}
   }
 
   @override

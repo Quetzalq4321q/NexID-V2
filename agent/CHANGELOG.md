@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.10+10] - 2026-10-18 — VIS-ICON-PERSIST-VITALITY (Iconografia Completa, Carga Inicial Viva, Vistas no Inertes, Persistencia Real y Claridad en Azul)
+- Cambio: Implementacion integral del catalogo oficial de iconos semanticos (`AppIcons`), emblema institucional vivo (`NexIdAppLogo`), pantalla de carga inicial (`StartupSplashScreen`) con fondos nativos de cold-boot claro/oscuro para eliminar parpadeos en blanco, vistas vivas de carga y de estado vacio (`LivelyLoadingView` y `EmptyState` con animacion de entrada suave de 320ms sin bucles continuos que saturen la CPU en celulares de 2 GB de RAM), persistencia real de preferencias de apariencia y accesibilidad en el almacenamiento persistente de Android (`SharedPreferences` a traves de `savePreferences`/`loadPreferences` en `MainActivity.kt` y `HardwareBridge`), resolucion de contraste de texto en modo oscuro mediante eliminacion de colores fijos en `AppTypography` y unificacion definitiva en el azul institucional solido `#1D4ED8`.
+- Modulos y componentes intervenidos:
+  - `lib/core/`: `app_icons.dart`, `app_colors.dart`, `app_typography.dart`, `nexid_palette.dart`, `app_version.dart`, `hardware_bridge.dart`.
+  - `lib/app/`: `app.dart`, `app_shell.dart`, `app_theme.dart`.
+  - `lib/shared/widgets/`: `app_logo.dart`, `lively_state_view.dart`, `empty_state.dart`.
+  - `lib/features/session/`: `startup_splash_screen.dart`, `login_page.dart`.
+  - `lib/features/settings/`: `settings_models.dart`, `settings_controller.dart`.
+  - `android/`: `MainActivity.kt`, `launch_background.xml` (claro y noche).
+  - `test/`: `widget_test.dart`, `icons_loading_persistence_test.dart`.
+- Regla no-monolitos: 100% cumplida (<250 lineas por archivo y funciones <40 lineas).
+- Pruebas: 15/15 pruebas aprobadas en `flutter test` y 0 advertencias en `flutter analyze`.
+
 ## [0.0.9+9] - 2026-10-12 — VIS-SETTINGS-FINAL (Diseno Visual Definitivo de Configuracion, Tarjeta de Optimizacion Automatica y 8 Categorias Dedicadas)
 - Cambio: Implementacion del diseno visual definitivo del apartado **Configuracion** (`SettingsPage`): encabezado compacto con flecha de regreso (`Icons.arrow_back`), titulo «Configuracion» e icono de ajustes alineado (`SettingsHeaderBar`); barra de busqueda redondeada «Buscar un ajuste...» con filtrado y navegacion directa; tarjeta destacada **Optimizacion del dispositivo** (`DeviceOptimizationBannerCard`) conectada al estado real de deteccion (`isDetectionCompleted` -> `Estado: Automatica`); lista vertical ordenada de 8 categorias (`Apariencia y personalizacion`, `Accesibilidad`, `Rendimiento`, `Almacenamiento y cache`, `Conectividad y sincronizacion`, `NFC y registros`, `Privacidad y seguridad`, `Acerca de la aplicacion`) con navegacion a subpantallas dedicadas; paleta en tonos neutros y variantes azules sin acentos morados; y **Configuracion avanzada** oculta de la lista principal y protegida por permisos reales de Administrador (`SessionController.canAccessAdvancedSettings`).
 - Modulos y componentes intervenidos:

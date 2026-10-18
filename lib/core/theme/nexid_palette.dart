@@ -51,7 +51,7 @@ class NexIdPalette extends ThemeExtension<NexIdPalette> {
     primary: Color(0xFF1D4ED8),
     onPrimary: Color(0xFFFFFFFF),
     surfaceAccent: Color(0xFFEFF6FF),
-    onSurfaceAccent: Color(0xFF1E3A8A),
+    onSurfaceAccent: Color(0xFF1D4ED8),
     background: Color(0xFFFFFFFF),
     surface: Color(0xFFF9FAFB),
     surfaceElevated: Color(0xFFFFFFFF),
@@ -67,7 +67,7 @@ class NexIdPalette extends ThemeExtension<NexIdPalette> {
 
   static const NexIdPalette lightHighContrast = NexIdPalette(
     isDark: false,
-    primary: Color(0xFF1E3A8A),
+    primary: Color(0xFF1D4ED8),
     onPrimary: Color(0xFFFFFFFF),
     surfaceAccent: Color(0xFFDBEAFE),
     onSurfaceAccent: Color(0xFF000000),
@@ -86,7 +86,7 @@ class NexIdPalette extends ThemeExtension<NexIdPalette> {
 
   static const NexIdPalette dark = NexIdPalette(
     isDark: true,
-    primary: Color(0xFF3B82F6),
+    primary: Color(0xFF2563EB),
     onPrimary: Color(0xFFFFFFFF),
     surfaceAccent: Color(0xFF172554),
     onSurfaceAccent: Color(0xFFDBEAFE),

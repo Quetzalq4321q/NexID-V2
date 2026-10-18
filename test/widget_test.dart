@@ -100,7 +100,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('settings_category_appInfo')));
     await tester.pumpAndSettle();
-    expect(find.textContaining('v0.0.9'), findsOneWidget);
+    expect(find.textContaining('v0.0.10'), findsOneWidget);
   });
 
   testWidgets('NexID adaptabilidad en pantalla estrecha extrema (320px)', (WidgetTester tester) async {

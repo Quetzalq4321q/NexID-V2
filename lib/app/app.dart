@@ -11,6 +11,7 @@ import '../features/reports/presentation/controllers/reports_controller.dart';
 import '../features/session/data/session_repository.dart';
 import '../features/session/presentation/controllers/session_controller.dart';
 import '../features/session/presentation/pages/login_page.dart';
+import '../features/session/presentation/pages/startup_splash_screen.dart';
 import '../features/settings/presentation/controllers/settings_controller.dart';
 import '../features/students/data/students_repository.dart';
 import '../features/students/presentation/controllers/students_controller.dart';
@@ -25,13 +26,16 @@ import 'app_theme.dart';
 /// Composicion raiz de la aplicacion NexID con gestion reactiva de temas,
 /// accesibilidad WCAG 2.2 y observador de ciclo de vida/memoria (Prioridad 0).
 class NexIdApp extends StatefulWidget {
-  const NexIdApp({super.key});
+  const NexIdApp({super.key, this.skipSplash = false});
+
+  final bool skipSplash;
 
   @override
   State<NexIdApp> createState() => _NexIdAppState();
 }
 
 class _NexIdAppState extends State<NexIdApp> with WidgetsBindingObserver {
+  late bool _splashCompleted;
   late final SessionRepository _sessionRepository;
   late final PlacesRepository _placesRepository;
   late final ReadingRepository _readingRepository;
@@ -54,6 +58,7 @@ class _NexIdAppState extends State<NexIdApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    _splashCompleted = widget.skipSplash;
     WidgetsBinding.instance.addObserver(this);
     _sessionRepository = SessionRepository();
     _placesRepository = PlacesRepository();
@@ -147,14 +152,29 @@ class _NexIdAppState extends State<NexIdApp> with WidgetsBindingObserver {
                 child: child ?? const SizedBox.shrink(),
               );
             },
-            home: ListenableBuilder(
-              listenable: _sessionController,
-              builder: (BuildContext context, _) {
-                if (!_sessionController.isAuthenticated) {
-                  return LoginPage(controller: _sessionController);
-                }
-                return const AppShell();
-              },
+            home: AnimatedSwitcher(
+              duration: reduceMotion
+                  ? Duration.zero
+                  : const Duration(milliseconds: 250),
+              child: !_splashCompleted
+                  ? StartupSplashScreen(
+                      key: const ValueKey('startup_splash'),
+                      onInitializationComplete: () {
+                        if (mounted) {
+                          setState(() => _splashCompleted = true);
+                        }
+                      },
+                    )
+                  : ListenableBuilder(
+                      key: const ValueKey('main_shell_builder'),
+                      listenable: _sessionController,
+                      builder: (BuildContext context, _) {
+                        if (!_sessionController.isAuthenticated) {
+                          return LoginPage(controller: _sessionController);
+                        }
+                        return const AppShell();
+                      },
+                    ),
             ),
           );
         },
